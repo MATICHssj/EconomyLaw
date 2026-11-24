@@ -137,5 +137,6 @@ export function safeToSpendPerDay(params: {
 }): { perDayCents: number; days: number; freeCents: number } {
   const days = params.nextPayday ? Math.max(1, daysBetween(params.today, params.nextPayday)) : 15;
   const free = params.availableCents - params.committedCents;
-  return { perDayCents: Math.max(0, Math.floor(free / days)), days, freeCents: free };
+  // Redondeado a pesos enteros: es una guía, no un cálculo al centavo.
+  return { perDayCents: Math.max(0, Math.floor(free / days / 100) * 100), days, freeCents: free };
 }
