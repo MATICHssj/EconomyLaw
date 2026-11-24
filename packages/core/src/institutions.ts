@@ -13,7 +13,7 @@ export interface Institution {
 
 /** Bancos, fintechs y monederos más usados en México. */
 export const INSTITUTIONS: Institution[] = [
-  { id: 'cash', name: 'Efectivo', aliases: ['efectivo', 'cash', 'cartera', 'billetera', 'en mano', 'feria'], color: '#16a34a', defaultType: 'cash', kind: 'cash' },
+  { id: 'cash', name: 'Efectivo', aliases: ['efectivo', 'cash', 'cartera', 'billetera'], color: '#16a34a', defaultType: 'cash', kind: 'cash' },
   { id: 'bbva', name: 'BBVA', aliases: ['bbva', 'bancomer', 'bbva bancomer'], color: '#072146', defaultType: 'debit', kind: 'bank' },
   { id: 'banamex', name: 'Banamex', aliases: ['banamex', 'citibanamex', 'citi'], color: '#056dae', defaultType: 'debit', kind: 'bank' },
   { id: 'santander', name: 'Santander', aliases: ['santander'], color: '#ec0000', defaultType: 'debit', kind: 'bank' },
@@ -22,7 +22,7 @@ export const INSTITUTIONS: Institution[] = [
   { id: 'scotiabank', name: 'Scotiabank', aliases: ['scotiabank', 'scotia'], color: '#ec111a', defaultType: 'debit', kind: 'bank' },
   { id: 'inbursa', name: 'Inbursa', aliases: ['inbursa'], color: '#003b71', defaultType: 'debit', kind: 'bank' },
   { id: 'azteca', name: 'Banco Azteca', aliases: ['azteca', 'banco azteca', 'elektra'], color: '#0d7a3b', defaultType: 'debit', kind: 'bank' },
-  { id: 'bancoppel', name: 'BanCoppel', aliases: ['bancoppel', 'coppel'], color: '#ffd200', defaultType: 'debit', kind: 'bank' },
+  { id: 'bancoppel', name: 'BanCoppel', aliases: ['bancoppel'], color: '#ffd200', defaultType: 'debit', kind: 'bank' },
   { id: 'afirme', name: 'Afirme', aliases: ['afirme'], color: '#00a14b', defaultType: 'debit', kind: 'bank' },
   { id: 'banregio', name: 'Banregio', aliases: ['banregio'], color: '#ff6b00', defaultType: 'debit', kind: 'bank' },
   { id: 'bancodelbienestar', name: 'Banco del Bienestar', aliases: ['bienestar', 'banco del bienestar'], color: '#9d2449', defaultType: 'debit', kind: 'bank' },
@@ -34,7 +34,7 @@ export const INSTITUTIONS: Institution[] = [
   { id: 'stori', name: 'Stori', aliases: ['stori'], color: '#00b0a6', defaultType: 'credit', kind: 'fintech' },
   { id: 'rappicard', name: 'RappiCard', aliases: ['rappicard', 'rappi card'], color: '#ff441f', defaultType: 'credit', kind: 'fintech' },
   { id: 'didicard', name: 'DiDi Card', aliases: ['didi card', 'didicard'], color: '#fc4c02', defaultType: 'credit', kind: 'fintech' },
-  { id: 'plata', name: 'Plata Card', aliases: ['plata', 'plata card'], color: '#999999', defaultType: 'credit', kind: 'fintech' },
+  { id: 'plata', name: 'Plata Card', aliases: ['plata card'], color: '#999999', defaultType: 'credit', kind: 'fintech' },
   { id: 'vexi', name: 'Vexi', aliases: ['vexi'], color: '#ff6a13', defaultType: 'credit', kind: 'fintech' },
   { id: 'cetesdirecto', name: 'Cetesdirecto', aliases: ['cetesdirecto', 'cetes directo'], color: '#1f4e79', defaultType: 'investment', kind: 'fintech' },
   { id: 'gbm', name: 'GBM', aliases: ['gbm', 'gbm+'], color: '#00205b', defaultType: 'investment', kind: 'fintech' },
