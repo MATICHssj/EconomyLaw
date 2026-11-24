@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+  - firebase
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - workerd
