@@ -22,9 +22,11 @@ De la beta con amigos a una app en la tienda que deja dinero. Fechas aproximadas
 3. **Firebase** (inicio de sesión y respaldo en la nube) siguiendo `docs/GUIA-DUENO.md`; agrega `matichssj.github.io` como dominio autorizado.
 4. Poner tu correo y/o WhatsApp de soporte en `apps/web/src/app.public.json` (`feedbackEmail`, `feedbackWhatsApp`) para recibir comentarios.
 
-**Me toca a mí** (ya programado)
-- Restaurar respaldos, evitar gastos duplicados (aviso del banco + captura a mano), pruebas automáticas de pantallas.
-- Registro de errores para saber si a alguien se le cierra la app.
+**Me toca a mí** (hecho el 25 nov)
+- ✅ Restaurar respaldos y aviso de respaldo para quien usa la app sin cuenta.
+- ✅ “¿Es el mismo gasto?” cuando el banco avisa de algo que ya anotaste.
+- ✅ Registro de errores (en el teléfono y, con cuenta, en Firestore) y pantalla amable si algo falla.
+- ✅ Pruebas automáticas de la app web y un recorrido en celular simulado en cada cambio.
 
 **Listo cuando:** tú y 2–3 personas la usan una semana sin errores graves y se actualizan encima sin perder nada.
 
