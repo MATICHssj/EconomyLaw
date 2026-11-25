@@ -13,6 +13,9 @@
     "cap:sync": "cap sync android"
   },
   "dependencies": {
+    "@capacitor/app": "^7.1.2",
+    "@capacitor/core": "^7.6.10",
+    "@capacitor/local-notifications": "^7.0.7",
     "@fina/bank-profiles": "workspace:*",
     "@fina/core": "workspace:*",
     "@fina/parser": "workspace:*",
@@ -36,6 +39,8 @@
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/cli": "^7.6.10",
     "@tailwindcss/vite": "^4.3.5",
     "@types/react": "^19.3.1",
     "@types/react-dom": "^19.3.0",
