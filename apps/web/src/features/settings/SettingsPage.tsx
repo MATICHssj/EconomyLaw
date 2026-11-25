@@ -12,6 +12,7 @@ import { useData } from '@/stores/data';
 import { useSession } from '@/stores/session';
 import { toast } from '@/stores/ui';
 import { Button, Card, CardTitle, Chip, Input, MoneyInput, PageHeader, Segmented, Sheet, Toggle, confirmDialog, cx } from '@/components/ui';
+import { BankNotificationsCard } from './BankNotificationsCard';
 
 export default function SettingsPage() {
   const profile = useData((s) => s.profile);
@@ -166,6 +167,8 @@ export default function SettingsPage() {
           <Input label="hasta" type="time" value={settings.quietHours.to} onChange={(e) => void updateSettings({ quietHours: { ...settings.quietHours, to: e.target.value } })} />
         </div>
       </Card>
+
+      <BankNotificationsCard />
 
       <Card className="space-y-2">
         <CardTitle>Seguridad y privacidad</CardTitle>

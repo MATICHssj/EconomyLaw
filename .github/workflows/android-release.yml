@@ -1,0 +1,69 @@
+name: APK de Android
+
+# Compila el APK con Capacitor y lo publica en GitHub Releases como "fina.apk"
+# (enlace fijo: /releases/latest/download/fina.apk).
+# Para firmar con TU llave (necesario para que las actualizaciones se instalen encima):
+#   secrets ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
+# Sin ellos se genera un APK de prueba (debug).
+on:
+  push:
+    branches: [main]
+    paths: ['apps/web/**', 'packages/**', '.github/workflows/android-release.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+      VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+      VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+      VITE_FIREBASE_STORAGE_BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+      VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+      VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+      VITE_WORKER_URL: ${{ vars.VITE_WORKER_URL }}
+      VITE_WHATSAPP_NUMBER: ${{ vars.VITE_WHATSAPP_NUMBER }}
+      HAS_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @fina/web build
+      - run: npx cap sync android
+        working-directory: apps/web
+      - name: Llave de firma
+        if: env.HAS_KEY == 'true'
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/fina.keystore"
+      - name: Compilar APK
+        working-directory: apps/web/android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ env.HAS_KEY == 'true' && format('{0}/fina.keystore', runner.temp) || '' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          if [ "$HAS_KEY" = "true" ]; then ./gradlew assembleRelease --no-daemon; cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/fina.apk"
+          else ./gradlew assembleDebug --no-daemon; cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/fina.apk"; fi
+      - name: Publicar en Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.${{ github.run_number }}
+          name: Fina 0.1.${{ github.run_number }}
+          make_latest: true
+          body: |
+            📲 Descarga **fina.apk** e instálalo en tu Android.
+            ${{ env.HAS_KEY != 'true' && '⚠️ Versión de prueba (sin firma propia). Si ya tenías una versión, desinstálala primero.' || '' }}
+          files: ${{ runner.temp }}/fina.apk

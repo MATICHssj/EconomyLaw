@@ -11,7 +11,7 @@ export function toCsv(rows: Array<Array<string | number | boolean | null | undef
 
 /** Lee CSV detectando el separador (coma, punto y coma o tabulador). */
 export function parseCsv(text: string, separator?: string): string[][] {
-  const clean = text.replace(/^﻿/, '');
+  const clean = text.replace(/^\uFEFF/, '');
   const sep = separator ?? detectSeparator(clean);
   const rows: string[][] = [];
   let row: string[] = [];

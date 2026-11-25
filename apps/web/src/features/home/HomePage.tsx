@@ -13,6 +13,8 @@ import { SpaceSwitcher } from '@/features/household/SpaceSwitcher';
 import { useMissions } from '@/features/academy/missions';
 import { CoupleCard } from '@/features/household/CoupleCard';
 import { useInsights } from './insights';
+import { useEffect } from 'react';
+import { scheduleLocalReminders } from '@/lib/notifications';
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -35,6 +37,10 @@ export function HomePage() {
   const insights = useInsights(f);
   const name = (profile?.name || user?.name || '').split(' ')[0];
   const organized = isFeatureVisible(level, 'budgets');
+  // Android: reprograma los avisos locales (pagos de tarjeta, recurrentes) sin depender del servidor.
+  useEffect(() => {
+    void scheduleLocalReminders(f, settings.notifications.cardDueDaysBefore).catch(() => {});
+  }, [f, settings.notifications.cardDueDaysBefore]);
 
   const recent = [...txs].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
   const top = topEntries(f.monthSummary.byCategory, 5);

@@ -124,7 +124,7 @@ function cleanMerchant(m: string): string {
  * Devuelve null si no parece una compra / ingreso.
  */
 export function parseBankNotice(input: { from?: string; subject?: string; text: string }): BankNotice | null {
-  const text = `${input.subject ?? ''}\n${input.text}`.replace(/ /g, ' ');
+  const text = `${input.subject ?? ''}\n${input.text}`.replace(/\u00a0/g, ' ');
   const bankId = detectBank(input.from ?? '', text);
   const template = EMAIL_TEMPLATES.find((t) => t.bankId === bankId);
   const candidates = [...(template?.patterns ?? []), ...GENERIC];

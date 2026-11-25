@@ -5,6 +5,8 @@ import { useData } from '@/stores/data';
 import { useUI } from '@/stores/ui';
 import { useThemeEffect } from '@/lib/theme';
 import { processDueRecurring, refreshFxRates } from '@/lib/actions';
+import { importPendingBankNotifications, listenBankNotifications } from '@/lib/bankNotifications';
+import { isCapacitor } from '@/lib/pwa';
 import { Layout } from '@/components/Layout';
 import { ConfirmHost, Toasts } from '@/components/ui';
 import { Splash } from '@/components/Splash';
@@ -128,6 +130,17 @@ export function App() {
     if (!ready) return;
     void refreshFxRates();
     void processDueRecurring();
+    if (!isCapacitor()) return;
+    // Android: movimientos de las notificaciones del banco y avisos locales.
+    void importPendingBankNotifications().catch(() => {});
+    let stop: (() => void) | undefined;
+    void listenBankNotifications().then((s) => (stop = s));
+    const onResume = () => document.visibilityState === 'visible' && void importPendingBankNotifications().catch(() => {});
+    document.addEventListener('visibilitychange', onResume);
+    return () => {
+      stop?.();
+      document.removeEventListener('visibilitychange', onResume);
+    };
   }, [ready]);
 
   let content;
