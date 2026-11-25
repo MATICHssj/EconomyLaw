@@ -34,7 +34,15 @@ export function CaptureSheet() {
   }, [open]);
 
   // Sugerencias: tus últimas descripciones distintas (para repetir con un toque).
-  const recent = Array.from(new Set([...txs].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 40).filter((t) => t.kind === 'expense').map((t) => t.description.toLowerCase()))).slice(0, 5);
+  const recent = Array.from(
+    new Set(
+      [...txs]
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .slice(0, 40)
+        .filter((t) => t.kind === 'expense')
+        .map((t) => t.description.toLowerCase()),
+    ),
+  ).slice(0, 5);
 
   async function onSave() {
     const ok = await submit({ space });
@@ -45,7 +53,10 @@ export function CaptureSheet() {
     setScanning(true);
     try {
       const r = await scanReceipt(file);
-      if (r.total) setText(`${r.merchant ?? 'ticket'} ${r.total}${r.date ? ` ${r.date.split('-').reverse().slice(0, 2).join('/')}` : ''}`);
+      if (r.total)
+        setText(
+          `${r.merchant ?? 'ticket'} ${r.total}${r.date ? ` ${r.date.split('-').reverse().slice(0, 2).join('/')}` : ''}`,
+        );
       else toast('No pude leer el total del ticket. Escríbelo tú 🙏', 'error');
     } catch (e) {
       toast((e as Error).message || 'No se pudo leer el ticket', 'error');
@@ -73,7 +84,12 @@ export function CaptureSheet() {
         }}
         className="space-y-3"
       >
-        <div className={cx('flex items-center gap-1 rounded-2xl border-2 bg-surface px-2 transition', text ? 'border-accent-500' : 'border-line')}>
+        <div
+          className={cx(
+            'flex items-center gap-1 rounded-2xl border-2 bg-surface px-2 transition',
+            text ? 'border-accent-500' : 'border-line',
+          )}
+        >
           <input
             ref={inputRef}
             value={text}
@@ -86,16 +102,35 @@ export function CaptureSheet() {
             className="min-w-0 flex-1 bg-transparent px-2 py-3.5 text-lg text-ink outline-none placeholder:text-muted/60 focus-visible:outline-none"
           />
           {speech.supported && (
-            <IconButton label={speech.listening ? 'Detener dictado' : 'Dictar por voz'} onClick={speech.listening ? speech.stop : speech.start} className={speech.listening ? 'animate-pulse bg-rose-50 text-rose-600' : ''}>
+            <IconButton
+              label={speech.listening ? 'Detener dictado' : 'Dictar por voz'}
+              onClick={speech.listening ? speech.stop : speech.start}
+              className={speech.listening ? 'animate-pulse bg-rose-50 text-rose-600' : ''}
+            >
               {speech.listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
             </IconButton>
           )}
           {hasWorker() && (
             <>
-              <IconButton label="Foto del ticket" onClick={() => fileRef.current?.click()} disabled={scanning}>
-                {scanning ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
+              <IconButton
+                label="Foto del ticket"
+                onClick={() => fileRef.current?.click()}
+                disabled={scanning}
+              >
+                {scanning ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Camera className="h-5 w-5" />
+                )}
               </IconButton>
-              <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => e.target.files?.[0] && void onPhoto(e.target.files[0])} />
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                hidden
+                onChange={(e) => e.target.files?.[0] && void onPhoto(e.target.files[0])}
+              />
             </>
           )}
         </div>
@@ -120,17 +155,25 @@ export function CaptureSheet() {
             ))}
           </div>
         )}
-        {problems.map((p, i) => !p.ok && (
-          <p key={i} className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-            {p.message}
-          </p>
-        ))}
+        {problems.map(
+          (p, i) =>
+            !p.ok && (
+              <p
+                key={i}
+                className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200"
+              >
+                {p.message}
+              </p>
+            ),
+        )}
 
         {!text && (
           <div className="space-y-3">
             {recent.length > 0 && (
               <div>
-                <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted uppercase">Recientes</p>
+                <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted uppercase">
+                  Recientes
+                </p>
                 <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
                   {recent.map((r) => (
                     <Chip key={r} onClick={() => setText(`${r} `)}>
@@ -141,7 +184,9 @@ export function CaptureSheet() {
               </div>
             )}
             <div>
-              <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted uppercase">Prueba escribir</p>
+              <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted uppercase">
+                Prueba escribir
+              </p>
               <div className="flex flex-wrap gap-2">
                 {EXAMPLES.slice(0, 8).map((ex) => (
                   <Chip key={ex} onClick={() => setText(ex)}>
@@ -151,7 +196,8 @@ export function CaptureSheet() {
               </div>
             </div>
             <Tip>
-              Escribe como hablas: <b>qué + cuánto</b>. Puedes agregar la cuenta (<i>con nu</i>), la fecha (<i>ayer</i>), dividir (<i>entre 3</i>) o meses sin intereses (<i>a 12 msi</i>).
+              Escribe como hablas: <b>qué + cuánto</b>. Puedes agregar la cuenta (<i>con nu</i>), la
+              fecha (<i>ayer</i>), dividir (<i>entre 3</i>) o meses sin intereses (<i>a 12 msi</i>).
             </Tip>
           </div>
         )}

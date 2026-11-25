@@ -14,7 +14,12 @@ import {
   type Auth,
   type User,
 } from 'firebase/auth';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, type Firestore } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  type Firestore,
+} from 'firebase/firestore';
 import { config } from '@/config';
 
 let app: FirebaseApp | null = null;
@@ -44,7 +49,8 @@ export async function signInGoogle(): Promise<void> {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
   const { auth } = firebase();
-  const isStandaloneIOS = /iphone|ipad/i.test(navigator.userAgent) && matchMedia('(display-mode: standalone)').matches;
+  const isStandaloneIOS =
+    /iphone|ipad/i.test(navigator.userAgent) && matchMedia('(display-mode: standalone)').matches;
   if (isStandaloneIOS) await signInWithRedirect(auth, provider);
   else await signInWithPopup(auth, provider);
 }
@@ -66,19 +72,42 @@ export async function resendVerification(): Promise<void> {
   if (u && !u.emailVerified) await sendEmailVerification(u);
 }
 
-const COMMON_PASSWORDS = ['12345678', '123456789', 'password', 'contraseña', 'contrasena', 'qwertyui', 'iloveyou', 'abcd1234', '11111111', 'mexico123', 'password1', '87654321', 'fina1234'];
+const COMMON_PASSWORDS = [
+  '12345678',
+  '123456789',
+  'password',
+  'contraseña',
+  'contrasena',
+  'qwertyui',
+  'iloveyou',
+  'abcd1234',
+  '11111111',
+  'mexico123',
+  'password1',
+  '87654321',
+  'fina1234',
+];
 
 /** Reglas de contraseña: 8+ caracteres, no común, y con variedad. Devuelve puntaje 0..4. */
 export function passwordStrength(pw: string): { score: number; ok: boolean; message: string } {
   if (pw.length < 8) return { score: 0, ok: false, message: 'Usa al menos 8 caracteres.' };
-  if (COMMON_PASSWORDS.includes(pw.toLowerCase())) return { score: 0, ok: false, message: 'Esa contraseña es muy común. Elige otra.' };
+  if (COMMON_PASSWORDS.includes(pw.toLowerCase()))
+    return { score: 0, ok: false, message: 'Esa contraseña es muy común. Elige otra.' };
   let score = 1;
   if (pw.length >= 12) score++;
   if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
   if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
   if (/^(.)\1+$/.test(pw)) score = 0;
   const ok = score >= 2;
-  return { score, ok, message: ok ? (score >= 3 ? 'Contraseña fuerte 💪' : 'Contraseña aceptable') : 'Combina mayúsculas, minúsculas, números o símbolos (o usa 12+ caracteres).' };
+  return {
+    score,
+    ok,
+    message: ok
+      ? score >= 3
+        ? 'Contraseña fuerte 💪'
+        : 'Contraseña aceptable'
+      : 'Combina mayúsculas, minúsculas, números o símbolos (o usa 12+ caracteres).',
+  };
 }
 
 export async function resetPassword(email: string): Promise<void> {
@@ -108,7 +137,8 @@ export function authErrorMessage(e: unknown): string {
     'auth/popup-closed-by-user': 'Cerraste la ventana antes de terminar.',
     'auth/network-request-failed': 'Sin conexión. Revisa tu internet.',
     'auth/too-many-requests': 'Demasiados intentos. Espera un momento.',
-    'auth/unauthorized-domain': 'Este dominio no está autorizado en Firebase (Authentication → Settings → Authorized domains).',
+    'auth/unauthorized-domain':
+      'Este dominio no está autorizado en Firebase (Authentication → Settings → Authorized domains).',
   };
   return map[code] ?? 'Algo salió mal. Intenta de nuevo.';
 }

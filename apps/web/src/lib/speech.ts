@@ -8,13 +8,20 @@ type SpeechRecognitionCtor = new () => {
   start(): void;
   stop(): void;
   abort(): void;
-  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void) | null;
+  onresult:
+    | ((e: {
+        results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }>;
+      }) => void)
+    | null;
   onend: (() => void) | null;
   onerror: ((e: { error: string }) => void) | null;
 };
 
 function getCtor(): SpeechRecognitionCtor | null {
-  const w = window as unknown as { SpeechRecognition?: SpeechRecognitionCtor; webkitSpeechRecognition?: SpeechRecognitionCtor };
+  const w = window as unknown as {
+    SpeechRecognition?: SpeechRecognitionCtor;
+    webkitSpeechRecognition?: SpeechRecognitionCtor;
+  };
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
@@ -51,7 +58,11 @@ export function useSpeech(onText: (text: string, final: boolean) => void) {
       cb.current(text.trim(), final);
     };
     rec.onerror = (e) => {
-      setError(e.error === 'not-allowed' ? 'Permite el micrófono para dictar.' : 'No te escuché bien. Intenta otra vez.');
+      setError(
+        e.error === 'not-allowed'
+          ? 'Permite el micrófono para dictar.'
+          : 'No te escuché bien. Intenta otra vez.',
+      );
       setListening(false);
     };
     rec.onend = () => setListening(false);

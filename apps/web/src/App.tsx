@@ -135,7 +135,9 @@ export function App() {
     void importPendingBankNotifications().catch(() => {});
     let stop: (() => void) | undefined;
     void listenBankNotifications().then((s) => (stop = s));
-    const onResume = () => document.visibilityState === 'visible' && void importPendingBankNotifications().catch(() => {});
+    const onResume = () =>
+      document.visibilityState === 'visible' &&
+      void importPendingBankNotifications().catch(() => {});
     document.addEventListener('visibilitychange', onResume);
     return () => {
       stop?.();
@@ -149,8 +151,7 @@ export function App() {
   else if (!ready) content = <Splash />;
   else if (!profile?.onboarded) content = <Onboarding />;
   else if (locked) content = <LockScreen />;
-  else
-    content = <RouterProvider router={router} />;
+  else content = <RouterProvider router={router} />;
 
   return (
     <>

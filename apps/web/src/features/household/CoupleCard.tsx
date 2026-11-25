@@ -13,13 +13,26 @@ export function CoupleCard() {
   const balance = useMemo(() => {
     if (!household) return null;
     const from = monthStart(monthKey(todayISO()));
-    return coupleBalance(household, txs.filter((t) => t.space === 'household' && t.date >= from));
+    return coupleBalance(
+      household,
+      txs.filter((t) => t.space === 'household' && t.date >= from),
+    );
   }, [household, txs]);
   if (!household || !balance || balance.totalSharedCents === 0) return null;
-  const names = Object.fromEntries(balance.members.map((m) => [m.uid, m.uid === uid ? 'Tú' : m.name]));
+  const names = Object.fromEntries(
+    balance.members.map((m) => [m.uid, m.uid === uid ? 'Tú' : m.name]),
+  );
   return (
     <Card>
-      <CardTitle action={<Link to="/hogar" className="text-sm font-semibold text-accent-600">Ver</Link>}>🏠 {household.name} este mes</CardTitle>
+      <CardTitle
+        action={
+          <Link to="/hogar" className="text-sm font-semibold text-accent-600">
+            Ver
+          </Link>
+        }
+      >
+        🏠 {household.name} este mes
+      </CardTitle>
       <div className="grid grid-cols-2 gap-2">
         {balance.members.map((m) => (
           <div key={m.uid} className="rounded-xl bg-surface-2 p-2.5">
@@ -30,7 +43,9 @@ export function CoupleCard() {
       </div>
       {balance.settlement ? (
         <p className="mt-3 text-sm text-ink">
-          Para quedar a mano: <b>{names[balance.settlement.fromUid]}</b> → <b>{names[balance.settlement.toUid]}</b> <Money cents={balance.settlement.amountCents} className="font-bold" />
+          Para quedar a mano: <b>{names[balance.settlement.fromUid]}</b> →{' '}
+          <b>{names[balance.settlement.toUid]}</b>{' '}
+          <Money cents={balance.settlement.amountCents} className="font-bold" />
         </p>
       ) : (
         <p className="mt-3 text-sm text-income">¡Están a mano! 🤝</p>

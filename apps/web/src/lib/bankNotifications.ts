@@ -20,7 +20,10 @@ interface BankNotificationsPlugin {
   setAllowedApps(o: { packages: string[] }): Promise<void>;
   getAllowedApps(): Promise<{ packages: string[] }>;
   takePending(): Promise<{ items: CapturedNotification[] }>;
-  addListener(event: 'bankNotification', cb: (n: CapturedNotification) => void): Promise<PluginListenerHandle>;
+  addListener(
+    event: 'bankNotification',
+    cb: (n: CapturedNotification) => void,
+  ): Promise<PluginListenerHandle>;
 }
 
 const Bank = registerPlugin<BankNotificationsPlugin>('BankNotifications');
@@ -42,7 +45,8 @@ export const BANK_APPS: Array<{ package: string; name: string; institution: stri
   { package: 'mx.stori.app', name: 'Stori', institution: 'stori' },
 ];
 
-export const bankNotificationsAvailable = () => isCapacitor() && /android/i.test(navigator.userAgent);
+export const bankNotificationsAvailable = () =>
+  isCapacitor() && /android/i.test(navigator.userAgent);
 
 export const BankNotifications = Bank;
 
@@ -59,9 +63,15 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
   const changes = [];
   for (const it of items) {
     const app = BANK_APPS.find((b) => b.package === it.package);
-    const notice = parseBankNotice({ from: app?.institution ?? '', subject: it.title, text: it.text });
+    const notice = parseBankNotice({
+      from: app?.institution ?? '',
+      subject: it.title,
+      text: it.text,
+    });
     if (!notice || (notice.kind !== 'expense' && notice.kind !== 'income')) continue;
-    const acc = accounts.find((a) => !a.archived && a.institution === (app?.institution ?? notice.bankId));
+    const acc = accounts.find(
+      (a) => !a.archived && a.institution === (app?.institution ?? notice.bankId),
+    );
     const { amountMxnCents } = convertToMxn(notice.amountCents, notice.currency);
     const tx: Transaction = {
       id: newId(),
@@ -86,11 +96,19 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
       dedupeHash: it.id,
     };
     if (getDocs('transactions').some((t) => t.dedupeHash === it.id)) continue;
-    changes.push({ space: 'personal' as const, col: 'transactions' as const, before: null, after: tx });
+    changes.push({
+      space: 'personal' as const,
+      col: 'transactions' as const,
+      before: null,
+      after: tx,
+    });
   }
   if (changes.length) {
     await applyChanges(changes);
-    toast(`💳 ${changes.length} ${changes.length === 1 ? 'movimiento' : 'movimientos'} del banco registrados`, 'success');
+    toast(
+      `💳 ${changes.length} ${changes.length === 1 ? 'movimiento' : 'movimientos'} del banco registrados`,
+      'success',
+    );
   }
   return changes.length;
 }

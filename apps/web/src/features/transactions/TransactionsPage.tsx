@@ -1,9 +1,25 @@
 import { useMemo, useState } from 'react';
 import { Download, Filter, Search, X } from 'lucide-react';
-import { formatRelativeDay, isSpending, normalizeText, spendingAmount, type Transaction } from '@fina/core';
+import {
+  formatRelativeDay,
+  isSpending,
+  normalizeText,
+  spendingAmount,
+  type Transaction,
+} from '@fina/core';
 import { useToday } from '@/lib/finance';
 import { useData, useDocs, type WithSpace } from '@/stores/data';
-import { Card, Chip, EmptyState, IconButton, LinkButton, Money, PageHeader, Select, Button } from '@/components/ui';
+import {
+  Card,
+  Chip,
+  EmptyState,
+  IconButton,
+  LinkButton,
+  Money,
+  PageHeader,
+  Select,
+  Button,
+} from '@/components/ui';
 import { useUI } from '@/stores/ui';
 import { TransactionRow } from './TransactionRow';
 import { exportTransactionsCsv } from '@/lib/exporter';
@@ -40,7 +56,10 @@ export function TransactionsPage() {
         if (from && t.date < from) return false;
         if (to && t.date > to) return false;
         if (tagQ) return t.tags.some((tg) => tg.includes(tagQ));
-        if (nq) return normalizeText(`${t.description} ${t.merchant ?? ''} ${t.note ?? ''} ${t.tags.join(' ')} ${(t.amountCents / 100).toString()}`).includes(nq);
+        if (nq)
+          return normalizeText(
+            `${t.description} ${t.merchant ?? ''} ${t.note ?? ''} ${t.tags.join(' ')} ${(t.amountCents / 100).toString()}`,
+          ).includes(nq);
         return true;
       })
       .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
@@ -57,7 +76,9 @@ export function TransactionsPage() {
   }, [filtered, limit]);
 
   const totalSpent = filtered.filter(isSpending).reduce((s, t) => s + spendingAmount(t), 0);
-  const totalIncome = filtered.filter((t) => t.kind === 'income').reduce((s, t) => s + t.amountMxnCents, 0);
+  const totalIncome = filtered
+    .filter((t) => t.kind === 'income')
+    .reduce((s, t) => s + t.amountMxnCents, 0);
   const reviewCount = txs.filter((t) => t.status === 'review' || t.categoryId === 'review').length;
   const activeFilters = [accountId, categoryId, from, to].filter(Boolean).length;
 
@@ -78,14 +99,24 @@ export function TransactionsPage() {
         <div className="flex items-center gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-line bg-surface px-3">
             <Search className="h-4 w-4 text-muted" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar (tacos, oxxo, #viaje, 120…)" aria-label="Buscar movimientos" className="min-w-0 flex-1 bg-transparent py-2.5 text-ink outline-none" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar (tacos, oxxo, #viaje, 120…)"
+              aria-label="Buscar movimientos"
+              className="min-w-0 flex-1 bg-transparent py-2.5 text-ink outline-none"
+            />
             {q && (
               <button type="button" aria-label="Borrar búsqueda" onClick={() => setQ('')}>
                 <X className="h-4 w-4 text-muted" />
               </button>
             )}
           </div>
-          <IconButton label="Filtros" onClick={() => setShowFilters((v) => !v)} className={activeFilters ? 'bg-accent-50 text-accent-700' : ''}>
+          <IconButton
+            label="Filtros"
+            onClick={() => setShowFilters((v) => !v)}
+            className={activeFilters ? 'bg-accent-50 text-accent-700' : ''}
+          >
             <Filter className="h-5 w-5" />
           </IconButton>
         </div>
@@ -106,18 +137,56 @@ export function TransactionsPage() {
         </div>
         {showFilters && (
           <Card className="grid grid-cols-2 gap-2 p-3">
-            <Select aria-label="Cuenta" value={accountId} onChange={(e) => setAccountId(e.target.value)} options={[{ value: '', label: 'Todas las cuentas' }, ...accounts.map((a) => ({ value: a.id, label: a.name }))]} />
-            <Select aria-label="Categoría" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} options={[{ value: '', label: 'Todas las categorías' }, ...categories.filter((c) => !c.archived).map((c) => ({ value: c.id, label: `${c.emoji} ${c.name}` }))]} />
+            <Select
+              aria-label="Cuenta"
+              value={accountId}
+              onChange={(e) => setAccountId(e.target.value)}
+              options={[
+                { value: '', label: 'Todas las cuentas' },
+                ...accounts.map((a) => ({ value: a.id, label: a.name })),
+              ]}
+            />
+            <Select
+              aria-label="Categoría"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              options={[
+                { value: '', label: 'Todas las categorías' },
+                ...categories
+                  .filter((c) => !c.archived)
+                  .map((c) => ({ value: c.id, label: `${c.emoji} ${c.name}` })),
+              ]}
+            />
             <label className="text-xs text-muted">
               Desde
-              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-ink" />
+              <input
+                type="date"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-ink"
+              />
             </label>
             <label className="text-xs text-muted">
               Hasta
-              <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-ink" />
+              <input
+                type="date"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-ink"
+              />
             </label>
             {activeFilters > 0 && (
-              <Button variant="ghost" size="sm" className="col-span-2" onClick={() => { setAccountId(''); setCategoryId(''); setFrom(''); setTo(''); }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="col-span-2"
+                onClick={() => {
+                  setAccountId('');
+                  setCategoryId('');
+                  setFrom('');
+                  setTo('');
+                }}
+              >
                 Quitar filtros
               </Button>
             )}
@@ -125,7 +194,8 @@ export function TransactionsPage() {
         )}
         {(q || activeFilters > 0 || kind !== 'all') && filtered.length > 0 && (
           <p className="text-sm text-muted">
-            {filtered.length} movimientos · gastos <Money cents={totalSpent} className="font-semibold text-ink" />
+            {filtered.length} movimientos · gastos{' '}
+            <Money cents={totalSpent} className="font-semibold text-ink" />
             {totalIncome > 0 && (
               <>
                 {' '}
@@ -138,9 +208,18 @@ export function TransactionsPage() {
 
       {filtered.length === 0 ? (
         txs.length === 0 ? (
-          <EmptyState emoji="✍️" title="Aún no hay movimientos" text='Toca el botón ➕ y escribe algo como "galleta 30". Así de fácil.' action={<Button onClick={() => openCapture()}>Anotar mi primer gasto</Button>} />
+          <EmptyState
+            emoji="✍️"
+            title="Aún no hay movimientos"
+            text='Toca el botón ➕ y escribe algo como "galleta 30". Así de fácil.'
+            action={<Button onClick={() => openCapture()}>Anotar mi primer gasto</Button>}
+          />
         ) : (
-          <EmptyState emoji="🔍" title="Sin resultados" text="Prueba con otra palabra o quita los filtros." />
+          <EmptyState
+            emoji="🔍"
+            title="Sin resultados"
+            text="Prueba con otra palabra o quita los filtros."
+          />
         )
       ) : (
         <div className="mt-2 space-y-4">
@@ -149,8 +228,12 @@ export function TransactionsPage() {
             return (
               <section key={date}>
                 <div className="mb-1 flex items-center justify-between px-2">
-                  <h2 className="text-sm font-semibold text-muted">{formatRelativeDay(date, today)}</h2>
-                  {daySpent > 0 && <Money cents={daySpent} kind="expense" className="text-sm text-muted" />}
+                  <h2 className="text-sm font-semibold text-muted">
+                    {formatRelativeDay(date, today)}
+                  </h2>
+                  {daySpent > 0 && (
+                    <Money cents={daySpent} kind="expense" className="text-sm text-muted" />
+                  )}
                 </div>
                 <Card className="p-1">
                   {items.map((t) => (
@@ -169,7 +252,11 @@ export function TransactionsPage() {
       )}
       {txs.length > 0 && (
         <p className="mt-6 text-center text-xs text-muted">
-          Tip: en el celular desliza un movimiento a la izquierda para editarlo o borrarlo. ¿Tienes un estado de cuenta? <LinkButton to="/importar" variant="ghost" size="sm">Impórtalo</LinkButton>
+          Tip: en el celular desliza un movimiento a la izquierda para editarlo o borrarlo. ¿Tienes
+          un estado de cuenta?{' '}
+          <LinkButton to="/importar" variant="ghost" size="sm">
+            Impórtalo
+          </LinkButton>
         </p>
       )}
     </div>

@@ -22,16 +22,28 @@ export async function enablePush(): Promise<PushResult> {
   if (!('Notification' in window) || !('serviceWorker' in navigator)) return 'unsupported';
   const perm = await Notification.requestPermission();
   if (perm !== 'granted') return 'denied';
-  if (!hasCloud() || !config.vapidKey || useSession.getState().mode !== 'firebase') return 'needs-setup';
+  if (!hasCloud() || !config.vapidKey || useSession.getState().mode !== 'firebase')
+    return 'needs-setup';
   try {
     const { getMessaging, getToken, isSupported } = await import('firebase/messaging');
     if (!(await isSupported())) return 'unsupported';
     const { firebase } = await import('./firebase');
     const reg = await navigator.serviceWorker.ready;
-    const token = await getToken(getMessaging(firebase().app), { vapidKey: config.vapidKey, serviceWorkerRegistration: reg });
+    const token = await getToken(getMessaging(firebase().app), {
+      vapidKey: config.vapidKey,
+      serviceWorkerRegistration: reg,
+    });
     const { doc, setDoc } = await import('firebase/firestore');
     const uid = useSession.getState().user!.uid;
-    await setDoc(doc(firebase().db, 'users', uid, 'devices', token), { platform: /iphone|ipad/i.test(navigator.userAgent) ? 'ios' : /android/i.test(navigator.userAgent) ? 'android' : 'web', createdAt: new Date().toISOString(), tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
+    await setDoc(doc(firebase().db, 'users', uid, 'devices', token), {
+      platform: /iphone|ipad/i.test(navigator.userAgent)
+        ? 'ios'
+        : /android/i.test(navigator.userAgent)
+          ? 'android'
+          : 'web',
+      createdAt: new Date().toISOString(),
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
     return 'granted';
   } catch (e) {
     console.error(e);
@@ -44,13 +56,19 @@ export function pushStatus(): NotificationPermission | 'unsupported' {
 }
 
 /** Android: programa avisos locales para pagos de tarjeta y recurrentes de los próximos 30 días. */
-export async function scheduleLocalReminders(f: ReturnType<typeof useFinance>, daysBefore = 2): Promise<void> {
+export async function scheduleLocalReminders(
+  f: ReturnType<typeof useFinance>,
+  daysBefore = 2,
+): Promise<void> {
   if (!isCapacitor()) return;
   const { LocalNotifications } = await import('@capacitor/local-notifications');
   const perm = await LocalNotifications.checkPermissions();
   if (perm.display !== 'granted') return;
   const pending = await LocalNotifications.getPending();
-  if (pending.notifications.length) await LocalNotifications.cancel({ notifications: pending.notifications.map((n) => ({ id: n.id })) });
+  if (pending.notifications.length)
+    await LocalNotifications.cancel({
+      notifications: pending.notifications.map((n) => ({ id: n.id })),
+    });
   const today = todayISO();
   const notifications = f.upcoming
     .filter((u) => u.direction === 'out' && u.amountCents > 0)

@@ -55,9 +55,19 @@ export function LockScreen() {
         <h1 className="text-xl font-bold text-ink">Ingresa tu PIN</h1>
         <p className="text-sm text-muted">Tus finanzas están protegidas</p>
       </div>
-      <div className={cx('flex gap-3', error && 'animate-pop')} aria-live="polite" aria-label={`${pin.length} dígitos`}>
+      <div
+        className={cx('flex gap-3', error && 'animate-pop')}
+        aria-live="polite"
+        aria-label={`${pin.length} dígitos`}
+      >
         {Array.from({ length: 6 }, (_, i) => (
-          <span key={i} className={cx('h-3.5 w-3.5 rounded-full transition', i < pin.length ? (error ? 'bg-rose-500' : 'bg-accent-600') : 'bg-line')} />
+          <span
+            key={i}
+            className={cx(
+              'h-3.5 w-3.5 rounded-full transition',
+              i < pin.length ? (error ? 'bg-rose-500' : 'bg-accent-600') : 'bg-line',
+            )}
+          />
         ))}
       </div>
       <div className="grid grid-cols-3 gap-4">
@@ -67,7 +77,10 @@ export function LockScreen() {
           </Key>
         ))}
         {hasBiometric() ? (
-          <Key label="Usar huella" onClick={() => void verifyBiometric().then((ok) => ok && unlock())}>
+          <Key
+            label="Usar huella"
+            onClick={() => void verifyBiometric().then((ok) => ok && unlock())}
+          >
             <Fingerprint className="h-7 w-7" />
           </Key>
         ) : (
@@ -82,9 +95,23 @@ export function LockScreen() {
   );
 }
 
-function Key({ children, onClick, label }: { children: React.ReactNode; onClick: () => void; label?: string }) {
+function Key({
+  children,
+  onClick,
+  label,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  label?: string;
+}) {
   return (
-    <button type="button" aria-label={label} onClick={onClick} className="flex h-18 w-18 items-center justify-center rounded-full bg-surface text-2xl font-semibold text-ink shadow-sm active:bg-surface-2" style={{ height: '4.5rem', width: '4.5rem' }}>
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="flex h-18 w-18 items-center justify-center rounded-full bg-surface text-2xl font-semibold text-ink shadow-sm active:bg-surface-2"
+      style={{ height: '4.5rem', width: '4.5rem' }}
+    >
       {children}
     </button>
   );

@@ -23,21 +23,38 @@ export function EntryPreview({ entry, compact }: { entry: ParsedEntry; compact?:
   const accounts = useData((s) => s.data.accounts);
   const today = useToday();
   const kind = KIND_LABELS[entry.kind];
-  const accountName = (id?: string, hint?: string) => accounts.find((a) => a.id === id)?.name ?? (hint ? INSTITUTION_MAP[hint]?.name ?? hint : undefined);
+  const accountName = (id?: string, hint?: string) =>
+    accounts.find((a) => a.id === id)?.name ??
+    (hint ? (INSTITUTION_MAP[hint]?.name ?? hint) : undefined);
   const from = accountName(entry.accountId, entry.accountHint);
   const to = accountName(entry.toAccountId, entry.toAccountHint);
-  const isIn = entry.kind === 'income' || entry.kind === 'loan_collected' || entry.kind === 'loan_received';
+  const isIn =
+    entry.kind === 'income' || entry.kind === 'loan_collected' || entry.kind === 'loan_received';
   const showCategory = entry.kind === 'expense' || entry.kind === 'income';
   const emoji = showCategory ? cat.emoji : kind.emoji;
   return (
-    <div className={cx('flex items-center gap-3 rounded-2xl border border-line bg-surface-2/60 p-3', compact && 'p-2.5')}>
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl" style={{ background: `${cat.color}22` }} aria-hidden>
+    <div
+      className={cx(
+        'flex items-center gap-3 rounded-2xl border border-line bg-surface-2/60 p-3',
+        compact && 'p-2.5',
+      )}
+    >
+      <div
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl"
+        style={{ background: `${cat.color}22` }}
+        aria-hidden
+      >
         {emoji}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate font-semibold text-ink">{entry.description}</span>
-          <span className={cx('shrink-0 text-lg font-bold tabular-nums', isIn ? 'text-income' : 'text-ink')}>
+          <span
+            className={cx(
+              'shrink-0 text-lg font-bold tabular-nums',
+              isIn ? 'text-income' : 'text-ink',
+            )}
+          >
             {isIn ? '+' : entry.kind === 'expense' ? '−' : ''}
             {formatMoney(entry.amountCents, { currency: entry.currency })}
           </span>
@@ -50,14 +67,38 @@ export function EntryPreview({ entry, compact }: { entry: ParsedEntry; compact?:
           {entry.currency !== 'MXN' && <span>· ≈ {formatMoney(entry.amountMxnCents)}</span>}
         </div>
         <div className="mt-1.5 flex flex-wrap gap-1.5">
-          {entry.installments && <Badge tone="accent">{entry.installments} MSI · {formatMoney(splitCents(entry.amountMxnCents, entry.installments)[0]!)}/mes</Badge>}
-          {entry.splitCount && <Badge tone="accent">Entre {entry.splitCount}: tu parte {formatMoney(splitCents(entry.amountMxnCents, entry.splitCount)[0]!)}</Badge>}
-          {entry.recurrence && <Badge tone="accent">🔁 {{ weekly: 'Cada semana', biweekly: 'Cada quincena', monthly: 'Cada mes', yearly: 'Cada año' }[entry.recurrence]}</Badge>}
+          {entry.installments && (
+            <Badge tone="accent">
+              {entry.installments} MSI ·{' '}
+              {formatMoney(splitCents(entry.amountMxnCents, entry.installments)[0]!)}/mes
+            </Badge>
+          )}
+          {entry.splitCount && (
+            <Badge tone="accent">
+              Entre {entry.splitCount}: tu parte{' '}
+              {formatMoney(splitCents(entry.amountMxnCents, entry.splitCount)[0]!)}
+            </Badge>
+          )}
+          {entry.recurrence && (
+            <Badge tone="accent">
+              🔁{' '}
+              {
+                {
+                  weekly: 'Cada semana',
+                  biweekly: 'Cada quincena',
+                  monthly: 'Cada mes',
+                  yearly: 'Cada año',
+                }[entry.recurrence]
+              }
+            </Badge>
+          )}
           {entry.person && <Badge>👤 {entry.person}</Badge>}
           {entry.tags.map((t) => (
             <Badge key={t}>#{t}</Badge>
           ))}
-          {entry.confidence < 0.6 && entry.kind === 'expense' && <Badge tone="warn">Por revisar</Badge>}
+          {entry.confidence < 0.6 && entry.kind === 'expense' && (
+            <Badge tone="warn">Por revisar</Badge>
+          )}
         </div>
       </div>
     </div>

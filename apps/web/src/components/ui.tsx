@@ -32,7 +32,11 @@ const btnVariants: Record<BtnVariant, string> = {
   danger: 'bg-rose-600 text-white hover:bg-rose-700',
   soft: 'bg-accent-50 text-accent-700 hover:bg-accent-100 dark:bg-accent-950/60 dark:text-accent-200 dark:hover:bg-accent-900/60',
 };
-const btnSizes = { sm: 'h-9 px-3 text-sm', md: 'h-11 px-4 text-[0.95rem]', lg: 'h-13 px-5 text-base' };
+const btnSizes = {
+  sm: 'h-9 px-3 text-sm',
+  md: 'h-11 px-4 text-[0.95rem]',
+  lg: 'h-13 px-5 text-base',
+};
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: BtnVariant;
@@ -44,10 +48,29 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   { variant = 'primary', size = 'md', block, className, type = 'button', ...rest },
   ref,
 ) {
-  return <button ref={ref} type={type} className={cx(btnBase, btnVariants[variant], btnSizes[size], block && 'w-full', className)} {...rest} />;
+  return (
+    <button
+      ref={ref}
+      type={type}
+      className={cx(btnBase, btnVariants[variant], btnSizes[size], block && 'w-full', className)}
+      {...rest}
+    />
+  );
 });
 
-export function LinkButton({ to, variant = 'secondary', size = 'md', className, children }: { to: string; variant?: BtnVariant; size?: keyof typeof btnSizes; className?: string; children: ReactNode }) {
+export function LinkButton({
+  to,
+  variant = 'secondary',
+  size = 'md',
+  className,
+  children,
+}: {
+  to: string;
+  variant?: BtnVariant;
+  size?: keyof typeof btnSizes;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
     <Link to={to} className={cx(btnBase, btnVariants[variant], btnSizes[size], className)}>
       {children}
@@ -55,13 +78,21 @@ export function LinkButton({ to, variant = 'secondary', size = 'md', className, 
   );
 }
 
-export function IconButton({ label, className, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
+export function IconButton({
+  label,
+  className,
+  children,
+  ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
   return (
     <button
       type="button"
       aria-label={label}
       title={label}
-      className={cx('inline-flex h-10 w-10 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-accent-500', className)}
+      className={cx(
+        'inline-flex h-10 w-10 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-accent-500',
+        className,
+      )}
       {...rest}
     >
       {children}
@@ -71,15 +102,37 @@ export function IconButton({ label, className, children, ...rest }: ButtonHTMLAt
 
 // ——————————————————— Superficies ———————————————————
 
-export function Card({ className, children, as: As = 'section', ...rest }: { className?: string; children: ReactNode; as?: 'section' | 'div' | 'article' } & Record<string, unknown>) {
+export function Card({
+  className,
+  children,
+  as: As = 'section',
+  ...rest
+}: { className?: string; children: ReactNode; as?: 'section' | 'div' | 'article' } & Record<
+  string,
+  unknown
+>) {
   return (
-    <As className={cx('rounded-2xl border border-line bg-surface p-4 shadow-[0_1px_2px_rgba(16,16,30,0.04)]', className)} {...rest}>
+    <As
+      className={cx(
+        'rounded-2xl border border-line bg-surface p-4 shadow-[0_1px_2px_rgba(16,16,30,0.04)]',
+        className,
+      )}
+      {...rest}
+    >
       {children}
     </As>
   );
 }
 
-export function CardTitle({ children, action, className }: { children: ReactNode; action?: ReactNode; className?: string }) {
+export function CardTitle({
+  children,
+  action,
+  className,
+}: {
+  children: ReactNode;
+  action?: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cx('mb-3 flex items-center justify-between gap-2', className)}>
       <h2 className="text-[0.95rem] font-semibold text-ink">{children}</h2>
@@ -88,12 +141,26 @@ export function CardTitle({ children, action, className }: { children: ReactNode
   );
 }
 
-export function PageHeader({ title, subtitle, back, actions }: { title: string; subtitle?: ReactNode; back?: boolean | string; actions?: ReactNode }) {
+export function PageHeader({
+  title,
+  subtitle,
+  back,
+  actions,
+}: {
+  title: string;
+  subtitle?: ReactNode;
+  back?: boolean | string;
+  actions?: ReactNode;
+}) {
   const nav = useNavigate();
   return (
     <header className="mb-4 flex items-start gap-2 pt-2">
       {back && (
-        <IconButton label="Regresar" onClick={() => (typeof back === 'string' ? nav(back) : nav(-1))} className="-ml-2 mt-0.5">
+        <IconButton
+          label="Regresar"
+          onClick={() => (typeof back === 'string' ? nav(back) : nav(-1))}
+          className="-ml-2 mt-0.5"
+        >
           <ChevronLeft className="h-6 w-6" />
         </IconButton>
       )}
@@ -127,9 +194,18 @@ export function Money({
   const privacy = useData((s) => s.settings.privacyMode);
   const peek = useUI((s) => s.privacyPeek);
   const hidden = privacy && !peek;
-  const text = hidden ? '$ ••••' : formatMoney(kind === 'expense' ? -Math.abs(cents) : cents, { currency, signed: signed || kind === 'income', compact });
+  const text = hidden
+    ? '$ ••••'
+    : formatMoney(kind === 'expense' ? -Math.abs(cents) : cents, {
+        currency,
+        signed: signed || kind === 'income',
+        compact,
+      });
   return (
-    <span className={cx('tabular-nums', kind === 'income' && 'text-income', className)} aria-label={hidden ? 'Monto oculto' : undefined}>
+    <span
+      className={cx('tabular-nums', kind === 'income' && 'text-income', className)}
+      aria-label={hidden ? 'Monto oculto' : undefined}
+    >
       {text}
     </span>
   );
@@ -137,19 +213,58 @@ export function Money({
 
 // ——————————————————— Progreso ———————————————————
 
-export function ProgressBar({ value, status, className, label }: { value: number; status?: 'ok' | 'warn' | 'over' | 'empty' | 'accent'; className?: string; label?: string }) {
+export function ProgressBar({
+  value,
+  status,
+  className,
+  label,
+}: {
+  value: number;
+  status?: 'ok' | 'warn' | 'over' | 'empty' | 'accent';
+  className?: string;
+  label?: string;
+}) {
   const pct = Math.max(0, Math.min(100, value));
-  const color = status === 'over' ? 'bg-rose-500' : status === 'warn' ? 'bg-amber-500' : status === 'ok' ? 'bg-emerald-500' : 'bg-accent-500';
+  const color =
+    status === 'over'
+      ? 'bg-rose-500'
+      : status === 'warn'
+        ? 'bg-amber-500'
+        : status === 'ok'
+          ? 'bg-emerald-500'
+          : 'bg-accent-500';
   return (
-    <div className={cx('h-2 w-full overflow-hidden rounded-full bg-surface-2', className)} role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
-      <div className={cx('h-full rounded-full transition-[width] duration-500', color)} style={{ width: `${pct}%` }} />
+    <div
+      className={cx('h-2 w-full overflow-hidden rounded-full bg-surface-2', className)}
+      role="progressbar"
+      aria-valuenow={Math.round(value)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={label}
+    >
+      <div
+        className={cx('h-full rounded-full transition-[width] duration-500', color)}
+        style={{ width: `${pct}%` }}
+      />
     </div>
   );
 }
 
 // ——————————————————— Formularios ———————————————————
 
-export function Field({ label, hint, error, children, htmlFor }: { label: string; hint?: ReactNode; error?: string; children: ReactNode; htmlFor?: string }) {
+export function Field({
+  label,
+  hint,
+  error,
+  children,
+  htmlFor,
+}: {
+  label: string;
+  hint?: ReactNode;
+  error?: string;
+  children: ReactNode;
+  htmlFor?: string;
+}) {
   return (
     <div className="space-y-1.5">
       <label htmlFor={htmlFor} className="block text-sm font-medium text-ink">
@@ -165,7 +280,10 @@ export function Field({ label, hint, error, children, htmlFor }: { label: string
 const inputCls =
   'w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-[0.95rem] text-ink placeholder:text-muted/70 outline-none transition focus:border-accent-500 focus:ring-4 focus:ring-accent-500/15';
 
-export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: ReactNode }>(function Input({ label, hint, className, id, ...rest }, ref) {
+export const Input = forwardRef<
+  HTMLInputElement,
+  InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: ReactNode }
+>(function Input({ label, hint, className, id, ...rest }, ref) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const el = <input ref={ref} id={inputId} className={cx(inputCls, className)} {...rest} />;
@@ -178,11 +296,34 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   );
 });
 
-export function Select({ label, hint, options, className, id, ...rest }: SelectHTMLAttributes<HTMLSelectElement> & { label?: string; hint?: ReactNode; options: Array<{ value: string; label: string }> }) {
+export function Select({
+  label,
+  hint,
+  options,
+  className,
+  id,
+  ...rest
+}: SelectHTMLAttributes<HTMLSelectElement> & {
+  label?: string;
+  hint?: ReactNode;
+  options: Array<{ value: string; label: string }>;
+}) {
   const autoId = useId();
   const selId = id ?? autoId;
   const el = (
-    <select id={selId} className={cx(inputCls, 'appearance-none bg-[length:16px] bg-[right_0.75rem_center] bg-no-repeat pr-9', className)} style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2394a3b8' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")" }} {...rest}>
+    <select
+      id={selId}
+      className={cx(
+        inputCls,
+        'appearance-none bg-[length:16px] bg-[right_0.75rem_center] bg-no-repeat pr-9',
+        className,
+      )}
+      style={{
+        backgroundImage:
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2394a3b8' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+      }}
+      {...rest}
+    >
       {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
@@ -200,7 +341,21 @@ export function Select({ label, hint, options, className, id, ...rest }: SelectH
 }
 
 /** Campo de dinero: el usuario escribe pesos ("1,250.50"), guardamos centavos. */
-export function MoneyInput({ label, value, onChange, hint, autoFocus, id }: { label: string; value: number; onChange: (cents: number) => void; hint?: ReactNode; autoFocus?: boolean; id?: string }) {
+export function MoneyInput({
+  label,
+  value,
+  onChange,
+  hint,
+  autoFocus,
+  id,
+}: {
+  label: string;
+  value: number;
+  onChange: (cents: number) => void;
+  hint?: ReactNode;
+  autoFocus?: boolean;
+  id?: string;
+}) {
   const [text, setText] = useState(value ? String(value / 100) : '');
   const last = useRef(value);
   useEffect(() => {
@@ -230,7 +385,17 @@ export function MoneyInput({ label, value, onChange, hint, autoFocus, id }: { la
   );
 }
 
-export function Toggle({ checked, onChange, label, description }: { checked: boolean; onChange: (v: boolean) => void; label: string; description?: ReactNode }) {
+export function Toggle({
+  checked,
+  onChange,
+  label,
+  description,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+  description?: ReactNode;
+}) {
   const id = useId();
   return (
     <div className="flex items-center justify-between gap-4 py-1">
@@ -246,17 +411,41 @@ export function Toggle({ checked, onChange, label, description }: { checked: boo
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={cx('relative h-7 w-12 shrink-0 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500', checked ? 'bg-accent-600' : 'bg-line')}
+        className={cx(
+          'relative h-7 w-12 shrink-0 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500',
+          checked ? 'bg-accent-600' : 'bg-line',
+        )}
       >
-        <span className={cx('absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all', checked ? 'left-[1.375rem]' : 'left-0.5')} />
+        <span
+          className={cx(
+            'absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all',
+            checked ? 'left-[1.375rem]' : 'left-0.5',
+          )}
+        />
       </button>
     </div>
   );
 }
 
-export function Segmented<T extends string>({ value, onChange, options, className, label }: { value: T; onChange: (v: T) => void; options: Array<{ value: T; label: ReactNode }>; className?: string; label?: string }) {
+export function Segmented<T extends string>({
+  value,
+  onChange,
+  options,
+  className,
+  label,
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  options: Array<{ value: T; label: ReactNode }>;
+  className?: string;
+  label?: string;
+}) {
   return (
-    <div role="radiogroup" aria-label={label} className={cx('flex rounded-xl bg-surface-2 p-1', className)}>
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className={cx('flex rounded-xl bg-surface-2 p-1', className)}
+    >
       {options.map((o) => (
         <button
           key={o.value}
@@ -264,7 +453,10 @@ export function Segmented<T extends string>({ value, onChange, options, classNam
           role="radio"
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
-          className={cx('flex-1 rounded-lg px-3 py-1.5 text-sm font-medium transition', value === o.value ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink')}
+          className={cx(
+            'flex-1 rounded-lg px-3 py-1.5 text-sm font-medium transition',
+            value === o.value ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink',
+          )}
         >
           {o.label}
         </button>
@@ -273,7 +465,17 @@ export function Segmented<T extends string>({ value, onChange, options, classNam
   );
 }
 
-export function Chip({ active, onClick, children, className }: { active?: boolean; onClick?: () => void; children: ReactNode; className?: string }) {
+export function Chip({
+  active,
+  onClick,
+  children,
+  className,
+}: {
+  active?: boolean;
+  onClick?: () => void;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <button
       type="button"
@@ -281,7 +483,9 @@ export function Chip({ active, onClick, children, className }: { active?: boolea
       aria-pressed={active}
       className={cx(
         'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition',
-        active ? 'border-accent-500 bg-accent-50 text-accent-700 dark:bg-accent-950 dark:text-accent-200' : 'border-line bg-surface text-ink hover:bg-surface-2',
+        active
+          ? 'border-accent-500 bg-accent-50 text-accent-700 dark:bg-accent-950 dark:text-accent-200'
+          : 'border-line bg-surface text-ink hover:bg-surface-2',
         className,
       )}
     >
@@ -290,7 +494,13 @@ export function Chip({ active, onClick, children, className }: { active?: boolea
   );
 }
 
-export function Badge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'good' | 'warn' | 'bad' | 'accent' }) {
+export function Badge({
+  children,
+  tone = 'neutral',
+}: {
+  children: ReactNode;
+  tone?: 'neutral' | 'good' | 'warn' | 'bad' | 'accent';
+}) {
   const tones = {
     neutral: 'bg-surface-2 text-muted',
     good: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
@@ -298,15 +508,44 @@ export function Badge({ children, tone = 'neutral' }: { children: ReactNode; ton
     bad: 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300',
     accent: 'bg-accent-50 text-accent-700 dark:bg-accent-950 dark:text-accent-300',
   };
-  return <span className={cx('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold', tones[tone])}>{children}</span>;
+  return (
+    <span
+      className={cx(
+        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+        tones[tone],
+      )}
+    >
+      {children}
+    </span>
+  );
 }
 
 // ——————————————————— Listas ———————————————————
 
-export function ListItem({ icon, title, subtitle, right, onClick, to, className }: { icon?: ReactNode; title: ReactNode; subtitle?: ReactNode; right?: ReactNode; onClick?: () => void; to?: string; className?: string }) {
+export function ListItem({
+  icon,
+  title,
+  subtitle,
+  right,
+  onClick,
+  to,
+  className,
+}: {
+  icon?: ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  right?: ReactNode;
+  onClick?: () => void;
+  to?: string;
+  className?: string;
+}) {
   const content = (
     <>
-      {icon && <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-xl">{icon}</div>}
+      {icon && (
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-xl">
+          {icon}
+        </div>
+      )}
       <div className="min-w-0 flex-1 text-left">
         <div className="truncate font-medium text-ink">{title}</div>
         {subtitle && <div className="truncate text-sm text-muted">{subtitle}</div>}
@@ -315,7 +554,11 @@ export function ListItem({ icon, title, subtitle, right, onClick, to, className 
       {(to || onClick) && !right && <ChevronRight className="h-4 w-4 shrink-0 text-muted" />}
     </>
   );
-  const cls = cx('flex w-full items-center gap-3 rounded-xl px-2 py-2.5 transition', (to || onClick) && 'hover:bg-surface-2', className);
+  const cls = cx(
+    'flex w-full items-center gap-3 rounded-xl px-2 py-2.5 transition',
+    (to || onClick) && 'hover:bg-surface-2',
+    className,
+  );
   if (to)
     return (
       <Link to={to} className={cls}>
@@ -331,7 +574,17 @@ export function ListItem({ icon, title, subtitle, right, onClick, to, className 
   return <div className={cls}>{content}</div>;
 }
 
-export function EmptyState({ emoji, title, text, action }: { emoji: string; title: string; text?: ReactNode; action?: ReactNode }) {
+export function EmptyState({
+  emoji,
+  title,
+  text,
+  action,
+}: {
+  emoji: string;
+  title: string;
+  text?: ReactNode;
+  action?: ReactNode;
+}) {
   return (
     <div className="flex flex-col items-center px-6 py-10 text-center">
       <div className="mb-3 text-5xl" aria-hidden>
@@ -344,7 +597,17 @@ export function EmptyState({ emoji, title, text, action }: { emoji: string; titl
   );
 }
 
-export function Stat({ label, value, hint, className }: { label: string; value: ReactNode; hint?: ReactNode; className?: string }) {
+export function Stat({
+  label,
+  value,
+  hint,
+  className,
+}: {
+  label: string;
+  value: ReactNode;
+  hint?: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cx('rounded-2xl bg-surface-2 p-3', className)}>
       <div className="text-xs font-medium text-muted">{label}</div>
@@ -356,7 +619,21 @@ export function Stat({ label, value, hint, className }: { label: string; value: 
 
 // ——————————————————— Hoja inferior / diálogo ———————————————————
 
-export function Sheet({ open, onClose, title, children, footer, wide }: { open: boolean; onClose: () => void; title: string; children: ReactNode; footer?: ReactNode; wide?: boolean }) {
+export function Sheet({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  wide,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+  footer?: ReactNode;
+  wide?: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useEffect(() => {
@@ -366,7 +643,9 @@ export function Sheet({ open, onClose, title, children, footer, wide }: { open: 
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     setTimeout(() => {
-      const el = ref.current?.querySelector<HTMLElement>('[autofocus], input, select, textarea, button:not([data-close])');
+      const el = ref.current?.querySelector<HTMLElement>(
+        '[autofocus], input, select, textarea, button:not([data-close])',
+      );
       el?.focus();
     }, 50);
     return () => {
@@ -377,8 +656,14 @@ export function Sheet({ open, onClose, title, children, footer, wide }: { open: 
   }, [open, onClose]);
   if (!open) return null;
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="presentation">
-      <div className="animate-fade absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+      role="presentation"
+    >
+      <div
+        className="animate-fade absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
       <div
         ref={ref}
         role="dialog"
@@ -399,7 +684,11 @@ export function Sheet({ open, onClose, title, children, footer, wide }: { open: 
           </IconButton>
         </div>
         <div className="overflow-y-auto px-5 pb-4">{children}</div>
-        {footer && <div className="border-t border-line px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">{footer}</div>}
+        {footer && (
+          <div className="border-t border-line px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body,
@@ -409,7 +698,12 @@ export function Sheet({ open, onClose, title, children, footer, wide }: { open: 
 /** Confirmación simple con promesa: await confirmDialog('¿Borrar?') */
 let confirmResolver: ((v: boolean) => void) | null = null;
 export function ConfirmHost() {
-  const [state, setState] = useState<{ title: string; text?: string; danger?: boolean; ok?: string } | null>(null);
+  const [state, setState] = useState<{
+    title: string;
+    text?: string;
+    danger?: boolean;
+    ok?: string;
+  } | null>(null);
   useEffect(() => {
     (window as unknown as { __finaConfirm: typeof setState }).__finaConfirm = setState;
   }, []);
@@ -419,21 +713,36 @@ export function ConfirmHost() {
     setState(null);
   };
   return (
-    <Sheet open={!!state} onClose={() => close(false)} title={state?.title ?? ''} footer={
-      <div className="flex gap-2">
-        <Button variant="secondary" block onClick={() => close(false)}>Cancelar</Button>
-        <Button variant={state?.danger ? 'danger' : 'primary'} block onClick={() => close(true)}>{state?.ok ?? 'Aceptar'}</Button>
-      </div>
-    }>
+    <Sheet
+      open={!!state}
+      onClose={() => close(false)}
+      title={state?.title ?? ''}
+      footer={
+        <div className="flex gap-2">
+          <Button variant="secondary" block onClick={() => close(false)}>
+            Cancelar
+          </Button>
+          <Button variant={state?.danger ? 'danger' : 'primary'} block onClick={() => close(true)}>
+            {state?.ok ?? 'Aceptar'}
+          </Button>
+        </div>
+      }
+    >
       {state?.text && <p className="text-muted">{state.text}</p>}
     </Sheet>
   );
 }
 
-export function confirmDialog(title: string, opts: { text?: string; danger?: boolean; ok?: string } = {}): Promise<boolean> {
+export function confirmDialog(
+  title: string,
+  opts: { text?: string; danger?: boolean; ok?: string } = {},
+): Promise<boolean> {
   return new Promise((resolve) => {
     confirmResolver = resolve;
-    (window as unknown as { __finaConfirm?: (s: unknown) => void }).__finaConfirm?.({ title, ...opts });
+    (window as unknown as { __finaConfirm?: (s: unknown) => void }).__finaConfirm?.({
+      title,
+      ...opts,
+    });
   });
 }
 
@@ -443,7 +752,10 @@ export function Toasts() {
   const toasts = useUI((s) => s.toasts);
   const dismiss = useUI((s) => s.dismissToast);
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[60] flex flex-col items-center gap-2 px-4 lg:bottom-6" aria-live="polite">
+    <div
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[60] flex flex-col items-center gap-2 px-4 lg:bottom-6"
+      aria-live="polite"
+    >
       {toasts.map((t) => (
         <div
           key={t.id}
@@ -473,9 +785,22 @@ export function Toasts() {
   );
 }
 
-export function Tip({ children, emoji = '💡', className }: { children: ReactNode; emoji?: string; className?: string }) {
+export function Tip({
+  children,
+  emoji = '💡',
+  className,
+}: {
+  children: ReactNode;
+  emoji?: string;
+  className?: string;
+}) {
   return (
-    <div className={cx('flex gap-3 rounded-2xl bg-accent-50 p-3 text-sm text-accent-900 dark:bg-accent-950/50 dark:text-accent-100', className)}>
+    <div
+      className={cx(
+        'flex gap-3 rounded-2xl bg-accent-50 p-3 text-sm text-accent-900 dark:bg-accent-950/50 dark:text-accent-100',
+        className,
+      )}
+    >
       <span aria-hidden className="text-lg leading-5">
         {emoji}
       </span>

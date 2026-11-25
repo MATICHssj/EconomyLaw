@@ -36,7 +36,8 @@ export function stripUndefined<T>(obj: T): T {
   if (Array.isArray(obj)) return obj.map(stripUndefined) as T;
   if (obj && typeof obj === 'object') {
     const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(obj)) if (v !== undefined && k !== 'space') out[k] = stripUndefined(v);
+    for (const [k, v] of Object.entries(obj))
+      if (v !== undefined && k !== 'space') out[k] = stripUndefined(v);
     return out as T;
   }
   return obj;

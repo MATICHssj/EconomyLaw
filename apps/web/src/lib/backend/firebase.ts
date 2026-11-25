@@ -10,7 +10,14 @@ import {
 } from 'firebase/firestore';
 import { COLLECTIONS, HOUSEHOLD_COLLECTIONS, type CollectionName } from '@fina/core';
 import { firebase } from '@/lib/firebase';
-import { stripUndefined, type AnyDoc, type DataBackend, type MetaDoc, type Space, type WriteOp } from './types';
+import {
+  stripUndefined,
+  type AnyDoc,
+  type DataBackend,
+  type MetaDoc,
+  type Space,
+  type WriteOp,
+} from './types';
 
 /**
  * Modo nube: Firestore con caché persistente. Las escrituras se aplican al
@@ -78,7 +85,9 @@ export class FirebaseBackend implements DataBackend {
   }
 
   async setMeta(patch: MetaDoc): Promise<void> {
-    setDoc(doc(this.db, 'users', this.uid), stripUndefined(patch), { merge: true }).catch(this.onError);
+    setDoc(doc(this.db, 'users', this.uid), stripUndefined(patch), { merge: true }).catch(
+      this.onError,
+    );
   }
 
   async wipe(): Promise<void> {

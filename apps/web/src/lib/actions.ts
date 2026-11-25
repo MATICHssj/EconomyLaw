@@ -35,12 +35,16 @@ export interface Change {
 
 function toOps(changes: Change[]): WriteOp[] {
   return changes.map((c) =>
-    c.after ? { type: 'put', space: c.space, col: c.col, doc: c.after } : { type: 'delete', space: c.space, col: c.col, id: c.before!.id },
+    c.after
+      ? { type: 'put', space: c.space, col: c.col, doc: c.after }
+      : { type: 'delete', space: c.space, col: c.col, id: c.before!.id },
   );
 }
 
 function invert(changes: Change[]): Change[] {
-  return [...changes].reverse().map((c) => ({ space: c.space, col: c.col, before: c.after, after: c.before }));
+  return [...changes]
+    .reverse()
+    .map((c) => ({ space: c.space, col: c.col, before: c.after, after: c.before }));
 }
 
 export async function applyChanges(changes: Change[]): Promise<void> {
@@ -49,7 +53,11 @@ export async function applyChanges(changes: Change[]): Promise<void> {
 }
 
 /** Aplica cambios y muestra un aviso con "Deshacer". */
-export async function commitWithUndo(changes: Change[], message: string, extra?: { label: string; onClick: () => void }) {
+export async function commitWithUndo(
+  changes: Change[],
+  message: string,
+  extra?: { label: string; onClick: () => void },
+) {
   await applyChanges(changes);
   const inverse = invert(changes);
   toast(message, 'success', [
@@ -70,7 +78,10 @@ export function currentSpace(): Space {
   return s.household && s.spaceFilter === 'household' ? 'household' : 'personal';
 }
 
-function find<K extends CollectionName>(col: K, id: string | null | undefined): (CollectionMap[K] & { space: Space }) | undefined {
+function find<K extends CollectionName>(
+  col: K,
+  id: string | null | undefined,
+): (CollectionMap[K] & { space: Space }) | undefined {
   if (!id) return undefined;
   return getDocs(col).find((d) => d.id === id);
 }
@@ -94,8 +105,15 @@ export function defaultAccountId(preferType?: Account['type']): string | null {
     const pref = accounts.find((a) => a.type === preferType);
     if (pref) return pref.id;
   }
-  if (s.settings.defaultAccountId && accounts.some((a) => a.id === s.settings.defaultAccountId)) return s.settings.defaultAccountId;
-  return (accounts.find((a) => a.type === 'cash') ?? accounts.find((a) => a.type === 'debit') ?? accounts[0])?.id ?? null;
+  if (s.settings.defaultAccountId && accounts.some((a) => a.id === s.settings.defaultAccountId))
+    return s.settings.defaultAccountId;
+  return (
+    (
+      accounts.find((a) => a.type === 'cash') ??
+      accounts.find((a) => a.type === 'debit') ??
+      accounts[0]
+    )?.id ?? null
+  );
 }
 
 export function newAccount(p: Partial<Account> & Pick<Account, 'name' | 'type'>): Account {
@@ -117,8 +135,17 @@ export function newAccount(p: Partial<Account> & Pick<Account, 'name' | 'type'>)
 export function ensureAccountChanges(): { accountId: string; changes: Change[] } {
   const existing = defaultAccountId();
   if (existing) return { accountId: existing, changes: [] };
-  const acc = newAccount({ name: 'Mi dinero', type: 'cash', institution: 'cash', icon: '💵', color: '#16a34a' });
-  return { accountId: acc.id, changes: [{ space: 'personal', col: 'accounts', before: null, after: acc }] };
+  const acc = newAccount({
+    name: 'Mi dinero',
+    type: 'cash',
+    institution: 'cash',
+    icon: '💵',
+    color: '#16a34a',
+  });
+  return {
+    accountId: acc.id,
+    changes: [{ space: 'personal', col: 'accounts', before: null, after: acc }],
+  };
 }
 
 // ——————————————————— Contexto del parser ———————————————————
@@ -129,11 +156,23 @@ export function parseContext(): ParseContext {
   for (const l of s.data.loans) if (!l.closed) people[l.person] = l.direction;
   return {
     today: todayISO(),
-    accounts: s.data.accounts.map((a) => ({ id: a.id, name: a.name, type: a.type, institution: a.institution, aliases: a.aliases, archived: a.archived })),
+    accounts: s.data.accounts.map((a) => ({
+      id: a.id,
+      name: a.name,
+      type: a.type,
+      institution: a.institution,
+      aliases: a.aliases,
+      archived: a.archived,
+    })),
     rules: s.data.rules
       .filter((r) => r.match.contains || r.match.merchant)
       .sort((a, b) => b.priority - a.priority)
-      .map((r) => ({ pattern: normalizeText(r.match.contains ?? r.match.merchant ?? ''), categoryId: r.set.categoryId, accountId: r.set.accountId, tags: r.set.tags })),
+      .map((r) => ({
+        pattern: normalizeText(r.match.contains ?? r.match.merchant ?? ''),
+        categoryId: r.set.categoryId,
+        accountId: r.set.accountId,
+        tags: r.set.tags,
+      })),
     people,
     fxRates: loadFxRates(),
   };
@@ -158,7 +197,8 @@ export async function refreshFxRates(): Promise<void> {
     const json = (await res.json()) as { rates?: Record<string, number> };
     if (!json.rates) return;
     const rates: Record<string, number> = { MXN: 1 };
-    for (const [k, v] of Object.entries(json.rates)) if (v > 0) rates[k] = Math.round((1 / v) * 10000) / 10000;
+    for (const [k, v] of Object.entries(json.rates))
+      if (v > 0) rates[k] = Math.round((1 / v) * 10000) / 10000;
     localStorage.setItem('fina:fx', JSON.stringify({ at: Date.now(), rates }));
   } catch {
     /* sin internet: se usan los tipos de cambio de respaldo */
@@ -178,7 +218,10 @@ export interface CommitOptions {
 }
 
 /** Convierte una frase ya interpretada en documentos (movimiento + MSI, préstamo, recurrente…). */
-export function entryToChanges(entry: ParsedEntry, opts: CommitOptions = {}): { tx: Transaction; changes: Change[] } {
+export function entryToChanges(
+  entry: ParsedEntry,
+  opts: CommitOptions = {},
+): { tx: Transaction; changes: Change[] } {
   const s = useData.getState();
   const space = opts.space ?? currentSpace();
   const uid = useSession.getState().user?.uid;
@@ -205,7 +248,10 @@ export function entryToChanges(entry: ParsedEntry, opts: CommitOptions = {}): { 
     amountMxnCents: entry.amountMxnCents,
     accountId,
     toAccountId: null,
-    categoryId: opts.categoryId ?? entry.categoryId ?? (entry.kind === 'expense' ? 'review' : entry.kind === 'income' ? 'other_income' : null),
+    categoryId:
+      opts.categoryId ??
+      entry.categoryId ??
+      (entry.kind === 'expense' ? 'review' : entry.kind === 'income' ? 'other_income' : null),
     tags: entry.tags,
     description: entry.description,
     merchant: entry.merchant,
@@ -234,10 +280,18 @@ export function entryToChanges(entry: ParsedEntry, opts: CommitOptions = {}): { 
       if (entry.target === 'goal') {
         const goals = s.data.goals.filter((g) => !g.archived);
         const name = normalizeText(entry.targetName ?? '');
-        const goal = goals.find((g) => name && normalizeText(g.name).includes(name)) ?? goals.find((g) => g.type === 'emergency') ?? goals[0];
+        const goal =
+          goals.find((g) => name && normalizeText(g.name).includes(name)) ??
+          goals.find((g) => g.type === 'emergency') ??
+          goals[0];
         if (goal) {
           tx.goalId = goal.id;
-          changes.push({ space: goal.space, col: 'goals', before: clean(goal), after: { ...clean(goal), savedCents: goal.savedCents + entry.amountMxnCents } });
+          changes.push({
+            space: goal.space,
+            col: 'goals',
+            before: clean(goal),
+            after: { ...clean(goal), savedCents: goal.savedCents + entry.amountMxnCents },
+          });
           toAccountId ??= goal.accountId ?? null;
         }
         toAccountId ??= defaultAccountId('savings');
@@ -256,29 +310,57 @@ export function entryToChanges(entry: ParsedEntry, opts: CommitOptions = {}): { 
         space,
         col: 'loans',
         before: null,
-        after: { id: loanId, person: entry.person ?? 'Alguien', direction: entry.kind === 'loan_given' ? 'lent' : 'borrowed', amountCents: entry.amountMxnCents, paidCents: 0, createdAt: stamp, closed: false },
+        after: {
+          id: loanId,
+          person: entry.person ?? 'Alguien',
+          direction: entry.kind === 'loan_given' ? 'lent' : 'borrowed',
+          amountCents: entry.amountMxnCents,
+          paidCents: 0,
+          createdAt: stamp,
+          closed: false,
+        },
       });
       break;
     }
     case 'loan_collected':
     case 'loan_repaid': {
       tx.categoryId = null;
-      const loan = (entry.person ? findOpenLoan(s.data.loans, entry.person, entry.kind === 'loan_collected' ? 'lent' : 'borrowed') : undefined) as (typeof s.data.loans)[number] | undefined;
+      const loan = (
+        entry.person
+          ? findOpenLoan(
+              s.data.loans,
+              entry.person,
+              entry.kind === 'loan_collected' ? 'lent' : 'borrowed',
+            )
+          : undefined
+      ) as (typeof s.data.loans)[number] | undefined;
       if (loan) {
         tx.loanId = loan.id;
         const paid = loan.paidCents + entry.amountMxnCents;
-        changes.push({ space: loan.space, col: 'loans', before: clean(loan), after: { ...clean(loan), paidCents: paid, closed: paid >= loan.amountCents } });
+        changes.push({
+          space: loan.space,
+          col: 'loans',
+          before: clean(loan),
+          after: { ...clean(loan), paidCents: paid, closed: paid >= loan.amountCents },
+        });
       } else if (entry.kind === 'loan_collected' && entry.person) {
         // ¿Era su parte de un gasto compartido?
         const p = normalizeText(entry.person);
-        const split = s.data.splits.find((sp) => sp.participants.some((x) => !x.isMe && !x.paid && normalizeText(x.name) === p));
+        const split = s.data.splits.find((sp) =>
+          sp.participants.some((x) => !x.isMe && !x.paid && normalizeText(x.name) === p),
+        );
         if (split) {
           tx.splitId = split.id;
           changes.push({
             space: split.space,
             col: 'splits',
             before: clean(split),
-            after: { ...clean(split), participants: split.participants.map((x) => (normalizeText(x.name) === p ? { ...x, paid: true } : x)) },
+            after: {
+              ...clean(split),
+              participants: split.participants.map((x) =>
+                normalizeText(x.name) === p ? { ...x, paid: true } : x,
+              ),
+            },
           });
         } else {
           tx.kind = 'income';
@@ -290,19 +372,40 @@ export function entryToChanges(entry: ParsedEntry, opts: CommitOptions = {}): { 
     case 'investment': {
       tx.categoryId = 'investments';
       const name = normalizeText(entry.targetName ?? '');
-      const inv = s.data.investments.find((i) => !i.archived && (normalizeText(i.name).includes(name) || i.type === name));
+      const inv = s.data.investments.find(
+        (i) => !i.archived && (normalizeText(i.name).includes(name) || i.type === name),
+      );
       const invId = inv?.id ?? newId();
       tx.investmentId = invId;
       const contribution = { date: entry.date, amountCents: entry.amountMxnCents };
       if (inv) {
-        changes.push({ space: inv.space, col: 'investments', before: clean(inv), after: { ...clean(inv), contributions: [...inv.contributions, contribution], currentValueCents: inv.currentValueCents + entry.amountMxnCents, updatedAt: stamp } });
+        changes.push({
+          space: inv.space,
+          col: 'investments',
+          before: clean(inv),
+          after: {
+            ...clean(inv),
+            contributions: [...inv.contributions, contribution],
+            currentValueCents: inv.currentValueCents + entry.amountMxnCents,
+            updatedAt: stamp,
+          },
+        });
       } else {
         const type = (['cetes', 'afore', 'ppr', 'gbm'] as const).find((t) => name.includes(t));
         changes.push({
           space: 'personal',
           col: 'investments',
           before: null,
-          after: { id: invId, name: entry.targetName ?? 'Inversión', type: type === 'gbm' ? 'stock' : (type ?? 'other'), contributions: [contribution], currentValueCents: entry.amountMxnCents, updatedAt: stamp, createdAt: stamp, archived: false },
+          after: {
+            id: invId,
+            name: entry.targetName ?? 'Inversión',
+            type: type === 'gbm' ? 'stock' : (type ?? 'other'),
+            contributions: [contribution],
+            currentValueCents: entry.amountMxnCents,
+            updatedAt: stamp,
+            createdAt: stamp,
+            archived: false,
+          },
         });
       }
       break;
@@ -329,13 +432,19 @@ export function entryToChanges(entry: ParsedEntry, opts: CommitOptions = {}): { 
             totalCents: entry.amountMxnCents,
             date: entry.date,
             transactionId: tx.id,
-            participants: parts.map((p, i) => ({ name: i === 0 ? 'Yo' : `Persona ${i + 1}`, shareCents: p, paid: i === 0, isMe: i === 0 })),
+            participants: parts.map((p, i) => ({
+              name: i === 0 ? 'Yo' : `Persona ${i + 1}`,
+              shareCents: p,
+              paid: i === 0,
+              isMe: i === 0,
+            })),
             createdAt: stamp,
           },
         });
       }
       if (entry.installments && entry.installments > 1) {
-        if (!entry.accountId && !opts.accountId) tx.accountId = defaultAccountId('credit') ?? tx.accountId;
+        if (!entry.accountId && !opts.accountId)
+          tx.accountId = defaultAccountId('credit') ?? tx.accountId;
         const plan: InstallmentPlan = {
           id: newId(),
           description: entry.description,
@@ -390,7 +499,10 @@ export function entryToChanges(entry: ParsedEntry, opts: CommitOptions = {}): { 
   return { tx, changes };
 }
 
-export async function commitEntries(entries: ParsedEntry[], opts: CommitOptions = {}): Promise<Transaction[]> {
+export async function commitEntries(
+  entries: ParsedEntry[],
+  opts: CommitOptions = {},
+): Promise<Transaction[]> {
   const ensured = ensureAccountChanges();
   const all: Change[] = [...ensured.changes];
   const txs: Transaction[] = [];
@@ -404,39 +516,91 @@ export async function commitEntries(entries: ParsedEntry[], opts: CommitOptions 
     return txs;
   }
   const first = txs[0]!;
-  const msg = txs.length > 1 ? `✅ ${txs.length} movimientos guardados` : `✅ Guardado: ${first.description}`;
-  await commitWithUndo(all, msg, txs.length === 1 ? { label: 'Editar', onClick: () => useUI.getState().editTx(first.id) } : undefined);
+  const msg =
+    txs.length > 1 ? `✅ ${txs.length} movimientos guardados` : `✅ Guardado: ${first.description}`;
+  await commitWithUndo(
+    all,
+    msg,
+    txs.length === 1
+      ? { label: 'Editar', onClick: () => useUI.getState().editTx(first.id) }
+      : undefined,
+  );
   return txs;
 }
 
 // ——————————————————— Editar / borrar movimientos ———————————————————
 
-export async function saveTransaction(tx: Transaction & { space?: Space }, opts: { learn?: boolean } = {}): Promise<void> {
+export async function saveTransaction(
+  tx: Transaction & { space?: Space },
+  opts: { learn?: boolean } = {},
+): Promise<void> {
   const prev = find('transactions', tx.id);
   const space = prev?.space ?? tx.space ?? currentSpace();
   const updated: Transaction = { ...clean(tx as Transaction & { space: Space }), updatedAt: now() };
   if (updated.currency === 'MXN') updated.amountMxnCents = updated.amountCents;
-  else if (!prev || prev.amountCents !== updated.amountCents || prev.currency !== updated.currency) {
-    const { amountMxnCents, rate } = convertToMxn(updated.amountCents, updated.currency, loadFxRates());
+  else if (
+    !prev ||
+    prev.amountCents !== updated.amountCents ||
+    prev.currency !== updated.currency
+  ) {
+    const { amountMxnCents, rate } = convertToMxn(
+      updated.amountCents,
+      updated.currency,
+      loadFxRates(),
+    );
     updated.amountMxnCents = amountMxnCents;
     updated.fxRate = rate;
   }
-  if (updated.status === 'review' && updated.categoryId && updated.categoryId !== 'review') updated.status = 'cleared';
-  const changes: Change[] = [{ space, col: 'transactions', before: prev ? clean(prev) : null, after: updated }];
+  if (updated.status === 'review' && updated.categoryId && updated.categoryId !== 'review')
+    updated.status = 'cleared';
+  const changes: Change[] = [
+    { space, col: 'transactions', before: prev ? clean(prev) : null, after: updated },
+  ];
   // Aprende de la corrección: la próxima vez "galleta" ya irá a la categoría elegida.
-  if (opts.learn !== false && prev && prev.categoryId !== updated.categoryId && updated.categoryId && updated.rawText) {
-    const pattern = ruleFromCorrection({ merchant: updated.merchant, description: updated.description, rawText: updated.rawText });
+  if (
+    opts.learn !== false &&
+    prev &&
+    prev.categoryId !== updated.categoryId &&
+    updated.categoryId &&
+    updated.rawText
+  ) {
+    const pattern = ruleFromCorrection({
+      merchant: updated.merchant,
+      description: updated.description,
+      rawText: updated.rawText,
+    });
     if (pattern) {
-      const existing = getDocs('rules').find((r) => r.learned && normalizeText(r.match.contains ?? '') === pattern);
+      const existing = getDocs('rules').find(
+        (r) => r.learned && normalizeText(r.match.contains ?? '') === pattern,
+      );
       const rule: Rule = existing
         ? { ...clean(existing), set: { ...existing.set, categoryId: updated.categoryId } }
-        : { id: newId(), match: { contains: pattern }, set: { categoryId: updated.categoryId }, priority: 10, learned: true, hits: 0, createdAt: now() };
-      changes.push({ space: 'personal', col: 'rules', before: existing ? clean(existing) : null, after: rule });
+        : {
+            id: newId(),
+            match: { contains: pattern },
+            set: { categoryId: updated.categoryId },
+            priority: 10,
+            learned: true,
+            hits: 0,
+            createdAt: now(),
+          };
+      changes.push({
+        space: 'personal',
+        col: 'rules',
+        before: existing ? clean(existing) : null,
+        after: rule,
+      });
     }
   }
   if (prev && updated.installmentPlanId && prev.amountCents !== updated.amountCents) {
     const plan = find('installmentPlans', updated.installmentPlanId);
-    if (plan) changes.push({ space: plan.space, col: 'installmentPlans', before: clean(plan), after: { ...clean(plan), totalCents: updated.amountMxnCents, accountId: updated.accountId } });
+    if (plan)
+      changes.push({
+        space: plan.space,
+        col: 'installmentPlans',
+        before: clean(plan),
+        after: { ...clean(plan), totalCents: updated.amountMxnCents, accountId: updated.accountId },
+      });
   }
   await commitWithUndo(changes, prev ? 'Cambios guardados' : 'Movimiento guardado');
 }
@@ -444,35 +608,64 @@ export async function saveTransaction(tx: Transaction & { space?: Space }, opts:
 export async function deleteTransaction(id: string): Promise<void> {
   const tx = find('transactions', id);
   if (!tx) return;
-  const changes: Change[] = [{ space: tx.space, col: 'transactions', before: clean(tx), after: null }];
+  const changes: Change[] = [
+    { space: tx.space, col: 'transactions', before: clean(tx), after: null },
+  ];
   const plan = find('installmentPlans', tx.installmentPlanId);
-  if (plan) changes.push({ space: plan.space, col: 'installmentPlans', before: clean(plan), after: null });
+  if (plan)
+    changes.push({ space: plan.space, col: 'installmentPlans', before: clean(plan), after: null });
   const split = find('splits', tx.splitId);
-  if (split && split.transactionId === tx.id) changes.push({ space: split.space, col: 'splits', before: clean(split), after: null });
+  if (split && split.transactionId === tx.id)
+    changes.push({ space: split.space, col: 'splits', before: clean(split), after: null });
   const loan = find('loans', tx.loanId);
   if (loan) {
-    if (tx.kind === 'loan_given' || tx.kind === 'loan_received') changes.push({ space: loan.space, col: 'loans', before: clean(loan), after: null });
+    if (tx.kind === 'loan_given' || tx.kind === 'loan_received')
+      changes.push({ space: loan.space, col: 'loans', before: clean(loan), after: null });
     else {
       const paid = Math.max(0, loan.paidCents - tx.amountMxnCents);
-      changes.push({ space: loan.space, col: 'loans', before: clean(loan), after: { ...clean(loan), paidCents: paid, closed: paid >= loan.amountCents } });
+      changes.push({
+        space: loan.space,
+        col: 'loans',
+        before: clean(loan),
+        after: { ...clean(loan), paidCents: paid, closed: paid >= loan.amountCents },
+      });
     }
   }
   const goal = find('goals', tx.goalId);
-  if (goal) changes.push({ space: goal.space, col: 'goals', before: clean(goal), after: { ...clean(goal), savedCents: Math.max(0, goal.savedCents - tx.amountMxnCents) } });
+  if (goal)
+    changes.push({
+      space: goal.space,
+      col: 'goals',
+      before: clean(goal),
+      after: { ...clean(goal), savedCents: Math.max(0, goal.savedCents - tx.amountMxnCents) },
+    });
   await commitWithUndo(changes, 'Movimiento borrado');
 }
 
 // ——————————————————— CRUD genérico ———————————————————
 
-export async function saveDoc<K extends CollectionName>(col: K, doc: CollectionMap[K] & { space?: Space }, message?: string): Promise<void> {
+export async function saveDoc<K extends CollectionName>(
+  col: K,
+  doc: CollectionMap[K] & { space?: Space },
+  message?: string,
+): Promise<void> {
   const prev = find(col, doc.id);
-  const space = prev?.space ?? doc.space ?? (col === 'accounts' || col === 'budgets' || col === 'goals' || col === 'recurring' ? currentSpace() : 'personal');
+  const space =
+    prev?.space ??
+    doc.space ??
+    (col === 'accounts' || col === 'budgets' || col === 'goals' || col === 'recurring'
+      ? currentSpace()
+      : 'personal');
   const change: Change = { space, col, before: prev ? cleanAny(prev) : null, after: cleanAny(doc) };
   if (message) await commitWithUndo([change], message);
   else await applyChanges([change]);
 }
 
-export async function deleteDoc(col: CollectionName, id: string, message = 'Eliminado'): Promise<void> {
+export async function deleteDoc(
+  col: CollectionName,
+  id: string,
+  message = 'Eliminado',
+): Promise<void> {
   const prev = find(col, id);
   if (!prev) return;
   await commitWithUndo([{ space: prev.space, col, before: cleanAny(prev), after: null }], message);
@@ -481,10 +674,17 @@ export async function deleteDoc(col: CollectionName, id: string, message = 'Elim
 // ——————————————————— Recurrentes ———————————————————
 
 /** Registra un pago recurrente (botón "Ya lo pagué") y avanza su siguiente fecha. */
-export async function payRecurring(rec: Recurring & { space?: Space }, date = todayISO()): Promise<void> {
+export async function payRecurring(
+  rec: Recurring & { space?: Space },
+  date = todayISO(),
+): Promise<void> {
   const prev = find('recurring', rec.id);
   const stamp = now();
-  const { amountMxnCents, rate } = convertToMxn(rec.template.amountCents, rec.template.currency, loadFxRates());
+  const { amountMxnCents, rate } = convertToMxn(
+    rec.template.amountCents,
+    rec.template.currency,
+    loadFxRates(),
+  );
   const tx: Transaction = {
     id: newId(),
     kind: rec.template.kind,
@@ -511,7 +711,15 @@ export async function payRecurring(rec: Recurring & { space?: Space }, date = to
   await commitWithUndo(
     [
       { space, col: 'transactions', before: null, after: tx },
-      { space, col: 'recurring', before: prev ? clean(prev) : null, after: { ...clean(rec as Recurring & { space: Space }), nextDate: nextOccurrence(rec.nextDate, rec.frequency) } },
+      {
+        space,
+        col: 'recurring',
+        before: prev ? clean(prev) : null,
+        after: {
+          ...clean(rec as Recurring & { space: Space }),
+          nextDate: nextOccurrence(rec.nextDate, rec.frequency),
+        },
+      },
     ],
     `✅ ${rec.name} registrado`,
   );
@@ -538,7 +746,8 @@ export async function processDueRecurring(): Promise<number> {
           kind: r.template.kind,
           amountCents: r.template.amountCents,
           currency: r.template.currency,
-          amountMxnCents: convertToMxn(r.template.amountCents, r.template.currency, loadFxRates()).amountMxnCents,
+          amountMxnCents: convertToMxn(r.template.amountCents, r.template.currency, loadFxRates())
+            .amountMxnCents,
           accountId: r.template.accountId,
           toAccountId: r.template.toAccountId ?? null,
           categoryId: r.template.categoryId,
@@ -558,7 +767,12 @@ export async function processDueRecurring(): Promise<number> {
       count++;
       next = nextOccurrence(next, r.frequency);
     }
-    changes.push({ space: r.space, col: 'recurring', before: clean(r), after: { ...clean(r), nextDate: next } });
+    changes.push({
+      space: r.space,
+      col: 'recurring',
+      before: clean(r),
+      after: { ...clean(r), nextDate: next },
+    });
   }
   if (changes.length) await applyChanges(changes);
   return count;
@@ -566,7 +780,16 @@ export async function processDueRecurring(): Promise<number> {
 
 // ——————————————————— MSI manual ———————————————————
 
-export function installmentPlanFromForm(p: { description: string; totalCents: number; months: number; accountId: string | null; startDate: string; paidMonths: number; categoryId: string | null; annualRate: number }) {
+export function installmentPlanFromForm(p: {
+  description: string;
+  totalCents: number;
+  months: number;
+  accountId: string | null;
+  startDate: string;
+  paidMonths: number;
+  categoryId: string | null;
+  annualRate: number;
+}) {
   const stamp = now();
   const plan: InstallmentPlan = { id: newId(), ...p, createdAt: stamp };
   const tx: Transaction = {
@@ -603,7 +826,12 @@ export async function loadDemoData(): Promise<void> {
       const existing = find(col, doc.id);
       // No pisar un presupuesto real del usuario con el de ejemplo.
       if (col === 'budgets' && existing && !isDemoDoc(existing)) continue;
-      changes.push({ space: 'personal', col, before: existing ? cleanAny(existing) : null, after: doc });
+      changes.push({
+        space: 'personal',
+        col,
+        before: existing ? cleanAny(existing) : null,
+        after: doc,
+      });
     }
   }
   await applyChanges(changes);
@@ -617,7 +845,8 @@ export async function clearDemoData(): Promise<void> {
   const s = useData.getState();
   for (const col of COLLECTIONS) {
     for (const d of s.data[col] as Array<AnyDoc & { space: Space; demo?: boolean }>) {
-      if (isDemoDoc(d) || (d as Transaction).id?.startsWith('rec_demo_')) ops.push({ type: 'delete', space: d.space, col, id: d.id });
+      if (isDemoDoc(d) || (d as Transaction).id?.startsWith('rec_demo_'))
+        ops.push({ type: 'delete', space: d.space, col, id: d.id });
     }
   }
   await s.write(ops);
@@ -636,7 +865,8 @@ export async function uploadLocalData(): Promise<number> {
   const { meta, data } = await local.exportAll();
   local.dispose();
   const ops: WriteOp[] = [];
-  for (const col of COLLECTIONS) for (const doc of data[col] ?? []) ops.push({ type: 'put', space: 'personal', col, doc });
+  for (const col of COLLECTIONS)
+    for (const doc of data[col] ?? []) ops.push({ type: 'put', space: 'personal', col, doc });
   await useData.getState().write(ops);
   if (meta.profile) await useData.getState().updateProfile(meta.profile);
   if (meta.settings) await useData.getState().updateSettings(meta.settings);

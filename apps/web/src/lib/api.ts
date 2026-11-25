@@ -1,7 +1,11 @@
 import { config, hasWorker } from '@/config';
 
 /** Llamadas al Cloudflare Worker (IA, recibos, push, vinculación). Requieren sesión de Firebase. */
-export async function workerFetch<T>(path: string, body?: unknown, init: RequestInit = {}): Promise<T> {
+export async function workerFetch<T>(
+  path: string,
+  body?: unknown,
+  init: RequestInit = {},
+): Promise<T> {
   if (!hasWorker()) throw new Error('El servidor (Worker) aún no está configurado.');
   let token: string | null = null;
   if (config.firebase) {

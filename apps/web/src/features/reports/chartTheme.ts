@@ -13,7 +13,13 @@ export const CHART = {
 };
 
 export const tooltipStyle = {
-  contentStyle: { background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 12, color: 'var(--ink)', fontSize: 13 },
+  contentStyle: {
+    background: 'var(--surface)',
+    border: '1px solid var(--line)',
+    borderRadius: 12,
+    color: 'var(--ink)',
+    fontSize: 13,
+  },
   labelStyle: { color: 'var(--muted)', fontWeight: 600 },
   itemStyle: { color: 'var(--ink)' },
   cursor: { fill: 'var(--surface-2)' },

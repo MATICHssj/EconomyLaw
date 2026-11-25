@@ -35,9 +35,14 @@ export function EditTransactionSheet() {
   }, [id]);
 
   if (!draft) return null;
-  const set = <K extends keyof Transaction>(k: K, v: Transaction[K]) => setDraft((d) => (d ? { ...d, [k]: v } : d));
-  const twoAccounts = draft.kind === 'transfer' || draft.kind === 'debt_payment' || draft.kind === 'investment';
-  const accountOptions = [{ value: '', label: '— Sin cuenta —' }, ...accounts.map((a) => ({ value: a.id, label: `${a.icon} ${a.name}` }))];
+  const set = <K extends keyof Transaction>(k: K, v: Transaction[K]) =>
+    setDraft((d) => (d ? { ...d, [k]: v } : d));
+  const twoAccounts =
+    draft.kind === 'transfer' || draft.kind === 'debt_payment' || draft.kind === 'investment';
+  const accountOptions = [
+    { value: '', label: '— Sin cuenta —' },
+    ...accounts.map((a) => ({ value: a.id, label: `${a.icon} ${a.name}` })),
+  ];
   const expert = isFeatureVisible(level, 'reconciliation');
 
   return (
@@ -71,42 +76,116 @@ export function EditTransactionSheet() {
     >
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <MoneyInput label="Monto" value={draft.amountCents} onChange={(v) => set('amountCents', v)} />
-          <Input label="Fecha" type="date" value={draft.date} onChange={(e) => e.target.value && set('date', e.target.value)} />
+          <MoneyInput
+            label="Monto"
+            value={draft.amountCents}
+            onChange={(v) => set('amountCents', v)}
+          />
+          <Input
+            label="Fecha"
+            type="date"
+            value={draft.date}
+            onChange={(e) => e.target.value && set('date', e.target.value)}
+          />
         </div>
-        <Input label="Descripción" value={draft.description} onChange={(e) => set('description', e.target.value)} maxLength={120} />
-        <Select label="Tipo" value={draft.kind} onChange={(e) => set('kind', e.target.value as Transaction['kind'])} options={TX_KINDS.map((k) => ({ value: k, label: KIND_LABELS[k] }))} />
+        <Input
+          label="Descripción"
+          value={draft.description}
+          onChange={(e) => set('description', e.target.value)}
+          maxLength={120}
+        />
+        <Select
+          label="Tipo"
+          value={draft.kind}
+          onChange={(e) => set('kind', e.target.value as Transaction['kind'])}
+          options={TX_KINDS.map((k) => ({ value: k, label: KIND_LABELS[k] }))}
+        />
         {(draft.kind === 'expense' || draft.kind === 'income') && (
           <div>
             <p className="mb-1.5 text-sm font-medium text-ink">Categoría</p>
-            <CategoryPicker value={draft.categoryId} type={draft.kind === 'income' ? 'income' : 'expense'} onChange={(c) => set('categoryId', c)} />
-            {draft.rawText && <p className="mt-1.5 text-xs text-muted">Si cambias la categoría, {`${'Fina'}`} aprenderá para la próxima vez.</p>}
+            <CategoryPicker
+              value={draft.categoryId}
+              type={draft.kind === 'income' ? 'income' : 'expense'}
+              onChange={(c) => set('categoryId', c)}
+            />
+            {draft.rawText && (
+              <p className="mt-1.5 text-xs text-muted">
+                Si cambias la categoría, {`${'Fina'}`} aprenderá para la próxima vez.
+              </p>
+            )}
           </div>
         )}
         <div className={twoAccounts ? 'grid grid-cols-2 gap-3' : ''}>
-          <Select label={twoAccounts ? 'Desde' : 'Cuenta'} value={draft.accountId ?? ''} onChange={(e) => set('accountId', e.target.value || null)} options={accountOptions} />
-          {twoAccounts && <Select label="Hacia" value={draft.toAccountId ?? ''} onChange={(e) => set('toAccountId', e.target.value || null)} options={accountOptions} />}
+          <Select
+            label={twoAccounts ? 'Desde' : 'Cuenta'}
+            value={draft.accountId ?? ''}
+            onChange={(e) => set('accountId', e.target.value || null)}
+            options={accountOptions}
+          />
+          {twoAccounts && (
+            <Select
+              label="Hacia"
+              value={draft.toAccountId ?? ''}
+              onChange={(e) => set('toAccountId', e.target.value || null)}
+              options={accountOptions}
+            />
+          )}
         </div>
-        {draft.myShareCents !== undefined && <MoneyInput label="Tu parte (gasto compartido)" value={draft.myShareCents} onChange={(v) => set('myShareCents', v)} hint="Solo tu parte cuenta como gasto en tus reportes." />}
+        {draft.myShareCents !== undefined && (
+          <MoneyInput
+            label="Tu parte (gasto compartido)"
+            value={draft.myShareCents}
+            onChange={(v) => set('myShareCents', v)}
+            hint="Solo tu parte cuenta como gasto en tus reportes."
+          />
+        )}
         <Input
           label="Etiquetas"
           value={draft.tags.map((t) => `#${t}`).join(' ')}
           placeholder="#viaje #negocio"
-          onChange={(e) => set('tags', e.target.value.split(/[\s,]+/).map((t) => t.replace(/^#/, '').toLowerCase()).filter(Boolean))}
+          onChange={(e) =>
+            set(
+              'tags',
+              e.target.value
+                .split(/[\s,]+/)
+                .map((t) => t.replace(/^#/, '').toLowerCase())
+                .filter(Boolean),
+            )
+          }
         />
-        <Input label="Nota" value={draft.note ?? ''} onChange={(e) => set('note', e.target.value || undefined)} maxLength={500} />
+        <Input
+          label="Nota"
+          value={draft.note ?? ''}
+          onChange={(e) => set('note', e.target.value || undefined)}
+          maxLength={500}
+        />
         {expert && (
           <>
             <Select
               label="Deducible (SAT)"
               value={draft.deductible ?? ''}
               onChange={(e) => set('deductible', e.target.value || undefined)}
-              options={[{ value: '', label: 'No es deducible' }, ...DEDUCTIBLE_CATEGORIES.map((d) => ({ value: d.id, label: `${d.emoji} ${d.name}` }))]}
+              options={[
+                { value: '', label: 'No es deducible' },
+                ...DEDUCTIBLE_CATEGORIES.map((d) => ({
+                  value: d.id,
+                  label: `${d.emoji} ${d.name}`,
+                })),
+              ]}
             />
-            <Toggle label="Conciliado" description="Ya lo verificaste contra tu estado de cuenta." checked={draft.reconciled} onChange={(v) => set('reconciled', v)} />
+            <Toggle
+              label="Conciliado"
+              description="Ya lo verificaste contra tu estado de cuenta."
+              checked={draft.reconciled}
+              onChange={(v) => set('reconciled', v)}
+            />
           </>
         )}
-        {draft.rawText && <p className="text-xs text-muted">Escribiste: “{draft.rawText}” · vía {draft.source}</p>}
+        {draft.rawText && (
+          <p className="text-xs text-muted">
+            Escribiste: “{draft.rawText}” · vía {draft.source}
+          </p>
+        )}
       </div>
     </Sheet>
   );

@@ -46,13 +46,46 @@ export default function CalendarPage() {
     const to = monthEnd(month);
     const ev: Record<string, DayEvent[]> = {};
     const add = (d: string, e: DayEvent) => (ev[d] ??= []).push(e);
-    for (const r of recurring.filter((x) => x.active)) for (const d of occurrencesBetween(r, from, to)) add(d, { title: r.name, emoji: r.template.kind === 'income' ? '💰' : '🔁', amountCents: r.template.amountCents, direction: r.template.kind === 'income' ? 'in' : 'out' });
-    for (const c of installmentsBetween(plans, from, to)) add(c.date, { title: `${c.description} ${c.n}/${c.of}`, emoji: '🗓️', amountCents: c.amountCents, direction: 'out' });
-    for (const t of tandas.filter((x) => !x.archived)) for (const r of tandaSchedule(t)) if (r.date >= from && r.date <= to) add(r.date, { title: r.isMyTurn ? `¡Cobras la tanda ${t.name}!` : `Tanda ${t.name}`, emoji: '🫙', amountCents: r.isMyTurn ? t.contributionCents * t.participants : t.contributionCents, direction: r.isMyTurn ? 'in' : 'out' });
+    for (const r of recurring.filter((x) => x.active))
+      for (const d of occurrencesBetween(r, from, to))
+        add(d, {
+          title: r.name,
+          emoji: r.template.kind === 'income' ? '💰' : '🔁',
+          amountCents: r.template.amountCents,
+          direction: r.template.kind === 'income' ? 'in' : 'out',
+        });
+    for (const c of installmentsBetween(plans, from, to))
+      add(c.date, {
+        title: `${c.description} ${c.n}/${c.of}`,
+        emoji: '🗓️',
+        amountCents: c.amountCents,
+        direction: 'out',
+      });
+    for (const t of tandas.filter((x) => !x.archived))
+      for (const r of tandaSchedule(t))
+        if (r.date >= from && r.date <= to)
+          add(r.date, {
+            title: r.isMyTurn ? `¡Cobras la tanda ${t.name}!` : `Tanda ${t.name}`,
+            emoji: '🫙',
+            amountCents: r.isMyTurn ? t.contributionCents * t.participants : t.contributionCents,
+            direction: r.isMyTurn ? 'in' : 'out',
+          });
     for (const st of f.statements) {
       const acc = accounts.find((a) => a.id === st.accountId);
-      if (st.dueDate >= from && st.dueDate <= to) add(st.dueDate, { title: `Límite de pago ${acc?.name ?? ''}`, emoji: '💳', amountCents: st.remainingToPayCents, direction: 'out' });
-      if (st.nextCutoffDate >= from && st.nextCutoffDate <= to) add(st.nextCutoffDate, { title: `Corte ${acc?.name ?? ''}`, emoji: '✂️', amountCents: 0, direction: 'out' });
+      if (st.dueDate >= from && st.dueDate <= to)
+        add(st.dueDate, {
+          title: `Límite de pago ${acc?.name ?? ''}`,
+          emoji: '💳',
+          amountCents: st.remainingToPayCents,
+          direction: 'out',
+        });
+      if (st.nextCutoffDate >= from && st.nextCutoffDate <= to)
+        add(st.nextCutoffDate, {
+          title: `Corte ${acc?.name ?? ''}`,
+          emoji: '✂️',
+          amountCents: 0,
+          direction: 'out',
+        });
     }
     if (profile?.payday && !recurring.some((r) => r.active && r.template.kind === 'income')) {
       let d = nextPayday(from, profile.payday);
@@ -63,7 +96,8 @@ export default function CalendarPage() {
       }
     }
     const sp: Record<string, number> = {};
-    for (const it of spendingItems(txs, plans, { from, to })) sp[it.date] = (sp[it.date] ?? 0) + it.amountCents;
+    for (const it of spendingItems(txs, plans, { from, to }))
+      sp[it.date] = (sp[it.date] ?? 0) + it.amountCents;
     return { events: ev, spent: sp };
   }, [month, recurring, plans, tandas, f.statements, accounts, profile, txs]);
 
@@ -107,13 +141,32 @@ export default function CalendarPage() {
                 aria-pressed={selected === d}
                 className={cx(
                   'flex min-h-14 flex-col items-center gap-0.5 rounded-xl border p-1 transition',
-                  selected === d ? 'border-accent-500 bg-accent-50 dark:bg-accent-950/50' : 'border-transparent hover:bg-surface-2',
+                  selected === d
+                    ? 'border-accent-500 bg-accent-50 dark:bg-accent-950/50'
+                    : 'border-transparent hover:bg-surface-2',
                   d < today && 'opacity-70',
                 )}
               >
-                <span className={cx('text-sm font-semibold', isToday ? 'flex h-6 w-6 items-center justify-center rounded-full bg-accent-600 text-white' : 'text-ink')}>{Number(d.slice(8))}</span>
-                <span className="flex flex-wrap justify-center text-[0.65rem] leading-none">{ev.slice(0, 3).map((e, i) => <span key={i}>{e.emoji}</span>)}</span>
-                {spent[d] ? <span className="text-[0.6rem] text-muted tabular-nums">{Math.round(spent[d] / 100)}</span> : null}
+                <span
+                  className={cx(
+                    'text-sm font-semibold',
+                    isToday
+                      ? 'flex h-6 w-6 items-center justify-center rounded-full bg-accent-600 text-white'
+                      : 'text-ink',
+                  )}
+                >
+                  {Number(d.slice(8))}
+                </span>
+                <span className="flex flex-wrap justify-center text-[0.65rem] leading-none">
+                  {ev.slice(0, 3).map((e, i) => (
+                    <span key={i}>{e.emoji}</span>
+                  ))}
+                </span>
+                {spent[d] ? (
+                  <span className="text-[0.6rem] text-muted tabular-nums">
+                    {Math.round(spent[d] / 100)}
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -134,12 +187,20 @@ export default function CalendarPage() {
               <li key={i} className="flex items-center gap-3">
                 <span className="text-xl">{e.emoji}</span>
                 <span className="flex-1 text-ink">{e.title}</span>
-                {e.amountCents > 0 && <Money cents={e.amountCents} kind={e.direction === 'in' ? 'income' : 'neutral'} className="font-semibold" />}
+                {e.amountCents > 0 && (
+                  <Money
+                    cents={e.amountCents}
+                    kind={e.direction === 'in' ? 'income' : 'neutral'}
+                    className="font-semibold"
+                  />
+                )}
               </li>
             ))}
           </ul>
         )}
-        {selected > today && <p className="mt-3 text-xs text-muted">Faltan {daysBetween(today, selected)} días.</p>}
+        {selected > today && (
+          <p className="mt-3 text-xs text-muted">Faltan {daysBetween(today, selected)} días.</p>
+        )}
       </Card>
     </div>
   );

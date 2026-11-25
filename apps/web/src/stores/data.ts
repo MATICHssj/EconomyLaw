@@ -64,7 +64,15 @@ export const useData = create<DataState>((set, get) => ({
 
   attach(backend) {
     get().detach();
-    set({ backend, ready: false, metaLoaded: false, loaded: new Set(), data: emptyCollections(), profile: null, settings: DEFAULT_SETTINGS });
+    set({
+      backend,
+      ready: false,
+      metaLoaded: false,
+      loaded: new Set(),
+      data: emptyCollections(),
+      profile: null,
+      settings: DEFAULT_SETTINGS,
+    });
     for (const k of COLLECTIONS) {
       personal[k] = [];
       shared[k] = [];
@@ -74,12 +82,20 @@ export const useData = create<DataState>((set, get) => ({
         const settings = SettingsSchema.parse({ ...(meta.settings ?? {}) });
         set({ profile: meta.profile ?? null, settings, metaLoaded: true });
         try {
-          localStorage.setItem('fina:boot', JSON.stringify({ theme: settings.theme, fontScale: settings.fontScale, accent: settings.accent }));
+          localStorage.setItem(
+            'fina:boot',
+            JSON.stringify({
+              theme: settings.theme,
+              fontScale: settings.fontScale,
+              accent: settings.accent,
+            }),
+          );
         } catch {
           /* sin almacenamiento */
         }
         const hid = meta.profile?.householdId ?? null;
-        if (hid !== (get().household?.id ?? null) && backend.kind === 'firebase') void attachHousehold(backend, hid);
+        if (hid !== (get().household?.id ?? null) && backend.kind === 'firebase')
+          void attachHousehold(backend, hid);
         if (!hid && get().household) {
           get().setHousehold(null);
         }
@@ -90,7 +106,11 @@ export const useData = create<DataState>((set, get) => ({
         backend.subscribe('personal', col, (docs) => {
           personal[col] = docs;
           const loaded = new Set(get().loaded).add(col);
-          set((s) => ({ data: { ...s.data, [col]: merged(col) }, loaded, ready: loaded.size === COLLECTIONS.length && s.metaLoaded }));
+          set((s) => ({
+            data: { ...s.data, [col]: merged(col) },
+            loaded,
+            ready: loaded.size === COLLECTIONS.length && s.metaLoaded,
+          }));
           if (col === 'categories' && docs.length === 0) seedCategories(backend);
         }),
       );
@@ -133,7 +153,14 @@ export const useData = create<DataState>((set, get) => ({
     const settings = { ...get().settings, ...patch };
     set({ settings });
     try {
-      localStorage.setItem('fina:boot', JSON.stringify({ theme: settings.theme, fontScale: settings.fontScale, accent: settings.accent }));
+      localStorage.setItem(
+        'fina:boot',
+        JSON.stringify({
+          theme: settings.theme,
+          fontScale: settings.fontScale,
+          accent: settings.accent,
+        }),
+      );
     } catch {
       /* sin almacenamiento */
     }
@@ -143,7 +170,8 @@ export const useData = create<DataState>((set, get) => ({
 
 // Cuando metaLoaded llega después de las colecciones, marcamos "ready".
 useData.subscribe((s, prev) => {
-  if (s.metaLoaded && !prev.metaLoaded && s.loaded.size === COLLECTIONS.length && !s.ready) useData.setState({ ready: true });
+  if (s.metaLoaded && !prev.metaLoaded && s.loaded.size === COLLECTIONS.length && !s.ready)
+    useData.setState({ ready: true });
 });
 
 let seeding = false;
@@ -151,7 +179,14 @@ function seedCategories(backend: DataBackend) {
   if (seeding) return;
   seeding = true;
   void backend
-    .write(buildDefaultCategories().map((doc) => ({ type: 'put', space: 'personal', col: 'categories', doc })))
+    .write(
+      buildDefaultCategories().map((doc) => ({
+        type: 'put',
+        space: 'personal',
+        col: 'categories',
+        doc,
+      })),
+    )
     .finally(() => {
       seeding = false;
     });
@@ -163,7 +198,10 @@ async function attachHousehold(backend: DataBackend, hid: string | null) {
   for (const col of HOUSEHOLD_COLLECTIONS) shared[col] = [];
   backend.setHousehold(hid);
   if (!hid) {
-    useData.setState((s) => ({ household: null, data: { ...s.data, ...Object.fromEntries(HOUSEHOLD_COLLECTIONS.map((c) => [c, merged(c)])) } }));
+    useData.setState((s) => ({
+      household: null,
+      data: { ...s.data, ...Object.fromEntries(HOUSEHOLD_COLLECTIONS.map((c) => [c, merged(c)])) },
+    }));
     return;
   }
   const { doc, onSnapshot } = await import('firebase/firestore');
@@ -171,7 +209,10 @@ async function attachHousehold(backend: DataBackend, hid: string | null) {
   householdUnsubs.push(
     onSnapshot(
       doc(firebase().db, 'households', hid),
-      (snap) => useData.getState().setHousehold(snap.exists() ? ({ ...(snap.data() as Household), id: snap.id }) : null),
+      (snap) =>
+        useData
+          .getState()
+          .setHousehold(snap.exists() ? { ...(snap.data() as Household), id: snap.id } : null),
       () => useData.getState().setHousehold(null),
     ),
   );

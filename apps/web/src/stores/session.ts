@@ -64,13 +64,20 @@ export const useSession = create<SessionState>((set, get) => ({
           set({
             status: 'ready',
             mode: 'firebase',
-            user: { uid: user.uid, name: user.displayName ?? '', email: user.email ?? '', photoURL: user.photoURL, emailVerified: user.emailVerified },
+            user: {
+              uid: user.uid,
+              name: user.displayName ?? '',
+              email: user.email ?? '',
+              photoURL: user.photoURL,
+              emailVerified: user.emailVerified,
+            },
           });
           useData.getState().attach(
             new FirebaseBackend(user.uid, (e) => {
               console.error(e);
               const code = (e as { code?: string })?.code;
-              if (code === 'permission-denied') toast('No tienes permiso para esa acción.', 'error');
+              if (code === 'permission-denied')
+                toast('No tienes permiso para esa acción.', 'error');
             }),
           );
         } else if (readMode() === 'local') {
@@ -85,7 +92,11 @@ export const useSession = create<SessionState>((set, get) => ({
 
   startLocal() {
     writeMode('local');
-    set({ status: 'ready', mode: 'local', user: { uid: 'local', name: '', email: '', photoURL: null, emailVerified: false } });
+    set({
+      status: 'ready',
+      mode: 'local',
+      user: { uid: 'local', name: '', email: '', photoURL: null, emailVerified: false },
+    });
     useData.getState().attach(new LocalBackend());
   },
 
@@ -95,7 +106,15 @@ export const useSession = create<SessionState>((set, get) => ({
     const u = fb.firebase().auth.currentUser;
     if (!u) return;
     await u.reload();
-    set({ user: { uid: u.uid, name: u.displayName ?? '', email: u.email ?? '', photoURL: u.photoURL, emailVerified: u.emailVerified } });
+    set({
+      user: {
+        uid: u.uid,
+        name: u.displayName ?? '',
+        email: u.email ?? '',
+        photoURL: u.photoURL,
+        emailVerified: u.emailVerified,
+      },
+    });
   },
 
   async signOut() {

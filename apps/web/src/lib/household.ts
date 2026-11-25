@@ -14,13 +14,19 @@ async function fs() {
 
 function me() {
   const u = useSession.getState().user;
-  if (!u || useSession.getState().mode !== 'firebase') throw new Error('Necesitas iniciar sesión con tu cuenta para usar el modo pareja.');
-  if (!u.emailVerified) throw new Error('Por seguridad, primero verifica tu correo (revisa tu bandeja de entrada).');
+  if (!u || useSession.getState().mode !== 'firebase')
+    throw new Error('Necesitas iniciar sesión con tu cuenta para usar el modo pareja.');
+  if (!u.emailVerified)
+    throw new Error('Por seguridad, primero verifica tu correo (revisa tu bandeja de entrada).');
   const name = useData.getState().profile?.name || u.name || 'Yo';
   return { uid: u.uid, name };
 }
 
-export async function createHousehold(name: string, splitMode: Household['splitMode'], myIncomeCents?: number): Promise<string> {
+export async function createHousehold(
+  name: string,
+  splitMode: Household['splitMode'],
+  myIncomeCents?: number,
+): Promise<string> {
   const { uid, name: myName } = me();
   const { doc, setDoc, db } = await fs();
   const hid = newId();
@@ -43,7 +49,11 @@ export async function createInvite(hid: string): Promise<string> {
   const { uid } = me();
   const { doc, setDoc, db } = await fs();
   const code = inviteCode(6);
-  await setDoc(doc(db, 'householdInvites', code), { hid, createdBy: uid, expiresAtMs: Date.now() + 7 * 86_400_000 });
+  await setDoc(doc(db, 'householdInvites', code), {
+    hid,
+    createdBy: uid,
+    expiresAtMs: Date.now() + 7 * 86_400_000,
+  });
   return code;
 }
 
@@ -64,7 +74,10 @@ export async function joinHousehold(rawCode: string, myIncomeCents?: number): Pr
   await useData.getState().updateProfile({ householdId: hid });
 }
 
-export async function updateHousehold(hid: string, patch: Partial<Pick<Household, 'name' | 'splitMode' | 'weights' | 'memberNames'>>): Promise<void> {
+export async function updateHousehold(
+  hid: string,
+  patch: Partial<Pick<Household, 'name' | 'splitMode' | 'weights' | 'memberNames'>>,
+): Promise<void> {
   const { doc, updateDoc, db } = await fs();
   await updateDoc(doc(db, 'households', hid), patch);
 }

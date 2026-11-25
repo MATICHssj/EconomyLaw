@@ -16,7 +16,9 @@ export function useCapture() {
     return parseMany(text, parseContext());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, rules, accounts, loans]);
-  const entries = results.filter((r): r is { ok: true; entry: ParsedEntry } => r.ok).map((r) => r.entry);
+  const entries = results
+    .filter((r): r is { ok: true; entry: ParsedEntry } => r.ok)
+    .map((r) => r.entry);
   const problems = results.filter((r) => !r.ok);
 
   async function submit(opts: CommitOptions = {}): Promise<boolean> {
@@ -30,7 +32,8 @@ export function useCapture() {
         void aiCategorize(tx.rawText ?? tx.description)
           .then(({ categoryId }) => {
             const current = getDocs('transactions').find((t) => t.id === tx.id);
-            if (categoryId && current && current.status === 'review') void saveTransaction({ ...current, categoryId, status: 'cleared' }, { learn: false });
+            if (categoryId && current && current.status === 'review')
+              void saveTransaction({ ...current, categoryId, status: 'cleared' }, { learn: false });
           })
           .catch(() => {});
       }
@@ -41,4 +44,15 @@ export function useCapture() {
   return { text, setText, results, entries, problems, submit };
 }
 
-export const EXAMPLES = ['galleta 30', 'uber 85', 'ayer tacos 120', '+15000 quincena', 'netflix 299 cada mes', 'cena 900 entre 3', 'tv 12000 a 12 msi con nu', 'le presté 200 a Juan', 'gasolina 500 con bbva', 'tacos 120, refresco 25'];
+export const EXAMPLES = [
+  'galleta 30',
+  'uber 85',
+  'ayer tacos 120',
+  '+15000 quincena',
+  'netflix 299 cada mes',
+  'cena 900 entre 3',
+  'tv 12000 a 12 msi con nu',
+  'le presté 200 a Juan',
+  'gasolina 500 con bbva',
+  'tacos 120, refresco 25',
+];

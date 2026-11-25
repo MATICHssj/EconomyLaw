@@ -19,7 +19,9 @@ export default function AccountsPage() {
   const [open, setOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const active = accounts.filter((a) => showArchived || !a.archived);
-  const savings = accounts.filter((a) => !a.archived && (a.type === 'savings' || a.type === 'investment')).reduce((s, a) => s + (f.balances[a.id] ?? 0), 0);
+  const savings = accounts
+    .filter((a) => !a.archived && (a.type === 'savings' || a.type === 'investment'))
+    .reduce((s, a) => s + (f.balances[a.id] ?? 0), 0);
 
   return (
     <div className="space-y-4">
@@ -39,7 +41,12 @@ export default function AccountsPage() {
         <Stat label="Ahorro" value={<Money cents={savings} />} />
       </div>
       {accounts.length === 0 ? (
-        <EmptyState emoji="🏦" title="Agrega tu primera cuenta" text="Efectivo, débito, tarjetas, Mercado Pago, vales… Nunca te pedimos contraseñas: solo el nombre y el saldo." action={<Button onClick={() => setOpen(true)}>Agregar cuenta</Button>} />
+        <EmptyState
+          emoji="🏦"
+          title="Agrega tu primera cuenta"
+          text="Efectivo, débito, tarjetas, Mercado Pago, vales… Nunca te pedimos contraseñas: solo el nombre y el saldo."
+          action={<Button onClick={() => setOpen(true)}>Agregar cuenta</Button>}
+        />
       ) : (
         GROUPS.map((g) => {
           const list = active.filter((a) => g.types.includes(a.type));
@@ -60,7 +67,9 @@ export default function AccountsPage() {
                     icon={<span style={{ color: a.color }}>{a.icon}</span>}
                     title={
                       <>
-                        {a.name} {a.archived && <span className="text-xs text-muted">(archivada)</span>} {a.space === 'household' && '🏠'}
+                        {a.name}{' '}
+                        {a.archived && <span className="text-xs text-muted">(archivada)</span>}{' '}
+                        {a.space === 'household' && '🏠'}
                       </>
                     }
                     subtitle={ACCOUNT_TYPE_LABELS[a.type]}
@@ -82,7 +91,11 @@ export default function AccountsPage() {
         })
       )}
       {accounts.some((a) => a.archived) && (
-        <button type="button" className="w-full text-center text-sm text-muted" onClick={() => setShowArchived((v) => !v)}>
+        <button
+          type="button"
+          className="w-full text-center text-sm text-muted"
+          onClick={() => setShowArchived((v) => !v)}
+        >
           {showArchived ? 'Ocultar archivadas' : 'Ver cuentas archivadas'}
         </button>
       )}

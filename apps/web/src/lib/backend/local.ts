@@ -1,6 +1,13 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import { COLLECTIONS, type CollectionName } from '@fina/core';
-import { stripUndefined, type AnyDoc, type DataBackend, type MetaDoc, type Space, type WriteOp } from './types';
+import {
+  stripUndefined,
+  type AnyDoc,
+  type DataBackend,
+  type MetaDoc,
+  type Space,
+  type WriteOp,
+} from './types';
 
 const DB_NAME = 'fina-local';
 const DB_VERSION = 1;
@@ -25,7 +32,8 @@ export class LocalBackend implements DataBackend {
   constructor() {
     this.db = openDB(DB_NAME, DB_VERSION, {
       upgrade(db) {
-        for (const col of COLLECTIONS) if (!db.objectStoreNames.contains(col)) db.createObjectStore(col, { keyPath: 'id' });
+        for (const col of COLLECTIONS)
+          if (!db.objectStoreNames.contains(col)) db.createObjectStore(col, { keyPath: 'id' });
         if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
       },
     });
@@ -103,8 +111,12 @@ export class LocalBackend implements DataBackend {
 
   async setMeta(patch: MetaDoc): Promise<void> {
     this.meta = {
-      profile: patch.profile ? { ...(this.meta.profile ?? {}), ...patch.profile } : this.meta.profile,
-      settings: patch.settings ? { ...(this.meta.settings ?? {}), ...patch.settings } : this.meta.settings,
+      profile: patch.profile
+        ? { ...(this.meta.profile ?? {}), ...patch.profile }
+        : this.meta.profile,
+      settings: patch.settings
+        ? { ...(this.meta.settings ?? {}), ...patch.settings }
+        : this.meta.settings,
     } as MetaDoc;
     for (const l of this.metaListeners) l(this.meta);
     const db = await this.db;

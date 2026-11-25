@@ -45,11 +45,24 @@ export function useCategoryMap(): Map<string, Category> {
   return useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 }
 
-const FALLBACK_CATEGORY: Category = { id: 'other', name: 'Otros', emoji: '📦', color: '#64748b', type: 'expense', group: 'wants', archived: false, system: true, order: 99 };
+const FALLBACK_CATEGORY: Category = {
+  id: 'other',
+  name: 'Otros',
+  emoji: '📦',
+  color: '#64748b',
+  type: 'expense',
+  group: 'wants',
+  archived: false,
+  system: true,
+  order: 99,
+};
 
 export function useCategory(id: string | null | undefined): Category {
   const map = useCategoryMap();
-  return (id && map.get(id)) || (id === null ? { ...FALLBACK_CATEGORY, name: 'Sin categoría', emoji: '↔️' } : FALLBACK_CATEGORY);
+  return (
+    (id && map.get(id)) ||
+    (id === null ? { ...FALLBACK_CATEGORY, name: 'Sin categoría', emoji: '↔️' } : FALLBACK_CATEGORY)
+  );
 }
 
 /**
@@ -75,12 +88,20 @@ export function useFinance() {
     const monthSummary = summarizePeriod(transactions, plans, monthStart(month), monthEnd(month));
     const prevKey = addMonthsKey(month, -1);
     const dayOfMonth = Number(today.slice(8));
-    const prevSamePoint = summarizePeriod(transactions, plans, monthStart(prevKey), `${prevKey}-${String(Math.min(dayOfMonth, 28)).padStart(2, '0')}`);
+    const prevSamePoint = summarizePeriod(
+      transactions,
+      plans,
+      monthStart(prevKey),
+      `${prevKey}-${String(Math.min(dayOfMonth, 28)).padStart(2, '0')}`,
+    );
     const prevFull = summarizePeriod(transactions, plans, monthStart(prevKey), monthEnd(prevKey));
     const spentToDate = summarizePeriod(transactions, plans, monthStart(month), today).spentCents;
     const budget = budgets.find((b) => b.id === month);
     const prevBudget = budgets.find((b) => b.id === prevKey);
-    const budgetLines = budgetProgress(budget, monthSummary.byCategory, { budget: prevBudget, spentByCategory: prevFull.byCategory });
+    const budgetLines = budgetProgress(budget, monthSummary.byCategory, {
+      budget: prevBudget,
+      spentByCategory: prevFull.byCategory,
+    });
     const budgetTotal = budgetLines.reduce((s, l) => s + l.assignedCents + l.carriedCents, 0);
     const budgetSpent = budgetLines.reduce((s, l) => s + l.spentCents, 0);
 
@@ -94,32 +115,81 @@ export function useFinance() {
     for (const st of statements) {
       const acc = accounts.find((a) => a.id === st.accountId)!;
       if (st.remainingToPayCents > 0 && st.dueDate >= today && st.dueDate <= horizon) {
-        upcoming.push({ id: `card_${acc.id}`, type: 'card', title: `Pagar ${acc.name}`, emoji: '💳', date: st.dueDate, daysUntil: daysBetween(today, st.dueDate), amountCents: st.remainingToPayCents, direction: 'out', refId: acc.id });
+        upcoming.push({
+          id: `card_${acc.id}`,
+          type: 'card',
+          title: `Pagar ${acc.name}`,
+          emoji: '💳',
+          date: st.dueDate,
+          daysUntil: daysBetween(today, st.dueDate),
+          amountCents: st.remainingToPayCents,
+          direction: 'out',
+          refId: acc.id,
+        });
       }
     }
     for (const c of installmentsBetween(plans, addDays(today, 1), horizon)) {
-      upcoming.push({ id: `msi_${c.planId}_${c.n}`, type: 'installment', title: `${c.description} (${c.n}/${c.of})`, emoji: '🗓️', date: c.date, daysUntil: daysBetween(today, c.date), amountCents: c.amountCents, direction: 'out', refId: c.planId });
+      upcoming.push({
+        id: `msi_${c.planId}_${c.n}`,
+        type: 'installment',
+        title: `${c.description} (${c.n}/${c.of})`,
+        emoji: '🗓️',
+        date: c.date,
+        daysUntil: daysBetween(today, c.date),
+        amountCents: c.amountCents,
+        direction: 'out',
+        refId: c.planId,
+      });
     }
     for (const t of tandas.filter((x) => !x.archived)) {
       for (const r of tandaSchedule(t)) {
         if (r.date < today || r.date > horizon) continue;
-        upcoming.push({ id: `tanda_${t.id}_${r.n}`, type: 'tanda', title: r.isMyTurn ? `¡Te toca la tanda ${t.name}!` : `Tanda ${t.name}`, emoji: '🫙', date: r.date, daysUntil: daysBetween(today, r.date), amountCents: r.isMyTurn ? t.contributionCents * t.participants : t.contributionCents, direction: r.isMyTurn ? 'in' : 'out', refId: t.id });
+        upcoming.push({
+          id: `tanda_${t.id}_${r.n}`,
+          type: 'tanda',
+          title: r.isMyTurn ? `¡Te toca la tanda ${t.name}!` : `Tanda ${t.name}`,
+          emoji: '🫙',
+          date: r.date,
+          daysUntil: daysBetween(today, r.date),
+          amountCents: r.isMyTurn ? t.contributionCents * t.participants : t.contributionCents,
+          direction: r.isMyTurn ? 'in' : 'out',
+          refId: t.id,
+        });
       }
     }
     for (const l of loans.filter((x) => !x.closed && x.dueDate && x.dueDate <= horizon)) {
-      upcoming.push({ id: `loan_${l.id}`, type: 'loan', title: l.direction === 'lent' ? `${l.person} te debe pagar` : `Pagarle a ${l.person}`, emoji: '🤝', date: l.dueDate!, daysUntil: daysBetween(today, l.dueDate!), amountCents: l.amountCents - l.paidCents, direction: l.direction === 'lent' ? 'in' : 'out', refId: l.id });
+      upcoming.push({
+        id: `loan_${l.id}`,
+        type: 'loan',
+        title: l.direction === 'lent' ? `${l.person} te debe pagar` : `Pagarle a ${l.person}`,
+        emoji: '🤝',
+        date: l.dueDate!,
+        daysUntil: daysBetween(today, l.dueDate!),
+        amountCents: l.amountCents - l.paidCents,
+        direction: l.direction === 'lent' ? 'in' : 'out',
+        refId: l.id,
+      });
     }
     upcoming.sort((a, b) => a.date.localeCompare(b.date));
 
     const payday = profile?.payday ?? { type: 'biweekly' as const, days: [15, 30] };
     const np = nextPayday(addDays(today, 1), payday);
     // Los MSI se pagan dentro del pago de la tarjeta: no los contamos dos veces.
-    const committed = upcoming.filter((u) => u.direction === 'out' && u.type !== 'installment' && (!np || u.date < np)).reduce((s, u) => s + u.amountCents, 0);
-    const safe = safeToSpendPerDay({ today, availableCents: available, committedCents: committed, nextPayday: np });
+    const committed = upcoming
+      .filter((u) => u.direction === 'out' && u.type !== 'installment' && (!np || u.date < np))
+      .reduce((s, u) => s + u.amountCents, 0);
+    const safe = safeToSpendPerDay({
+      today,
+      availableCents: available,
+      committedCents: committed,
+      nextPayday: np,
+    });
 
     const ant = antExpenses(transactions, monthStart(month), today);
     const subscriptions = detectSubscriptions(transactions, recurring, today);
-    const reviewCount = transactions.filter((t) => t.status === 'review' || t.categoryId === 'review').length;
+    const reviewCount = transactions.filter(
+      (t) => t.status === 'review' || t.categoryId === 'review',
+    ).length;
 
     return {
       today,

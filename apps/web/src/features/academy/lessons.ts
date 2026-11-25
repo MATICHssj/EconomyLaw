@@ -31,7 +31,12 @@ export const LESSONS: Lesson[] = [
       'Varios de una vez: “tacos 120, refresco 25, uber 60”. Si me equivoco de categoría, corrígela una vez y aprendo para siempre.',
     ],
     tryIt: { label: 'Anotar algo ahora', to: '/?capture=1' },
-    quiz: { q: '¿Qué escribirías para una pizza de $350 que dividiste entre 2?', options: ['pizza 350', 'pizza 350 entre 2', 'pizza 175 x 2'], answer: 1, why: 'Con “entre 2” guardo el total y cuento como gasto solo tu parte ($175). El resto queda “por cobrar”.' },
+    quiz: {
+      q: '¿Qué escribirías para una pizza de $350 que dividiste entre 2?',
+      options: ['pizza 350', 'pizza 350 entre 2', 'pizza 175 x 2'],
+      answer: 1,
+      why: 'Con “entre 2” guardo el total y cuento como gasto solo tu parte ($175). El resto queda “por cobrar”.',
+    },
   },
   {
     id: 'hormiga',
@@ -47,7 +52,12 @@ export const LESSONS: Lesson[] = [
       'Tres trucos: 1) ponles un presupuesto (p. ej. $600 al mes en “Tiendita y antojos”); 2) lleva agua y botana de casa; 3) celebra tus rachas de días sin gastos hormiga 🔥.',
     ],
     tryIt: { label: 'Ver mi Inicio', to: '/' },
-    quiz: { q: '$40 diarios en antojos, ¿cuánto es al año?', options: ['≈ $4,800', '≈ $14,600', '≈ $1,200'], answer: 1, why: '$40 × 365 = $14,600. ¡Los gastos chicos suman mucho!' },
+    quiz: {
+      q: '$40 diarios en antojos, ¿cuánto es al año?',
+      options: ['≈ $4,800', '≈ $14,600', '≈ $1,200'],
+      answer: 1,
+      why: '$40 × 365 = $14,600. ¡Los gastos chicos suman mucho!',
+    },
   },
   {
     id: '503020',
@@ -63,7 +73,12 @@ export const LESSONS: Lesson[] = [
       'Si tus necesidades pasan del 50 % (pasa mucho con la renta en ciudades grandes), no te frustres: ajusta a 60/20/20 y ve mejorando. En Presupuesto → 50/30/20 te muestro cómo vas.',
     ],
     tryIt: { label: 'Ver mi 50/30/20', to: '/presupuesto' },
-    quiz: { q: 'Con un ingreso de $16,000, ¿cuánto deberías ahorrar según 50/30/20?', options: ['$1,600', '$3,200', '$8,000'], answer: 1, why: 'El 20 % de $16,000 es $3,200.' },
+    quiz: {
+      q: 'Con un ingreso de $16,000, ¿cuánto deberías ahorrar según 50/30/20?',
+      options: ['$1,600', '$3,200', '$8,000'],
+      answer: 1,
+      why: 'El 20 % de $16,000 es $3,200.',
+    },
   },
   {
     id: 'emergencia',
@@ -95,7 +110,16 @@ export const LESSONS: Lesson[] = [
       'Usa menos del 30 % de tu línea de crédito: mejora tu historial en Buró de Crédito.',
     ],
     tryIt: { label: 'Configurar mi tarjeta', to: '/tarjetas' },
-    quiz: { q: 'Para no pagar intereses debes cubrir…', options: ['El pago mínimo', 'El pago para no generar intereses', 'Lo que quieras antes del corte'], answer: 1, why: 'El pago mínimo evita la mora, pero genera intereses sobre el resto.' },
+    quiz: {
+      q: 'Para no pagar intereses debes cubrir…',
+      options: [
+        'El pago mínimo',
+        'El pago para no generar intereses',
+        'Lo que quieras antes del corte',
+      ],
+      answer: 1,
+      why: 'El pago mínimo evita la mora, pero genera intereses sobre el resto.',
+    },
   },
   {
     id: 'msi',

@@ -8,7 +8,9 @@ const PIN_KEY = 'fina:pin';
 const BIO_KEY = 'fina:bio';
 
 export async function setPin(pin: string): Promise<void> {
-  const salt = crypto.getRandomValues(new Uint8Array(16)).reduce((s, b) => s + b.toString(16).padStart(2, '0'), '');
+  const salt = crypto
+    .getRandomValues(new Uint8Array(16))
+    .reduce((s, b) => s + b.toString(16).padStart(2, '0'), '');
   localStorage.setItem(PIN_KEY, JSON.stringify({ salt, hash: await sha256Hex(`${salt}:${pin}`) }));
 }
 
@@ -52,12 +54,20 @@ export async function enrollBiometric(): Promise<boolean> {
     publicKey: {
       challenge: crypto.getRandomValues(new Uint8Array(32)),
       rp: { name: 'Fina' },
-      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'fina-local', displayName: 'Fina' },
+      user: {
+        id: crypto.getRandomValues(new Uint8Array(16)),
+        name: 'fina-local',
+        displayName: 'Fina',
+      },
       pubKeyCredParams: [
         { type: 'public-key', alg: -7 },
         { type: 'public-key', alg: -257 },
       ],
-      authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' },
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        userVerification: 'required',
+        residentKey: 'discouraged',
+      },
       timeout: 60_000,
     },
   })) as PublicKeyCredential | null;

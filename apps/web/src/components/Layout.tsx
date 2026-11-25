@@ -17,7 +17,9 @@ interface NavItem {
 
 function useNavItems(): NavItem[] {
   const level = useData((s) => s.profile?.level ?? 'basic');
-  const third: NavItem = isFeatureVisible(level, 'budgets') ? { to: '/presupuesto', label: 'Presupuesto', icon: PiggyBank } : { to: '/aprende', label: 'Aprende', icon: BookOpen };
+  const third: NavItem = isFeatureVisible(level, 'budgets')
+    ? { to: '/presupuesto', label: 'Presupuesto', icon: PiggyBank }
+    : { to: '/aprende', label: 'Aprende', icon: BookOpen };
   return [
     { to: '/', label: 'Inicio', icon: Home },
     { to: '/movimientos', label: 'Movimientos', icon: ListOrdered },
@@ -35,7 +37,10 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh lg:flex">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2"
+      >
         Saltar al contenido
       </a>
       {/* Barra lateral (escritorio) */}
@@ -57,26 +62,40 @@ export function Layout({ children }: { children: ReactNode }) {
               to={it.to}
               end={it.to === '/'}
               className={({ isActive }) =>
-                cx('flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition', isActive ? 'bg-accent-50 text-accent-700 dark:bg-accent-950/60 dark:text-accent-200' : 'text-muted hover:bg-surface-2 hover:text-ink')
+                cx(
+                  'flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition',
+                  isActive
+                    ? 'bg-accent-50 text-accent-700 dark:bg-accent-950/60 dark:text-accent-200'
+                    : 'text-muted hover:bg-surface-2 hover:text-ink',
+                )
               }
             >
               <it.icon className="h-5 w-5" /> {it.label}
             </NavLink>
           ))}
         </nav>
-        <div className="mt-auto px-2 text-xs text-muted">Hecho en México 🇲🇽 · Tus datos son tuyos</div>
+        <div className="mt-auto px-2 text-xs text-muted">
+          Hecho en México 🇲🇽 · Tus datos son tuyos
+        </div>
       </aside>
 
       <div className="min-w-0 flex-1">
         {swUpdate && (
           <div className="flex items-center justify-center gap-3 bg-accent-600 px-4 py-2 text-sm text-white">
             Hay una versión nueva de la app.
-            <button type="button" onClick={swUpdate} className="inline-flex items-center gap-1 rounded-lg bg-white/20 px-2 py-1 font-semibold">
+            <button
+              type="button"
+              onClick={swUpdate}
+              className="inline-flex items-center gap-1 rounded-lg bg-white/20 px-2 py-1 font-semibold"
+            >
               <RefreshCw className="h-4 w-4" /> Actualizar
             </button>
           </div>
         )}
-        <main id="main" className="mx-auto w-full max-w-3xl px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:max-w-5xl lg:px-8 lg:pt-6 lg:pb-10">
+        <main
+          id="main"
+          className="mx-auto w-full max-w-3xl px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:max-w-5xl lg:px-8 lg:pt-6 lg:pb-10"
+        >
           <VerifyEmailBanner />
           {showDesktopCapture && (
             <div className="mb-4 hidden lg:block">
@@ -121,7 +140,12 @@ function TabLink({ item }: { item: NavItem }) {
     <NavLink
       to={item.to}
       end={item.to === '/'}
-      className={({ isActive }) => cx('flex flex-col items-center gap-0.5 py-2 text-[0.7rem] font-medium transition', isActive ? 'text-accent-600 dark:text-accent-300' : 'text-muted')}
+      className={({ isActive }) =>
+        cx(
+          'flex flex-col items-center gap-0.5 py-2 text-[0.7rem] font-medium transition',
+          isActive ? 'text-accent-600 dark:text-accent-300' : 'text-muted',
+        )
+      }
     >
       <item.icon className="h-6 w-6" />
       {item.label}

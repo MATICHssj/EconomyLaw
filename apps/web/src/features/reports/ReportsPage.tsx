@@ -1,5 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { ChevronLeft, ChevronRight, Download, FileSpreadsheet } from 'lucide-react';
 import {
   addDays,
@@ -21,7 +30,17 @@ import {
 import { useCategoryMap, useToday } from '@/lib/finance';
 import { useData, useDocs } from '@/stores/data';
 import { exportTransactionsCsv, exportTransactionsXlsx } from '@/lib/exporter';
-import { Card, CardTitle, EmptyState, IconButton, Money, PageHeader, Segmented, Stat, cx } from '@/components/ui';
+import {
+  Card,
+  CardTitle,
+  EmptyState,
+  IconButton,
+  Money,
+  PageHeader,
+  Segmented,
+  Stat,
+  cx,
+} from '@/components/ui';
 import { SpaceSwitcher } from '@/features/household/SpaceSwitcher';
 import { CHART, tooltipStyle } from './chartTheme';
 
@@ -45,10 +64,21 @@ export default function ReportsPage() {
     const trend = Array.from({ length: 6 }, (_, i) => {
       const k = addMonthsKey(month, i - 5);
       const s = summarizePeriod(txs, plans, monthStart(k), monthEnd(k));
-      return { key: k, label: formatMonthKey(k, false).slice(0, 3), Ingresos: s.incomeCents / 100, Gastos: s.spentCents / 100, savingsRate: s.incomeCents ? Math.round(((s.incomeCents - s.spentCents) / s.incomeCents) * 100) : null };
+      return {
+        key: k,
+        label: formatMonthKey(k, false).slice(0, 3),
+        Ingresos: s.incomeCents / 100,
+        Gastos: s.spentCents / 100,
+        savingsRate: s.incomeCents
+          ? Math.round(((s.incomeCents - s.spentCents) / s.incomeCents) * 100)
+          : null,
+      };
     });
     const items = spendingItems(txs, plans, { from: monthStart(month), to: monthEnd(month) });
-    const byWeekday = Array.from({ length: 7 }, (_, d) => ({ day: WEEKDAYS_ES[d]!.slice(0, 3), Gasto: 0 }));
+    const byWeekday = Array.from({ length: 7 }, (_, d) => ({
+      day: WEEKDAYS_ES[d]!.slice(0, 3),
+      Gasto: 0,
+    }));
     const byDay: Record<string, number> = {};
     const merchants = new Map<string, { name: string; total: number; count: number }>();
     for (const it of items) {
@@ -64,7 +94,15 @@ export default function ReportsPage() {
     const compare = [...new Set([...Object.keys(cur.byCategory), ...Object.keys(prev.byCategory)])]
       .map((c) => ({ c, now: cur.byCategory[c] ?? 0, before: prev.byCategory[c] ?? 0 }))
       .sort((a, b) => Math.abs(b.now - b.before) - Math.abs(a.now - a.before));
-    return { cur, prev, trend, byWeekday, byDay, merchants: [...merchants.values()].sort((a, b) => b.total - a.total).slice(0, 8), compare };
+    return {
+      cur,
+      prev,
+      trend,
+      byWeekday,
+      byDay,
+      merchants: [...merchants.values()].sort((a, b) => b.total - a.total).slice(0, 8),
+      compare,
+    };
   }, [txs, plans, month]);
 
   const top = topEntries(r.cur.byCategory, 12);
@@ -81,10 +119,16 @@ export default function ReportsPage() {
         back
         actions={
           <>
-            <IconButton label="Exportar CSV del mes" onClick={() => exportTransactionsCsv(monthTxs)}>
+            <IconButton
+              label="Exportar CSV del mes"
+              onClick={() => exportTransactionsCsv(monthTxs)}
+            >
               <Download className="h-5 w-5" />
             </IconButton>
-            <IconButton label="Exportar Excel del mes" onClick={() => void exportTransactionsXlsx(monthTxs)}>
+            <IconButton
+              label="Exportar Excel del mes"
+              onClick={() => void exportTransactionsXlsx(monthTxs)}
+            >
               <FileSpreadsheet className="h-5 w-5" />
             </IconButton>
           </>
@@ -101,9 +145,23 @@ export default function ReportsPage() {
         </IconButton>
       </div>
       <div className="grid grid-cols-3 gap-2">
-        <Stat label="Gastos" value={<Money cents={r.cur.spentCents} />} hint={r.prev.spentCents ? `${percent(r.cur.spentCents - r.prev.spentCents, r.prev.spentCents) > 0 ? '▲' : '▼'} ${Math.abs(percent(r.cur.spentCents - r.prev.spentCents, r.prev.spentCents))} % vs anterior` : undefined} />
+        <Stat
+          label="Gastos"
+          value={<Money cents={r.cur.spentCents} />}
+          hint={
+            r.prev.spentCents
+              ? `${percent(r.cur.spentCents - r.prev.spentCents, r.prev.spentCents) > 0 ? '▲' : '▼'} ${Math.abs(percent(r.cur.spentCents - r.prev.spentCents, r.prev.spentCents))} % vs anterior`
+              : undefined
+          }
+        />
         <Stat label="Ingresos" value={<Money cents={r.cur.incomeCents} />} />
-        <Stat label="Ahorro" value={<Money cents={savings} />} hint={r.cur.incomeCents ? `${percent(savings, r.cur.incomeCents)} % de tu ingreso` : undefined} />
+        <Stat
+          label="Ahorro"
+          value={<Money cents={savings} />}
+          hint={
+            r.cur.incomeCents ? `${percent(savings, r.cur.incomeCents)} % de tu ingreso` : undefined
+          }
+        />
       </div>
       <Segmented<Tab>
         label="Tipo de reporte"
@@ -131,11 +189,15 @@ export default function ReportsPage() {
                       {catMap.get(c)?.emoji} {catMap.get(c)?.name ?? c}
                     </span>
                     <span className="shrink-0 text-muted">
-                      <Money cents={v} className="font-semibold text-ink" /> · {percent(v, r.cur.spentCents)} %
+                      <Money cents={v} className="font-semibold text-ink" /> ·{' '}
+                      {percent(v, r.cur.spentCents)} %
                     </span>
                   </div>
                   <div className="h-2.5 overflow-hidden rounded-full bg-surface-2">
-                    <div className="h-full rounded-full" style={{ width: `${(v / max) * 100}%`, background: CHART.single }} />
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${(v / max) * 100}%`, background: CHART.single }}
+                    />
                   </div>
                 </li>
               ))}
@@ -146,12 +208,31 @@ export default function ReportsPage() {
       {tab === 'trend' && (
         <Card>
           <CardTitle>Ingresos vs. gastos (6 meses)</CardTitle>
-          <div className="h-64" role="img" aria-label="Gráfica de ingresos contra gastos de los últimos 6 meses">
+          <div
+            className="h-64"
+            role="img"
+            aria-label="Gráfica de ingresos contra gastos de los últimos 6 meses"
+          >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={r.trend} barGap={2} margin={{ top: 8, right: 4, left: -8, bottom: 0 }}>
+              <BarChart
+                data={r.trend}
+                barGap={2}
+                margin={{ top: 8, right: 4, left: -8, bottom: 0 }}
+              >
                 <CartesianGrid vertical={false} stroke={CHART.grid} />
-                <XAxis dataKey="label" tick={{ fill: CHART.axis, fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tickFormatter={yTick} tick={{ fill: CHART.axis, fontSize: 11 }} axisLine={false} tickLine={false} width={56} />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fill: CHART.axis, fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tickFormatter={yTick}
+                  tick={{ fill: CHART.axis, fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={56}
+                />
                 <Tooltip formatter={(v) => tipFmt(Number(v))} {...tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 13, color: 'var(--ink)' }} />
                 <Bar dataKey="Ingresos" fill={CHART.income} radius={[4, 4, 0, 0]} maxBarSize={22} />
@@ -179,7 +260,14 @@ export default function ReportsPage() {
                   <td className="py-1.5 text-right">
                     <Money cents={Math.round(m.Gastos * 100)} />
                   </td>
-                  <td className={cx('py-1.5 text-right font-semibold', (m.savingsRate ?? 0) < 0 ? 'text-rose-600' : 'text-ink')}>{m.savingsRate === null ? '—' : `${m.savingsRate} %`}</td>
+                  <td
+                    className={cx(
+                      'py-1.5 text-right font-semibold',
+                      (m.savingsRate ?? 0) < 0 ? 'text-rose-600' : 'text-ink',
+                    )}
+                  >
+                    {m.savingsRate === null ? '—' : `${m.savingsRate} %`}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -202,7 +290,12 @@ export default function ReportsPage() {
                   </span>
                   <span className="flex shrink-0 items-center gap-3">
                     <Money cents={now} className="font-semibold text-ink" />
-                    <span className={cx('w-24 text-right font-medium', d > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-income')}>
+                    <span
+                      className={cx(
+                        'w-24 text-right font-medium',
+                        d > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-income',
+                      )}
+                    >
                       {d > 0 ? '▲' : d < 0 ? '▼' : '='} <Money cents={Math.abs(d)} />
                     </span>
                   </span>
@@ -221,8 +314,19 @@ export default function ReportsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={r.byWeekday} margin={{ top: 8, right: 4, left: -8, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke={CHART.grid} />
-                  <XAxis dataKey="day" tick={{ fill: CHART.axis, fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis tickFormatter={yTick} tick={{ fill: CHART.axis, fontSize: 11 }} axisLine={false} tickLine={false} width={56} />
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fill: CHART.axis, fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tickFormatter={yTick}
+                    tick={{ fill: CHART.axis, fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={56}
+                  />
                   <Tooltip formatter={(v) => tipFmt(Number(v))} {...tooltipStyle} />
                   <Bar dataKey="Gasto" fill={CHART.single} radius={[4, 4, 0, 0]} maxBarSize={28} />
                 </BarChart>
@@ -271,13 +375,21 @@ function Heatmap({ month, byDay }: { month: string; byDay: Record<string, number
         ))}
         {days.map((d) => {
           const v = byDay[d] ?? 0;
-          const step = v ? Math.min(CHART.sequential.length - 1, Math.floor((v / max) * (CHART.sequential.length - 1)) + 1) : -1;
+          const step = v
+            ? Math.min(
+                CHART.sequential.length - 1,
+                Math.floor((v / max) * (CHART.sequential.length - 1)) + 1,
+              )
+            : -1;
           return (
             <div
               key={d}
               title={`${Number(d.slice(8))}: ${privacy ? '••••' : formatMoney(v)}`}
               aria-label={`Día ${Number(d.slice(8))}: ${formatMoney(v)}`}
-              className={cx('flex aspect-square items-center justify-center rounded-md text-[0.7rem] font-medium', step >= 4 ? 'text-white' : 'text-ink')}
+              className={cx(
+                'flex aspect-square items-center justify-center rounded-md text-[0.7rem] font-medium',
+                step >= 4 ? 'text-white' : 'text-ink',
+              )}
               style={{ background: step >= 0 ? CHART.sequential[step] : 'var(--surface-2)' }}
             >
               {Number(d.slice(8))}
