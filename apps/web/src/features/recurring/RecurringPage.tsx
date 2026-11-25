@@ -1,3 +1,4 @@
+import { CatIcon, ICONS, IconTile } from '@/components/icons';
 import { useEffect, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import {
@@ -95,11 +96,11 @@ export default function RecurringPage() {
 
       {f.subscriptions.length > 0 && (
         <Card className="border-accent-200 dark:border-accent-900">
-          <CardTitle>🔎 Detecté cargos que se repiten</CardTitle>
+          <CardTitle>Detecté cargos que se repiten</CardTitle>
           <ul className="space-y-2">
             {f.subscriptions.map((s) => (
               <li key={s.key} className="flex items-center gap-3">
-                <span className="text-xl">{catMap.get(s.categoryId ?? '')?.emoji ?? '🔁'}</span>
+                <CatIcon category={catMap.get(s.categoryId ?? '')} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-ink">{s.name}</p>
                   <p className="text-sm text-muted">
@@ -140,7 +141,7 @@ export default function RecurringPage() {
             ))}
           </ul>
           <p className="mt-3 text-xs text-muted">
-            💡 ¿Ya no la usas? Cancélala desde la app del servicio y ahorra.
+            ¿Ya no la usas? Cancélala desde la app del servicio y ahorra.
           </p>
         </Card>
       )}
@@ -167,9 +168,11 @@ export default function RecurringPage() {
                   className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   onClick={() => setEditing(r)}
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-2 text-xl">
-                    {r.template.kind === 'income' ? '💰' : (cat?.emoji ?? '🔁')}
-                  </span>
+                  {r.template.kind === 'income' ? (
+                    <IconTile icon={ICONS.salary} color="#059669" />
+                  ) : (
+                    <CatIcon category={cat} />
+                  )}
                   <div className="min-w-0">
                     <p className="truncate font-medium text-ink">
                       {r.name} {r.autoCreate && <Badge>auto</Badge>}

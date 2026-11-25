@@ -187,14 +187,10 @@ export default function DebtsPage() {
                 [
                   [
                     'snowball',
-                    '⛄ Bola de nieve',
+                    'Bola de nieve',
                     'Primero la más chica: victorias rápidas que motivan.',
                   ],
-                  [
-                    'avalanche',
-                    '🏔️ Avalancha',
-                    'Primero la de mayor interés: pagas menos en total.',
-                  ],
+                  ['avalanche', 'Avalancha', 'Primero la de mayor interés: pagas menos en total.'],
                 ] as const
               ).map(([k, label, desc]) => {
                 const r = res[k];
@@ -232,7 +228,7 @@ export default function DebtsPage() {
             </div>
             {res.interestSavedWithAvalancheCents > 0 && (
               <p className="mt-3 text-sm text-ink">
-                💡 Con avalancha te ahorras{' '}
+                Con avalancha te ahorras{' '}
                 <Money cents={res.interestSavedWithAvalancheCents} className="font-bold" /> en
                 intereses.
               </p>

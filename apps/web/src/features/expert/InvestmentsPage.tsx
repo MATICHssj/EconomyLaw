@@ -27,13 +27,13 @@ import {
 
 const TYPE_LABELS: Record<Investment['type'], string> = {
   cetes: '🇲🇽 CETES',
-  afore: '👵 Afore',
-  fund: '📦 Fondo',
-  stock: '📈 Acciones/ETF',
-  crypto: '🪙 Cripto',
-  pagare: '🏦 Pagaré',
-  ppr: '🧓 PPR',
-  other: '💼 Otra',
+  afore: 'Afore',
+  fund: 'Fondo',
+  stock: 'Acciones/ETF',
+  crypto: 'Cripto',
+  pagare: 'Pagaré',
+  ppr: 'PPR',
+  other: 'Otra',
 };
 
 export default function InvestmentsPage() {

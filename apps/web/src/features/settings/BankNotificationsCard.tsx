@@ -36,7 +36,7 @@ export function BankNotificationsCard() {
       </p>
       {enabled ? (
         <>
-          <p className="text-sm text-income">✅ Permiso activado. Elige de qué apps leer:</p>
+          <p className="text-sm text-income">Permiso activado. Elige de qué apps leer:</p>
           {BANK_APPS.map((b) => (
             <Toggle
               key={b.package}
@@ -54,7 +54,7 @@ export function BankNotificationsCard() {
       <Sheet
         open={privacyOpen}
         onClose={() => setPrivacyOpen(false)}
-        title="Antes de activar 🔒"
+        title="Antes de activar"
         footer={
           <Button
             block
@@ -69,17 +69,16 @@ export function BankNotificationsCard() {
       >
         <ul className="space-y-2 text-sm text-ink">
           <li>
-            ✅ Solo leo las apps de banco que TÚ elijas. Ignoro WhatsApp, correos, mensajes y todo
-            lo demás.
+            Solo leo las apps de banco que TÚ elijas. Ignoro WhatsApp, correos, mensajes y todo lo
+            demás.
           </li>
-          <li>✅ El texto se procesa en tu teléfono para sacar el monto y el comercio.</li>
+          <li>El texto se procesa en tu teléfono para sacar el monto y el comercio.</li>
           <li>
-            ✅ Nunca leo contraseñas, códigos ni tokens (y los bancos no los mandan en
-            notificaciones).
+            Nunca leo contraseñas, códigos ni tokens (y los bancos no los mandan en notificaciones).
           </li>
           <li>
-            ✅ Puedes desactivarlo cuando quieras en Ajustes del teléfono → Notificaciones → Acceso
-            a notificaciones.
+            Puedes desactivarlo cuando quieras en Ajustes del teléfono → Notificaciones → Acceso a
+            notificaciones.
           </li>
         </ul>
         <p className="mt-3 text-sm text-muted">

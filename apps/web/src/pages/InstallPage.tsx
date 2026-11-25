@@ -27,6 +27,31 @@ export default function InstallPage() {
           <Download className="h-5 w-5" /> Instalar Fina en este dispositivo
         </Button>
       )}
+      {(config.appStoreUrl || config.playStoreUrl) && (
+        <Card className="space-y-2">
+          <CardTitle>Descárgala de tu tienda</CardTitle>
+          {config.appStoreUrl && (p === 'ios' || p === 'desktop') && (
+            <a
+              href={config.appStoreUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-12 items-center justify-center gap-2 rounded-xl bg-ink font-semibold text-bg"
+            >
+              <Download className="h-5 w-5" /> Descargar en el App Store
+            </a>
+          )}
+          {config.playStoreUrl && (p === 'android' || p === 'desktop') && (
+            <a
+              href={config.playStoreUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-12 items-center justify-center gap-2 rounded-xl bg-ink font-semibold text-bg"
+            >
+              <Download className="h-5 w-5" /> Descargar en Google Play
+            </a>
+          )}
+        </Card>
+      )}
       <Card className={p === 'android' ? 'border-accent-300' : ''}>
         <CardTitle>
           <span className="flex items-center gap-2">

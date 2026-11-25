@@ -40,7 +40,7 @@ El APK de Android se publica solo en **Releases** (enlace fijo: `…/releases/la
 9. En Authentication → Configuración → **Dominios autorizados** agrega `matichssj.github.io` (y tu dominio si tienes).
 10. En GitHub → Actions → “Publicar web” → **Run workflow**. Esto publica la app en `https://<tu-proyecto>.web.app` **y sube las reglas de seguridad**.
 
-> Si me pegas en el chat el bloque `firebaseConfig` (paso 5), yo creo las variables por ti. **Nunca** pegues el `.json` de la cuenta de servicio en el chat: ese va solo en GitHub Secrets.
+> Atajo: pégame en el chat el bloque `firebaseConfig` (paso 5) y yo lo pongo en `apps/web/src/app.public.json` (es configuración pública); con eso el inicio de sesión se activa en la web y en el APK. **Nunca** pegues el `.json` de la cuenta de servicio en el chat: ese va solo en GitHub Secrets.
 
 ---
 
@@ -92,10 +92,26 @@ En GitHub **Secrets**: `ANDROID_KEYSTORE_BASE64` (contenido del `.b64`), `ANDROI
 
 ---
 
+## 6. Publicar en las tiendas (cuando quieras)
+
+La app ya funciona instalada desde el APK (Android) y desde el navegador (iPhone y computadora). Las tiendas son opcionales y **tienen costo**:
+
+| | Google Play | App Store (iPhone) |
+|---|---|---|
+| Cuenta | Pago único de 25 USD | 99 USD al año (Apple Developer Program) |
+| Qué se sube | Archivo `.aab` (`./gradlew bundleRelease`, firmado con tu llave del paso 5) | Proyecto iOS de Capacitor (`npx cap add ios`), compilado en una Mac con Xcode o en un servicio en la nube con Mac |
+| Revisión | Horas a pocos días | 1 a 3 días |
+| Requisitos | Ficha con capturas, aviso de privacidad (ya hay borrador) | Lo mismo + revisión más estricta |
+
+Cuando la app esté publicada, pon los enlaces en `apps/web/src/app.public.json` (`appStoreUrl`, `playStoreUrl`) o pídemelo: la página **Instalar** de la app mandará a cada quien a su tienda en lugar del APK.
+
+---
+
 ## Cambiar nombre, colores o textos
 
 - Nombre, eslogan y paletas: `packages/core/src/brand.ts` (y `name`/`short_name` en `apps/web/vite.config.ts`).
-- Íconos: `apps/web/scripts/icons.mjs` y `apps/web/scripts/android-icons.mjs`.
+- Ícono de la app: `apps/web/scripts/icons.mjs` y `apps/web/scripts/android-icons.mjs`.
+- Íconos dentro de la app (líneas sencillas): `apps/web/src/components/icons.tsx`. En Ajustes → Apariencia → Íconos se puede volver a los emojis.
 - Lecciones de “Aprende”: `apps/web/src/features/academy/lessons.ts`.
 - Categorías por defecto y palabras clave: `packages/core/src/categories.ts` y `packages/parser/src/dictionary.ts`.
 

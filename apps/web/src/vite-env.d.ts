@@ -14,4 +14,6 @@ interface ImportMetaEnv {
   readonly VITE_WHATSAPP_NUMBER?: string;
   readonly VITE_APK_URL?: string;
   readonly VITE_EMAIL_DOMAIN?: string;
+  readonly VITE_APP_STORE_URL?: string;
+  readonly VITE_PLAY_STORE_URL?: string;
 }

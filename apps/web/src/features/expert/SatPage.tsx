@@ -1,3 +1,4 @@
+import { EmojiIcon } from '@/components/icons';
 import { useMemo, useState } from 'react';
 import { Upload } from 'lucide-react';
 import {
@@ -154,8 +155,8 @@ export default function SatPage() {
           {DEDUCTIBLE_CATEGORIES.map((d) => (
             <li key={d.id} className="flex items-start justify-between gap-3 text-sm">
               <div>
-                <p className="font-medium text-ink">
-                  {d.emoji} {d.name}
+                <p className="flex items-center gap-2 font-medium text-ink">
+                  <EmojiIcon emoji={d.emoji} className="h-4 w-4 text-muted" /> {d.name}
                 </p>
                 <p className="text-xs text-muted">{d.help}</p>
               </div>

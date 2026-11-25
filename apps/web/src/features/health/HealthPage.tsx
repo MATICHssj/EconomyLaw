@@ -129,9 +129,7 @@ export default function HealthPage() {
               </span>
             </div>
             <div>
-              <p className="text-2xl font-bold text-ink">
-                {health.emoji} {health.label}
-              </p>
+              <p className="text-2xl font-bold text-ink">{health.label}</p>
               <p className="text-sm text-muted">Basado en tus últimos 3 meses.</p>
             </div>
           </Card>

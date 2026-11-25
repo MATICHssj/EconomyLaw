@@ -51,14 +51,18 @@ export class LocalBackend implements DataBackend {
 
   private async reload(col: CollectionName) {
     const db = await this.db;
-    const all = db ? ((await db.getAll(col).catch(() => [])) as AnyDoc[]) : [...(this.cache.get(col)?.values() ?? [])];
+    const all = db
+      ? ((await db.getAll(col).catch(() => [])) as AnyDoc[])
+      : [...(this.cache.get(col)?.values() ?? [])];
     this.cache.set(col, new Map(all.map((d) => [d.id, d])));
     this.emit(col);
   }
 
   private async reloadMeta() {
     const db = await this.db;
-    if (db) this.meta = ((await db.get('meta', 'me').catch(() => undefined)) as MetaDoc | undefined) ?? {};
+    if (db)
+      this.meta =
+        ((await db.get('meta', 'me').catch(() => undefined)) as MetaDoc | undefined) ?? {};
     for (const l of this.metaListeners) l(this.meta);
   }
 

@@ -184,7 +184,7 @@ export default function CardsPage() {
           </>
         )}
         {done > 0 && (
-          <p className="mt-3 text-xs text-muted">✅ {done} compras a meses ya liquidadas.</p>
+          <p className="mt-3 text-xs text-muted">{done} compras a meses ya liquidadas.</p>
         )}
       </Card>
       <Tip>

@@ -1,3 +1,4 @@
+import { EmojiIcon } from '@/components/icons';
 import { Link } from 'react-router';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { useData } from '@/stores/data';
@@ -23,7 +24,7 @@ export default function AcademyPage() {
       <PageHeader title="Aprende" subtitle="Lecciones de 2 minutos para que tu dinero rinda más." />
       <Card>
         <CardTitle>
-          🗺️ Tus misiones · nivel{' '}
+          Tus misiones · nivel{' '}
           {level === 'basic' ? 'Básico' : level === 'organized' ? 'Organizado' : 'Experto'}
         </CardTitle>
         <ProgressBar value={progress * 100} label="Progreso de misiones" />
@@ -37,7 +38,7 @@ export default function AcademyPage() {
                 ) : (
                   <Circle className="h-5 w-5 shrink-0 text-line" />
                 )}
-                <span className="text-lg">{m.emoji}</span>
+                <EmojiIcon emoji={m.emoji} className="h-[1.1rem] w-[1.1rem] shrink-0 text-muted" />
                 <span
                   className={cx(
                     'flex-1 text-sm',
@@ -90,8 +91,8 @@ export default function AcademyPage() {
             to={`/aprende/${l.id}`}
             className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 transition hover:border-accent-300"
           >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-2xl">
-              {l.emoji}
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-700 dark:bg-accent-950/60 dark:text-accent-200">
+              <EmojiIcon emoji={l.emoji} className="h-6 w-6" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-semibold text-ink">{l.title}</span>

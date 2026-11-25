@@ -104,7 +104,7 @@ export function passwordStrength(pw: string): { score: number; ok: boolean; mess
     ok,
     message: ok
       ? score >= 3
-        ? 'Contraseña fuerte 💪'
+        ? 'Contraseña fuerte'
         : 'Contraseña aceptable'
       : 'Combina mayúsculas, minúsculas, números o símbolos (o usa 12+ caracteres).',
   };

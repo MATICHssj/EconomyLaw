@@ -1,5 +1,6 @@
+import { CatIcon } from '@/components/icons';
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Copy, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, Plus, Repeat, Sparkles, Trash2 } from 'lucide-react';
 import {
   addMonthsKey,
   budgetProgress,
@@ -159,8 +160,7 @@ export default function BudgetPage() {
                   <div key={g.group}>
                     <div className="mb-1 flex justify-between text-sm">
                       <span className="font-medium text-ink">
-                        {g.group === 'needs' ? '🏠' : g.group === 'wants' ? '🎉' : '🐷'} {g.label}{' '}
-                        <span className="text-muted">(meta {g.targetPct} %)</span>
+                        {g.label} <span className="text-muted">(meta {g.targetPct} %)</span>
                       </span>
                       <span className="text-muted">
                         <Money cents={g.actualCents} className="font-semibold text-ink" /> de{' '}
@@ -205,7 +205,7 @@ export default function BudgetPage() {
               ? 'Asigna cada peso a un sobre hasta llegar a $0.'
               : zero.toAssignCents < 0
                 ? 'Asignaste más de lo que tienes. Quita de algún sobre.'
-                : '¡Perfecto! Cada peso tiene un trabajo. 🎯'}
+                : '¡Perfecto! Cada peso tiene un trabajo.'}
           </p>
           <p className="mt-2 text-xs text-muted">
             Ingresos del mes <Money cents={zero.availableToAssignCents} /> − asignado{' '}
@@ -303,10 +303,13 @@ export default function BudgetPage() {
                         }
                       >
                         <div className="mb-1.5 flex items-center justify-between gap-2">
-                          <span className="font-medium text-ink">
-                            {c?.emoji} {c?.name ?? l.categoryId}
+                          <span className="flex items-center gap-2 font-medium text-ink">
+                            <CatIcon category={c} size="sm" /> {c?.name ?? l.categoryId}
                             {budget!.lines[l.categoryId]?.rollover && (
-                              <span className="ml-1 text-xs text-muted">↪︎</span>
+                              <Repeat
+                                className="h-3.5 w-3.5 text-muted"
+                                aria-label="Pasa el sobrante"
+                              />
                             )}
                           </span>
                           <span
@@ -368,8 +371,8 @@ export default function BudgetPage() {
               <ul className="space-y-1">
                 {unbudgeted.slice(0, 6).map(([c, v]) => (
                   <li key={c} className="flex items-center justify-between text-sm">
-                    <span className="text-ink">
-                      {catMap.get(c)?.emoji} {catMap.get(c)?.name ?? c}
+                    <span className="flex items-center gap-2 text-ink">
+                      <CatIcon category={catMap.get(c)} size="sm" /> {catMap.get(c)?.name ?? c}
                     </span>
                     <span className="flex items-center gap-2">
                       <Money cents={v} className="text-muted" />

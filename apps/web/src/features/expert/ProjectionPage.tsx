@@ -77,7 +77,7 @@ export default function ProjectionPage() {
           </p>
         )}
         <p className={cx('mt-1 text-sm', negative ? 'font-semibold text-rose-600' : 'text-muted')}>
-          {negative ? '⚠️ ' : ''}Tu punto más bajo: <Money cents={p.lowest.balanceCents} /> el{' '}
+          Tu punto más bajo: <Money cents={p.lowest.balanceCents} /> el{' '}
           {formatLongDate(p.lowest.date)}.
         </p>
         <div className="mt-4 h-60" role="img" aria-label="Saldo disponible proyectado por día">

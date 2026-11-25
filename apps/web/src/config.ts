@@ -3,7 +3,10 @@
  * (en GitHub: Settings → Secrets and variables → Actions → Variables).
  * La configuración web de Firebase NO es secreta: está protegida por las reglas.
  */
+import pub from './app.public.json';
+
 const env = import.meta.env;
+const fb = pub.firebase;
 
 const firebaseConfig =
   env.VITE_FIREBASE_API_KEY && env.VITE_FIREBASE_PROJECT_ID
@@ -16,19 +19,24 @@ const firebaseConfig =
         messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
         appId: env.VITE_FIREBASE_APP_ID,
       }
-    : null;
+    : fb.apiKey && fb.projectId
+      ? { ...fb, authDomain: fb.authDomain || `${fb.projectId}.firebaseapp.com` }
+      : null;
 
 export const config = {
   /** null = la app funciona en modo local (sin cuenta, solo este dispositivo). */
   firebase: env.MODE === 'single' ? null : firebaseConfig,
-  vapidKey: env.VITE_FIREBASE_VAPID_KEY ?? '',
+  vapidKey: env.VITE_FIREBASE_VAPID_KEY || pub.vapidKey,
   /** URL del Cloudflare Worker (WhatsApp, IA, push, correos). */
-  workerUrl: (env.VITE_WORKER_URL ?? '').replace(/\/$/, ''),
+  workerUrl: (env.VITE_WORKER_URL || pub.workerUrl).replace(/\/$/, ''),
   /** Número de WhatsApp del bot, con lada: 5215512345678 */
-  whatsappNumber: env.VITE_WHATSAPP_NUMBER ?? '',
+  whatsappNumber: env.VITE_WHATSAPP_NUMBER || pub.whatsappNumber,
   apkUrl:
     env.VITE_APK_URL ?? 'https://github.com/MATICHssj/EconomyLaw/releases/latest/download/fina.apk',
-  emailDomain: env.VITE_EMAIL_DOMAIN ?? '',
+  emailDomain: env.VITE_EMAIL_DOMAIN || pub.emailDomain,
+  /** Cuando la app esté en las tiendas, la página Instalar manda ahí. */
+  appStoreUrl: env.VITE_APP_STORE_URL || pub.appStoreUrl,
+  playStoreUrl: env.VITE_PLAY_STORE_URL || pub.playStoreUrl,
   repoUrl: 'https://github.com/MATICHssj/EconomyLaw',
   isDemoBuild: env.MODE === 'single',
   version: __APP_VERSION__,

@@ -1,9 +1,12 @@
+import { CatIcon, IconPicker } from '@/components/icons';
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
-import { newId, type Category } from '@fina/core';
+import { DEFAULT_CATEGORY_MAP, newId, type Category } from '@fina/core';
 import { saveDoc } from '@/lib/actions';
 import { useData } from '@/stores/data';
 import { Button, Card, Input, PageHeader, Segmented, Select, Sheet, Toggle } from '@/components/ui';
+
+const DEFAULT_IDS = new Set(Object.keys(DEFAULT_CATEGORY_MAP));
 
 const COLORS = [
   '#ea580c',
@@ -30,7 +33,7 @@ export default function CategoriesPage() {
     <div className="space-y-4">
       <PageHeader
         title="Categorías"
-        subtitle="Personalízalas con emoji y color. Las de sistema no se pueden borrar."
+        subtitle="Personalízalas con ícono y color. Las de sistema no se pueden borrar."
         back
         actions={
           <Button
@@ -39,7 +42,7 @@ export default function CategoriesPage() {
               setEditing({
                 id: newId(),
                 name: '',
-                emoji: '🏷️',
+                emoji: 'i:tag',
                 color: COLORS[0]!,
                 parentId: null,
                 type,
@@ -72,12 +75,7 @@ export default function CategoriesPage() {
               onClick={() => setEditing(c)}
               className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-surface-2"
             >
-              <span
-                className="flex h-10 w-10 items-center justify-center rounded-xl text-xl"
-                style={{ background: `${c.color}22` }}
-              >
-                {c.emoji}
-              </span>
+              <CatIcon category={c} />
               <span className="flex-1">
                 <span className={c.archived ? 'text-muted line-through' : 'font-medium text-ink'}>
                   {c.name}
@@ -128,12 +126,10 @@ function CategorySheet({ value, onClose }: { value: Category | null; onClose: ()
       }
     >
       <div className="space-y-4">
-        <div className="grid grid-cols-[4.5rem_1fr] gap-3">
-          <Input
-            label="Emoji"
-            value={d.emoji}
-            onChange={(e) => setD({ ...d, emoji: e.target.value.slice(0, 4) })}
-          />
+        {!(d.system || DEFAULT_IDS.has(d.id)) && (
+          <IconPicker value={d.emoji} onChange={(v) => setD({ ...d, emoji: v })} />
+        )}
+        <div>
           <Input
             label="Nombre"
             value={d.name}
@@ -166,9 +162,9 @@ function CategorySheet({ value, onClose }: { value: Category | null; onClose: ()
             value={d.group}
             onChange={(e) => setD({ ...d, group: e.target.value as Category['group'] })}
             options={[
-              { value: 'needs', label: '🏠 Necesidad' },
-              { value: 'wants', label: '🎉 Gusto' },
-              { value: 'savings', label: '🐷 Ahorro / deudas' },
+              { value: 'needs', label: 'Necesidad' },
+              { value: 'wants', label: 'Gusto' },
+              { value: 'savings', label: 'Ahorro / deudas' },
             ]}
           />
         )}
@@ -180,7 +176,7 @@ function CategorySheet({ value, onClose }: { value: Category | null; onClose: ()
             { value: '', label: 'Ninguna' },
             ...categories
               .filter((c) => c.type === d.type && c.id !== d.id && !c.parentId)
-              .map((c) => ({ value: c.id, label: `${c.emoji} ${c.name}` })),
+              .map((c) => ({ value: c.id, label: c.name })),
           ]}
         />
         {!d.system && (

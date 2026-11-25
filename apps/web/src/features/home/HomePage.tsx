@@ -1,3 +1,5 @@
+import { Bug, CalendarDays } from 'lucide-react';
+import { CatIcon, EmojiIcon } from '@/components/icons';
 import { Link } from 'react-router';
 import { ArrowRight, Eye, EyeOff, Sparkles } from 'lucide-react';
 import {
@@ -77,7 +79,7 @@ export function HomePage() {
           <p className="text-sm text-muted">{formatLongDate(f.today)}</p>
           <h1 className="text-2xl font-bold tracking-tight text-ink">
             {greeting()}
-            {name ? `, ${name}` : ''} 👋
+            {name ? `, ${name}` : ''}
           </h1>
         </div>
         <IconButton
@@ -93,7 +95,7 @@ export function HomePage() {
 
       {f.txCount === 0 ? (
         <Card className="bg-gradient-to-br from-accent-600 to-accent-800 text-white">
-          <h2 className="text-xl font-bold">¡Bienvenido a {BRAND.appName}! 🎉</h2>
+          <h2 className="text-xl font-bold">¡Bienvenido a {BRAND.appName}!</h2>
           <p className="mt-1 text-white/85">
             Escribe arriba tu primer gasto, por ejemplo <b>“galleta 30”</b>. Yo adivino la
             categoría, la cuenta y la fecha.
@@ -182,8 +184,8 @@ export function HomePage() {
         f.nextPayday &&
         (organized || f.monthSummary.incomeCents > 0) && (
           <Card className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-2xl dark:bg-emerald-950">
-              🗓️
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+              <CalendarDays className="h-6 w-6" strokeWidth={1.75} aria-hidden />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm text-muted">
@@ -219,9 +221,7 @@ export function HomePage() {
                       : 'border-line bg-surface',
               )}
             >
-              <span className="text-2xl" aria-hidden>
-                {i.emoji}
-              </span>
+              <EmojiIcon emoji={i.emoji} className="h-6 w-6 shrink-0 text-ink/70" />
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-ink">{i.title}</p>
                 {i.text && <p className="text-sm text-muted">{i.text}</p>}
@@ -237,8 +237,8 @@ export function HomePage() {
       {next && (
         <Card className="border-accent-200 bg-accent-50/60 dark:border-accent-900 dark:bg-accent-950/30">
           <div className="flex items-center gap-3">
-            <span className="text-3xl" aria-hidden>
-              {next.emoji}
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent-100 text-accent-700 dark:bg-accent-900/60 dark:text-accent-200">
+              <EmojiIcon emoji={next.emoji} className="h-6 w-6" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold tracking-wide text-accent-700 uppercase dark:text-accent-300">
@@ -277,8 +277,8 @@ export function HomePage() {
           <ul className="space-y-1">
             {f.upcoming.slice(0, 5).map((u) => (
               <li key={u.id} className="flex items-center gap-3 rounded-xl px-1 py-1.5">
-                <span className="text-xl" aria-hidden>
-                  {u.emoji}
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-ink/70">
+                  <EmojiIcon emoji={u.emoji} className="h-[1.1rem] w-[1.1rem]" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-ink">{u.title}</p>
@@ -320,8 +320,8 @@ export function HomePage() {
               return (
                 <li key={catId}>
                   <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="font-medium text-ink">
-                      {c?.emoji ?? '📦'} {c?.name ?? 'Otros'}
+                    <span className="flex items-center gap-2 font-medium text-ink">
+                      <CatIcon category={c} size="sm" /> {c?.name ?? 'Otros'}
                     </span>
                     <span className="text-muted">
                       <Money cents={amount} className="font-semibold text-ink" /> ·{' '}
@@ -346,15 +346,18 @@ export function HomePage() {
 
       {f.ant.count >= 3 && (
         <Card className="flex items-center gap-4">
-          <div className="text-4xl" aria-hidden>
-            🐜
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+            aria-hidden
+          >
+            <Bug className="h-6 w-6" strokeWidth={1.75} />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm text-muted">Tus gastos hormiga del mes</p>
             <p className="text-xl font-bold text-ink">
               <Money cents={f.ant.totalCents} />{' '}
               <span className="text-base font-medium text-muted">
-                = {f.ant.equivalence.qty} {f.ant.equivalence.label} {f.ant.equivalence.emoji}
+                = {f.ant.equivalence.qty} {f.ant.equivalence.label}
               </span>
             </p>
             <p className="text-xs text-muted">

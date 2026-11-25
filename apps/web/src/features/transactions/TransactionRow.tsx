@@ -1,22 +1,12 @@
 import { useRef, useState, type PointerEvent } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { House, Pencil, Trash2 } from 'lucide-react';
+import { CatIcon, IconTile, kindIcon } from '@/components/icons';
 import type { Transaction } from '@fina/core';
 import { deleteTransaction } from '@/lib/actions';
 import { useCategory } from '@/lib/finance';
 import { useData, type WithSpace } from '@/stores/data';
 import { useUI } from '@/stores/ui';
 import { Badge, Money, cx } from '@/components/ui';
-
-const KIND_EMOJI: Partial<Record<Transaction['kind'], string>> = {
-  transfer: '🔁',
-  debt_payment: '💳',
-  loan_given: '🤝',
-  loan_received: '🤝',
-  loan_collected: '✅',
-  loan_repaid: '✅',
-  investment: '📈',
-  tanda: '🫙',
-};
 
 const IN_KINDS = new Set(['income', 'loan_received', 'loan_collected']);
 
@@ -36,7 +26,7 @@ export function TransactionRow({
   const moved = useRef(false);
   const account = accounts.find((a) => a.id === tx.accountId);
   const toAccount = accounts.find((a) => a.id === tx.toAccountId);
-  const emoji = KIND_EMOJI[tx.kind] ?? cat.emoji;
+  const KindIco = kindIcon(tx.kind);
   const isIn = IN_KINDS.has(tx.kind);
   const neutral = tx.kind === 'transfer' || tx.kind === 'debt_payment' || tx.kind === 'investment';
 
@@ -106,18 +96,17 @@ export function TransactionRow({
         style={{ transform: `translateX(${dx}px)`, touchAction: 'pan-y' }}
         className="relative flex w-full items-center gap-3 bg-surface px-2 py-2.5 text-left transition-transform duration-150 hover:bg-surface-2"
       >
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl"
-          style={{ background: `${cat.color}1f` }}
-          aria-hidden
-        >
-          {emoji}
-        </div>
+        {KindIco ? <IconTile icon={KindIco} /> : <CatIcon category={cat} />}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate font-medium text-ink">{tx.description}</span>
             {tx.status === 'review' && <Badge tone="warn">Revisar</Badge>}
-            {tx.space === 'household' && <span title="Compartido en el hogar">🏠</span>}
+            {tx.space === 'household' && (
+              <House
+                className="h-3.5 w-3.5 shrink-0 text-muted"
+                aria-label="Compartido en el hogar"
+              />
+            )}
           </div>
           <div className="truncate text-sm text-muted">
             {neutral

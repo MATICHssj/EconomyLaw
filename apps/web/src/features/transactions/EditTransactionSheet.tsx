@@ -41,7 +41,7 @@ export function EditTransactionSheet() {
     draft.kind === 'transfer' || draft.kind === 'debt_payment' || draft.kind === 'investment';
   const accountOptions = [
     { value: '', label: '— Sin cuenta —' },
-    ...accounts.map((a) => ({ value: a.id, label: `${a.icon} ${a.name}` })),
+    ...accounts.map((a) => ({ value: a.id, label: a.name })),
   ];
   const expert = isFeatureVisible(level, 'reconciliation');
 
@@ -169,7 +169,7 @@ export function EditTransactionSheet() {
                 { value: '', label: 'No es deducible' },
                 ...DEDUCTIBLE_CATEGORIES.map((d) => ({
                   value: d.id,
-                  label: `${d.emoji} ${d.name}`,
+                  label: d.name,
                 })),
               ]}
             />

@@ -35,11 +35,7 @@ export default function LessonPage() {
 
   return (
     <article className="space-y-4">
-      <PageHeader
-        title={`${lesson.emoji} ${lesson.title}`}
-        subtitle={`${lesson.minutes} minutos`}
-        back="/aprende"
-      />
+      <PageHeader title={lesson.title} subtitle={`${lesson.minutes} minutos`} back="/aprende" />
       <Card className="space-y-3 text-[1.02rem] leading-relaxed text-ink/90">
         {lesson.body.map((p, i) => (
           <p key={i}>{rich(p)}</p>
@@ -47,7 +43,7 @@ export default function LessonPage() {
       </Card>
       {lesson.quiz && (
         <Card>
-          <p className="font-semibold text-ink">🧠 {lesson.quiz.q}</p>
+          <p className="font-semibold text-ink">{lesson.quiz.q}</p>
           <div className="mt-3 space-y-2" role="radiogroup">
             {lesson.quiz.options.map((o, i) => {
               const picked = choice === i;
@@ -83,7 +79,7 @@ export default function LessonPage() {
                 choice === lesson.quiz.answer ? 'text-income' : 'text-ink',
               )}
             >
-              {choice === lesson.quiz.answer ? '¡Correcto! 🎉 ' : 'Casi. '}
+              {choice === lesson.quiz.answer ? '¡Correcto! ' : 'Casi. '}
               {lesson.quiz.why}
             </p>
           )}
@@ -112,7 +108,7 @@ export default function LessonPage() {
             </Link>
           ))}
         <Button block onClick={finish}>
-          {next ? `Siguiente: ${next.emoji} ${next.title}` : 'Terminar'}
+          {next ? `Siguiente: ${next.title}` : 'Terminar'}
         </Button>
       </div>
     </article>

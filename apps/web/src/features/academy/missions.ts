@@ -23,7 +23,7 @@ export const MISSIONS: Mission[] = [
     level: 'basic',
     emoji: '✍️',
     title: 'Anota tu primer gasto',
-    text: 'Toca ➕ y escribe algo como "café 45". Así de fácil.',
+    text: 'Toca + y escribe algo como "café 45". Así de fácil.',
     to: '/?capture=1',
     cta: 'Anotar',
     done: (s) => s.data.transactions.some((t) => t.source !== 'demo'),

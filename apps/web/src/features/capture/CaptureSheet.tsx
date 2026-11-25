@@ -57,7 +57,7 @@ export function CaptureSheet() {
         setText(
           `${r.merchant ?? 'ticket'} ${r.total}${r.date ? ` ${r.date.split('-').reverse().slice(0, 2).join('/')}` : ''}`,
         );
-      else toast('No pude leer el total del ticket. Escríbelo tú 🙏', 'error');
+      else toast('No pude leer el total del ticket. Escríbelo tú, por favor.', 'error');
     } catch (e) {
       toast((e as Error).message || 'No se pudo leer el ticket', 'error');
     } finally {
@@ -142,8 +142,8 @@ export function CaptureSheet() {
             value={space}
             onChange={setSpace}
             options={[
-              { value: 'personal', label: '🙋 Personal' },
-              { value: 'household', label: `🏠 ${household.name}` },
+              { value: 'personal', label: 'Personal' },
+              { value: 'household', label: household.name },
             ]}
           />
         )}

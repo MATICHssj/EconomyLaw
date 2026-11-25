@@ -1,23 +1,25 @@
 import { formatMoney, formatRelativeDay, INSTITUTION_MAP, splitCents } from '@fina/core';
 import type { ParsedEntry } from '@fina/parser';
+import { Repeat, User } from 'lucide-react';
 import { useCategory, useToday } from '@/lib/finance';
+import { CatIcon, IconTile, kindIcon } from '@/components/icons';
 import { useData } from '@/stores/data';
 import { Badge, cx } from '@/components/ui';
 
-const KIND_LABELS: Record<ParsedEntry['kind'], { label: string; emoji: string }> = {
-  expense: { label: 'Gasto', emoji: '' },
-  income: { label: 'Ingreso', emoji: '💰' },
-  transfer: { label: 'Transferencia', emoji: '🔁' },
-  debt_payment: { label: 'Pago de tarjeta', emoji: '💳' },
-  loan_given: { label: 'Préstamo', emoji: '🤝' },
-  loan_received: { label: 'Te prestaron', emoji: '🤝' },
-  loan_collected: { label: 'Te pagaron', emoji: '✅' },
-  loan_repaid: { label: 'Pagaste deuda', emoji: '✅' },
-  investment: { label: 'Inversión', emoji: '📈' },
-  tanda: { label: 'Tanda', emoji: '🫙' },
+const KIND_LABELS: Record<ParsedEntry['kind'], string> = {
+  expense: 'Gasto',
+  income: 'Ingreso',
+  transfer: 'Transferencia',
+  debt_payment: 'Pago de tarjeta',
+  loan_given: 'Préstamo',
+  loan_received: 'Te prestaron',
+  loan_collected: 'Te pagaron',
+  loan_repaid: 'Pagaste deuda',
+  investment: 'Inversión',
+  tanda: 'Tanda',
 };
 
-/** Vista previa en vivo: "🍪 Tiendita · −$30 · Efectivo · Hoy" */
+/** Vista previa en vivo: "Tiendita · −$30 · Efectivo · Hoy" */
 export function EntryPreview({ entry, compact }: { entry: ParsedEntry; compact?: boolean }) {
   const cat = useCategory(entry.categoryId ?? (entry.kind === 'expense' ? 'review' : null));
   const accounts = useData((s) => s.data.accounts);
@@ -31,7 +33,7 @@ export function EntryPreview({ entry, compact }: { entry: ParsedEntry; compact?:
   const isIn =
     entry.kind === 'income' || entry.kind === 'loan_collected' || entry.kind === 'loan_received';
   const showCategory = entry.kind === 'expense' || entry.kind === 'income';
-  const emoji = showCategory ? cat.emoji : kind.emoji;
+  const KindIco = showCategory ? undefined : kindIcon(entry.kind);
   return (
     <div
       className={cx(
@@ -39,13 +41,7 @@ export function EntryPreview({ entry, compact }: { entry: ParsedEntry; compact?:
         compact && 'p-2.5',
       )}
     >
-      <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl"
-        style={{ background: `${cat.color}22` }}
-        aria-hidden
-      >
-        {emoji}
-      </div>
+      {KindIco ? <IconTile icon={KindIco} /> : <CatIcon category={cat} />}
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate font-semibold text-ink">{entry.description}</span>
@@ -60,7 +56,7 @@ export function EntryPreview({ entry, compact }: { entry: ParsedEntry; compact?:
           </span>
         </div>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-muted">
-          <span>{showCategory ? cat.name : kind.label}</span>
+          <span>{showCategory ? cat.name : kind}</span>
           {from && <span>· {from}</span>}
           {to && <span>→ {to}</span>}
           <span>· {formatRelativeDay(entry.date, today)}</span>
@@ -81,7 +77,7 @@ export function EntryPreview({ entry, compact }: { entry: ParsedEntry; compact?:
           )}
           {entry.recurrence && (
             <Badge tone="accent">
-              🔁{' '}
+              <Repeat className="mr-1 inline h-3 w-3" aria-hidden />
               {
                 {
                   weekly: 'Cada semana',
@@ -92,7 +88,12 @@ export function EntryPreview({ entry, compact }: { entry: ParsedEntry; compact?:
               }
             </Badge>
           )}
-          {entry.person && <Badge>👤 {entry.person}</Badge>}
+          {entry.person && (
+            <Badge>
+              <User className="mr-1 inline h-3 w-3" aria-hidden />
+              {entry.person}
+            </Badge>
+          )}
           {entry.tags.map((t) => (
             <Badge key={t}>#{t}</Badge>
           ))}

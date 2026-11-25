@@ -1,3 +1,4 @@
+import { EmojiIcon } from '@/components/icons';
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -157,9 +158,9 @@ export default function CalendarPage() {
                 >
                   {Number(d.slice(8))}
                 </span>
-                <span className="flex flex-wrap justify-center text-[0.65rem] leading-none">
+                <span className="flex flex-wrap justify-center gap-0.5 leading-none">
                   {ev.slice(0, 3).map((e, i) => (
-                    <span key={i}>{e.emoji}</span>
+                    <EmojiIcon key={i} emoji={e.emoji} className="h-3 w-3 text-muted" />
                   ))}
                 </span>
                 {spent[d] ? (
@@ -185,7 +186,9 @@ export default function CalendarPage() {
           <ul className="mt-2 space-y-2">
             {sel.map((e, i) => (
               <li key={i} className="flex items-center gap-3">
-                <span className="text-xl">{e.emoji}</span>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-ink/70">
+                  <EmojiIcon emoji={e.emoji} className="h-[1.1rem] w-[1.1rem]" />
+                </span>
                 <span className="flex-1 text-ink">{e.title}</span>
                 {e.amountCents > 0 && (
                   <Money

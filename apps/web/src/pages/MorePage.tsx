@@ -1,3 +1,4 @@
+import { EmojiIcon, LEVEL_ICONS } from '@/components/icons';
 import { Link } from 'react-router';
 import { FEATURES, LEVEL_INFO, isFeatureVisible, type FeatureId, type Level } from '@fina/core';
 import { useData } from '@/stores/data';
@@ -69,6 +70,7 @@ export default function MorePage() {
   const user = useSession((s) => s.user);
   const mode = useSession((s) => s.mode);
   const { progress } = useMissions();
+  const LevelIcon = LEVEL_ICONS[level];
   const hidden = (Object.keys(FEATURES) as FeatureId[]).filter(
     (f) => !isFeatureVisible(level, f),
   ).length;
@@ -81,7 +83,7 @@ export default function MorePage() {
           {user?.photoURL ? (
             <img src={user.photoURL} alt="" className="h-12 w-12 rounded-full" />
           ) : (
-            LEVEL_INFO[level].emoji
+            <LevelIcon className="h-6 w-6" strokeWidth={1.75} />
           )}
         </div>
         <div className="min-w-0 flex-1">
@@ -111,8 +113,8 @@ export default function MorePage() {
                   to={t.to}
                   className="flex flex-col items-center gap-1.5 rounded-2xl border border-line bg-surface p-3 text-center transition hover:border-accent-300 hover:bg-surface-2"
                 >
-                  <span className="text-3xl" aria-hidden>
-                    {t.emoji}
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-50 text-accent-700 dark:bg-accent-950/60 dark:text-accent-200">
+                    <EmojiIcon emoji={t.emoji} className="h-[1.35rem] w-[1.35rem]" />
                   </span>
                   <span className="text-xs leading-tight font-medium text-ink">{t.label}</span>
                 </Link>
@@ -123,7 +125,7 @@ export default function MorePage() {
       })}
       {hidden > 0 && (
         <Card className="border-dashed text-center">
-          <p className="font-semibold text-ink">🌱 Hay {hidden} funciones más esperándote</p>
+          <p className="font-semibold text-ink">Hay {hidden} funciones más esperándote</p>
           <p className="mt-1 text-sm text-muted">
             Presupuestos, tarjetas con fecha de corte, MSI, deudas, tandas, inversiones… Sube de
             nivel cuando quieras; no pierdes nada.

@@ -15,8 +15,8 @@ export function SpaceSwitcher({ className }: { className?: string }) {
       onChange={set}
       options={[
         { value: 'all', label: 'Todo' },
-        { value: 'personal', label: '🙋 Mío' },
-        { value: 'household', label: `🏠 ${household.name}` },
+        { value: 'personal', label: 'Mío' },
+        { value: 'household', label: household.name },
       ]}
     />
   );

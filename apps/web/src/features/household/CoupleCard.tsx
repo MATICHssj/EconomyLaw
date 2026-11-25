@@ -31,7 +31,7 @@ export function CoupleCard() {
           </Link>
         }
       >
-        🏠 {household.name} este mes
+        {household.name} este mes
       </CardTitle>
       <div className="grid grid-cols-2 gap-2">
         {balance.members.map((m) => (
@@ -48,7 +48,7 @@ export function CoupleCard() {
           <Money cents={balance.settlement.amountCents} className="font-bold" />
         </p>
       ) : (
-        <p className="mt-3 text-sm text-income">¡Están a mano! 🤝</p>
+        <p className="mt-3 text-sm text-income">¡Están a mano!</p>
       )}
     </Card>
   );

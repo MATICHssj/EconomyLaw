@@ -1,5 +1,6 @@
+import { AccountIcon } from '@/components/icons';
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { House, Plus } from 'lucide-react';
 import { ACCOUNT_TYPE_LABELS, LIABILITY_TYPES, type Account } from '@fina/core';
 import { useFinance } from '@/lib/finance';
 import { useDocs } from '@/stores/data';
@@ -64,12 +65,17 @@ export default function AccountsPage() {
                   <ListItem
                     key={a.id}
                     to={`/cuentas/${a.id}`}
-                    icon={<span style={{ color: a.color }}>{a.icon}</span>}
+                    icon={<AccountIcon account={a} />}
                     title={
                       <>
                         {a.name}{' '}
                         {a.archived && <span className="text-xs text-muted">(archivada)</span>}{' '}
-                        {a.space === 'household' && '🏠'}
+                        {a.space === 'household' && (
+                          <House
+                            className="inline h-3.5 w-3.5 text-muted"
+                            aria-label="Compartida"
+                          />
+                        )}
                       </>
                     }
                     subtitle={ACCOUNT_TYPE_LABELS[a.type]}

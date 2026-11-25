@@ -154,7 +154,7 @@ export function TransactionsPage() {
                 { value: '', label: 'Todas las categorías' },
                 ...categories
                   .filter((c) => !c.archived)
-                  .map((c) => ({ value: c.id, label: `${c.emoji} ${c.name}` })),
+                  .map((c) => ({ value: c.id, label: c.name })),
               ]}
             />
             <label className="text-xs text-muted">
@@ -211,7 +211,7 @@ export function TransactionsPage() {
           <EmptyState
             emoji="✍️"
             title="Aún no hay movimientos"
-            text='Toca el botón ➕ y escribe algo como "galleta 30". Así de fácil.'
+            text='Toca el botón + y escribe algo como "galleta 30". Así de fácil.'
             action={<Button onClick={() => openCapture()}>Anotar mi primer gasto</Button>}
           />
         ) : (

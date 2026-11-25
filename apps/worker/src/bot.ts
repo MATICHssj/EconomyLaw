@@ -188,7 +188,7 @@ async function processText(deps: BotDeps, uid: string, to: string, text: string,
     const s = summarizePeriod(txs, plans, from, today);
     const catName = (id: string) => {
       const c = u.categories.find((x) => x.id === id);
-      return c ? `${c.emoji} ${c.name}` : id;
+      return c ? `${em(c.emoji)} ${c.name}` : id;
     };
     const top = topEntries(s.byCategory, 5).map(([c, v]) => `• ${catName(c)}: ${formatMoney(v)}`);
     return wa.text(to, `📊 *${label}* llevas *${formatMoney(s.spentCents)}* en gastos${s.incomeCents ? ` y te entraron ${formatMoney(s.incomeCents)}` : ''}.\n${top.join('\n')}`);
@@ -198,7 +198,7 @@ async function processText(deps: BotDeps, uid: string, to: string, text: string,
   if (/^¿|\?$|^(cu[aá]nto|en qu[eé]|me alcanza|qui[eé]n me debe|presupuesto|gastos hormiga|mis gastos hormiga)/i.test(lower)) {
     const [txs, budgets, plans] = await Promise.all([store.list<Transaction>(`users/${uid}/transactions`), store.list<Budget>(`users/${uid}/budgets`), store.list<InstallmentPlan>(`users/${uid}/installmentPlans`)]);
     const a = askAssistant(text, { today, transactions: txs, categories: u.categories, accounts: u.accounts, budgets, plans, loans: u.loans, payday: u.profile?.payday });
-    if (a.intent !== 'unknown') return wa.text(to, a.text);
+    if (a.intent !== 'unknown') return wa.text(to, a.text.replace(/\bi:[a-z_]+/g, '•'));
   }
 
   // ——— Movimientos ———
@@ -252,11 +252,16 @@ async function processText(deps: BotDeps, uid: string, to: string, text: string,
   return wa.buttons(to, body, buttons);
 }
 
+/** Las categorías con ícono de la app guardan "i:nombre"; en WhatsApp usamos un emoji neutro. */
+function em(e: string | undefined): string {
+  return !e || e.startsWith('i:') ? '•' : e;
+}
+
 function catOf(u: LoadedUser, t: Transaction): Category | undefined {
   return u.categories.find((c) => c.id === t.categoryId);
 }
 function catEmoji(u: LoadedUser, t: Transaction) {
-  return catOf(u, t)?.emoji ?? (t.kind === 'transfer' ? '🔁' : t.kind === 'debt_payment' ? '💳' : t.kind.startsWith('loan') ? '🤝' : '💸');
+  return (catOf(u, t) ? em(catOf(u, t)!.emoji) : undefined) ?? (t.kind === 'transfer' ? '🔁' : t.kind === 'debt_payment' ? '💳' : t.kind.startsWith('loan') ? '🤝' : '💸');
 }
 function catName(u: LoadedUser, t: Transaction) {
   return catOf(u, t)?.name ?? { transfer: 'Transferencia', debt_payment: 'Pago de tarjeta', loan_given: 'Préstamo', loan_received: 'Préstamo', loan_collected: 'Te pagaron', loan_repaid: 'Pagaste', investment: 'Inversión', tanda: 'Tanda', expense: 'Por revisar', income: 'Ingreso' }[t.kind];
@@ -311,7 +316,7 @@ async function handleButton(deps: BotDeps, uid: string, msg: Incoming, today: st
     const common = type === 'income' ? ['salary', 'freelance', 'sales', 'bonus', 'refunds', 'gifts_received', 'returns', 'other_income'] : ['food', 'groceries', 'snacks', 'transport', 'gas', 'coffee', 'delivery', 'shopping', 'utilities', 'health', 'entertainment', 'subscriptions', 'home', 'other'];
     const rank = (id: string) => -(uses.get(id) ?? 0) * 100 + (common.includes(id) ? common.indexOf(id) : 50);
     const cats = u.categories.filter((c) => c.type === type && !c.archived && !['review', 'adjustment'].includes(c.id) && c.id !== tx?.categoryId).sort((x, y) => rank(x.id) - rank(y.id)).slice(0, 10);
-    return wa.list(msg.from, '¿En qué categoría va?', 'Elegir categoría', cats.map((c) => ({ id: `setcat:${a}:${c.id}`, title: `${c.emoji} ${c.name}` })));
+    return wa.list(msg.from, '¿En qué categoría va?', 'Elegir categoría', cats.map((c) => ({ id: `setcat:${a}:${c.id}`, title: `${em(c.emoji)} ${c.name}` })));
   }
   if (action === 'setcat' && b) {
     await store.patch(`users/${uid}/transactions/${a}`, { categoryId: b, status: 'cleared', updatedAt: new Date().toISOString() });

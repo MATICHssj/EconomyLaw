@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Download, LogOut, Trash2 } from 'lucide-react';
+import { Bell, Download, Eraser, FlaskConical, LogOut, Trash2 } from 'lucide-react';
 import { ACCENT_PALETTES, LEVEL_INFO, type AccentName, type Level, type Profile } from '@fina/core';
 import { config, hasCloud, hasWorker } from '@/config';
 import { clearDemoData, hasDemoData, loadDemoData, uploadLocalData } from '@/lib/actions';
@@ -104,7 +104,7 @@ export default function SettingsPage() {
                 onClick={async () => {
                   const n = await uploadLocalData();
                   localStorage.removeItem('fina:migrate');
-                  toast(`☁️ ${n} registros subidos a tu cuenta`, 'success');
+                  toast(`${n} registros subidos a tu cuenta`, 'success');
                 }}
               >
                 Subir los datos de este dispositivo a mi cuenta
@@ -170,7 +170,7 @@ export default function SettingsPage() {
             )}
           >
             <p className="font-semibold text-ink">
-              {LEVEL_INFO[l].emoji} {LEVEL_INFO[l].label}{' '}
+              {LEVEL_INFO[l].label}{' '}
               <span className="font-normal text-muted">· “{LEVEL_INFO[l].tagline}”</span>
             </p>
             <p className="text-sm text-muted">{LEVEL_INFO[l].description}</p>
@@ -185,8 +185,8 @@ export default function SettingsPage() {
           onChange={(v) => void updateSettings({ theme: v })}
           options={[
             { value: 'system', label: 'Automático' },
-            { value: 'light', label: '☀️ Claro' },
-            { value: 'dark', label: '🌙 Oscuro' },
+            { value: 'light', label: 'Claro' },
+            { value: 'dark', label: 'Oscuro' },
           ]}
         />
         <div>
@@ -214,6 +214,17 @@ export default function SettingsPage() {
           </div>
         </div>
         <div>
+          <p className="mb-2 text-sm font-medium text-ink">Íconos</p>
+          <Segmented
+            value={settings.iconStyle}
+            onChange={(v) => void updateSettings({ iconStyle: v })}
+            options={[
+              { value: 'simple', label: 'Sencillos' },
+              { value: 'emoji', label: 'Emojis' },
+            ]}
+          />
+        </div>
+        <div>
           <p className="mb-2 text-sm font-medium text-ink">Tamaño de letra</p>
           <Segmented
             value={settings.fontScale}
@@ -238,7 +249,7 @@ export default function SettingsPage() {
               setPush(pushStatus());
               toast(
                 {
-                  granted: '🔔 Notificaciones activadas',
+                  granted: 'Notificaciones activadas',
                   denied: 'Las bloqueaste. Actívalas en los ajustes del navegador.',
                   unsupported:
                     'Este navegador no soporta notificaciones. En iPhone, primero instala la app.',
@@ -249,10 +260,10 @@ export default function SettingsPage() {
               );
             }}
           >
-            🔔 Activar notificaciones
+            <Bell className="h-4 w-4" /> Activar notificaciones
           </Button>
         ) : (
-          <p className="text-sm text-income">🔔 Notificaciones activadas en este dispositivo.</p>
+          <p className="text-sm text-income">Notificaciones activadas en este dispositivo.</p>
         )}
         <Toggle
           label="Pagos de tarjeta"
@@ -342,7 +353,7 @@ export default function SettingsPage() {
           </Button>
         )}
         <p className="pt-1 text-xs text-muted">
-          🔒 Nunca pedimos ni guardamos contraseñas de tu banco.
+          Nunca pedimos ni guardamos contraseñas de tu banco.
         </p>
       </Card>
 
@@ -366,8 +377,8 @@ export default function SettingsPage() {
           </button>
           <ol className="list-decimal space-y-1 pl-5 text-sm text-muted">
             <li>
-              En Gmail (computadora) → ⚙️ → Ver toda la configuración → Reenvío → “Agregar una
-              dirección” y pega la de arriba.
+              En Gmail (computadora) → Configuración → Ver toda la configuración → Reenvío →
+              “Agregar una dirección” y pega la de arriba.
             </li>
             <li>
               Busca un correo de tu banco → ⋮ → “Filtrar mensajes similares” → Crear filtro →
@@ -393,11 +404,11 @@ export default function SettingsPage() {
         </div>
         {hasDemoData() ? (
           <Button variant="secondary" onClick={() => void clearDemoData()}>
-            🧹 Borrar datos de ejemplo
+            <Eraser className="h-4 w-4" /> Borrar datos de ejemplo
           </Button>
         ) : (
           <Button variant="secondary" onClick={() => void loadDemoData()}>
-            🧪 Cargar datos de ejemplo (3 meses)
+            <FlaskConical className="h-4 w-4" /> Cargar datos de ejemplo (3 meses)
           </Button>
         )}
         <Link
@@ -443,7 +454,7 @@ export default function SettingsPage() {
               await updateSettings({ pinEnabled: true });
               setPinValue('');
               setPinOpen(false);
-              toast('🔒 PIN activado');
+              toast('PIN activado');
             }}
           >
             Guardar PIN

@@ -113,7 +113,7 @@ export default function AccountDetailPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        title={`${account.icon} ${account.name}`}
+        title={account.name}
         subtitle={ACCOUNT_TYPE_LABELS[account.type]}
         back="/cuentas"
         actions={

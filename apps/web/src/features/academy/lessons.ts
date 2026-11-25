@@ -49,7 +49,7 @@ export const LESSONS: Lesson[] = [
       'Son compras pequeñas y frecuentes: el café, el refresco, los chicles, el pan, el antojo de la tiendita, la comisión del cajero. Ninguna duele sola… pero juntas sí.',
       'Ejemplo real: un café de $55 cinco días a la semana son **$1,100 al mes y más de $13,000 al año**. Eso es un viaje.',
       'No se trata de dejarlos todos, sino de **verlos**. En Inicio te muestro tus gastos hormiga del mes y a cuántos cafés equivalen.',
-      'Tres trucos: 1) ponles un presupuesto (p. ej. $600 al mes en “Tiendita y antojos”); 2) lleva agua y botana de casa; 3) celebra tus rachas de días sin gastos hormiga 🔥.',
+      'Tres trucos: 1) ponles un presupuesto (p. ej. $600 al mes en “Tiendita y antojos”); 2) lleva agua y botana de casa; 3) celebra tus rachas de días sin gastos hormiga.',
     ],
     tryIt: { label: 'Ver mi Inicio', to: '/' },
     quiz: {

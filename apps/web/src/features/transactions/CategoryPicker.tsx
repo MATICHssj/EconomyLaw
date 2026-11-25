@@ -2,8 +2,9 @@ import { useState } from 'react';
 import type { Category } from '@fina/core';
 import { useData } from '@/stores/data';
 import { cx } from '@/components/ui';
+import { CatIcon } from '@/components/icons';
 
-/** Cuadrícula de categorías con emoji (más rápido que una lista desplegable). */
+/** Cuadrícula de categorías con ícono (más rápido que una lista desplegable). */
 export function CategoryPicker({
   value,
   onChange,
@@ -40,9 +41,7 @@ export function CategoryPicker({
                 : 'border-line text-ink hover:bg-surface-2',
             )}
           >
-            <span className="text-2xl" aria-hidden>
-              {c.emoji}
-            </span>
+            <CatIcon category={c} size="sm" />
             <span className="line-clamp-2">{c.name}</span>
           </button>
         ))}

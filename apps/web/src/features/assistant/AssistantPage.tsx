@@ -1,3 +1,4 @@
+import { stripEmoji, useIconStyle } from '@/components/icons';
 import { useEffect, useRef, useState } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 import { BRAND } from '@fina/core';
@@ -26,11 +27,12 @@ export default function AssistantPage() {
   const data = useData((s) => s.data);
   const profile = useData((s) => s.profile);
   const privacy = useData((s) => s.settings.privacyMode);
+  const iconStyle = useIconStyle();
   const today = useToday();
   const [msgs, setMsgs] = useState<Msg[]>([
     {
       from: 'fina',
-      text: `¡Hola! Soy ${BRAND.assistantName} ✨. Pregúntame sobre tu dinero: respondo con tus datos reales, sin inventar.`,
+      text: `¡Hola! Soy ${BRAND.assistantName}. Pregúntame sobre tu dinero: respondo con tus datos reales, sin inventar.`,
     },
   ]);
   const [text, setText] = useState('');
@@ -53,7 +55,8 @@ export default function AssistantPage() {
       debts: data.debts,
       payday: profile?.payday,
     });
-    const answer = privacy ? a.text.replace(/\$[\d,.]+/g, '$••••') : a.text;
+    const plain = iconStyle === 'simple' ? stripEmoji(a.text) : a.text;
+    const answer = privacy ? plain.replace(/\$[\d,.]+/g, '$••••') : plain;
     setMsgs((m) => [...m, { from: 'me', text: q }, { from: 'fina', text: answer }]);
     setText('');
   }

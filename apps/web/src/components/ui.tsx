@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { formatMoney } from '@fina/core';
 import { useData } from '@/stores/data';
 import { useUI } from '@/stores/ui';
+import { EmojiIcon } from './icons';
 
 export function cx(...c: Array<string | false | null | undefined>): string {
   return c.filter(Boolean).join(' ');
@@ -541,11 +542,14 @@ export function ListItem({
 }) {
   const content = (
     <>
-      {icon && (
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-xl">
-          {icon}
-        </div>
-      )}
+      {icon &&
+        (typeof icon === 'string' ? (
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-xl">
+            {icon}
+          </div>
+        ) : (
+          icon
+        ))}
       <div className="min-w-0 flex-1 text-left">
         <div className="truncate font-medium text-ink">{title}</div>
         {subtitle && <div className="truncate text-sm text-muted">{subtitle}</div>}
@@ -587,8 +591,11 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center px-6 py-10 text-center">
-      <div className="mb-3 text-5xl" aria-hidden>
-        {emoji}
+      <div
+        className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-50 text-accent-600 dark:bg-accent-950/60 dark:text-accent-300"
+        aria-hidden
+      >
+        <EmojiIcon emoji={emoji} className="h-8 w-8" strokeWidth={1.5} />
       </div>
       <h3 className="text-lg font-semibold text-ink">{title}</h3>
       {text && <p className="mt-1 max-w-sm text-sm text-muted">{text}</p>}
@@ -801,9 +808,7 @@ export function Tip({
         className,
       )}
     >
-      <span aria-hidden className="text-lg leading-5">
-        {emoji}
-      </span>
+      <EmojiIcon emoji={emoji} className="mt-px h-[1.1rem] w-[1.1rem] shrink-0" />
       <div className="min-w-0 flex-1">{children}</div>
     </div>
   );

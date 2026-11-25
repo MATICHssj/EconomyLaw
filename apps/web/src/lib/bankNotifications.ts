@@ -106,7 +106,7 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
   if (changes.length) {
     await applyChanges(changes);
     toast(
-      `💳 ${changes.length} ${changes.length === 1 ? 'movimiento' : 'movimientos'} del banco registrados`,
+      `${changes.length} ${changes.length === 1 ? 'movimiento' : 'movimientos'} del banco registrados`,
       'success',
     );
   }

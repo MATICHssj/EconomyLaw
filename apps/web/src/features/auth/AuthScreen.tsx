@@ -1,3 +1,4 @@
+import { CreditCard, Lock, PenLine, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { BRAND } from '@fina/core';
 import { useSession } from '@/stores/session';
@@ -45,10 +46,23 @@ export function AuthScreen() {
           {BRAND.slogan}
         </h1>
         <ul className="mt-6 space-y-2 text-white/90">
-          <li>✍️ Escribe “galleta 30” y listo. También por WhatsApp.</li>
-          <li>💳 Tarjetas, MSI, quincenas, tandas y CETES: hecho para México.</li>
-          <li>💑 Finanzas en pareja: cuentas claras sin pleitos.</li>
-          <li>🔒 Nunca te pedimos la contraseña de tu banco.</li>
+          {(
+            [
+              [PenLine, 'Escribe “galleta 30” y listo. También por WhatsApp.'],
+              [CreditCard, 'Tarjetas, MSI, quincenas, tandas y CETES: hecho para México.'],
+              [Users, 'Finanzas en pareja: cuentas claras sin pleitos.'],
+              [Lock, 'Nunca te pedimos la contraseña de tu banco.'],
+            ] as const
+          ).map(([Icon, text]) => (
+            <li key={text} className="flex items-start gap-3">
+              <Icon
+                className="mt-0.5 h-5 w-5 shrink-0 text-white/80"
+                strokeWidth={1.75}
+                aria-hidden
+              />
+              {text}
+            </li>
+          ))}
         </ul>
       </div>
       <div className="flex flex-1 items-center justify-center px-6 py-10">

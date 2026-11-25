@@ -45,7 +45,7 @@ function NeedsAccount() {
     <div className="space-y-4">
       <PageHeader title="Pareja / familia" back />
       <Card className="text-center">
-        <p className="text-5xl">💑</p>
+        <p className="text-5xl"></p>
         <h2 className="mt-2 text-xl font-bold text-ink">Lleven juntos el dinero de la casa</h2>
         <p className="mt-2 text-muted">
           Gastos comunes, presupuesto compartido y “cuentas claras”: quién ha puesto más y cuánto le
@@ -84,13 +84,13 @@ function Setup() {
     <div className="space-y-4">
       <PageHeader title="Pareja / familia" back />
       <Card className="bg-gradient-to-br from-rose-50 to-accent-50 dark:from-rose-950/40 dark:to-accent-950/40">
-        <p className="text-4xl">💑</p>
+        <p className="text-4xl"></p>
         <h2 className="mt-1 text-xl font-bold text-ink">Finanzas en pareja, sin pleitos</h2>
         <ul className="mt-2 space-y-1 text-sm text-ink">
-          <li>🏠 Un espacio compartido para la renta, el súper y los servicios.</li>
-          <li>🔒 Tus cuentas personales siguen siendo solo tuyas.</li>
-          <li>⚖️ “Cuentas claras”: quién ha pagado más y cuánto transferir para quedar a mano.</li>
-          <li>🎯 Metas juntos: viaje, enganche, boda…</li>
+          <li>Un espacio compartido para la renta, el súper y los servicios.</li>
+          <li>Tus cuentas personales siguen siendo solo tuyas.</li>
+          <li>“Cuentas claras”: quién ha pagado más y cuánto transferir para quedar a mano.</li>
+          <li>Metas juntos: viaje, enganche, boda…</li>
         </ul>
       </Card>
       <Segmented
@@ -193,13 +193,13 @@ function HouseholdView({ household }: { household: Household }) {
     }
   }
   const shareText = code
-    ? `Únete a nuestro hogar en Fina para llevar juntos los gastos 💑. Abre la app → Más → Pareja / familia → "Tengo un código" y escribe: ${code}`
+    ? `Únete a nuestro hogar en Fina para llevar juntos los gastos. Abre la app → Más → Pareja / familia → "Tengo un código" y escribe: ${code}`
     : '';
 
   return (
     <div className="space-y-4">
       <PageHeader
-        title={`🏠 ${household.name}`}
+        title={`${household.name}`}
         subtitle={`${household.members.length} integrantes`}
         back
       />
@@ -233,7 +233,7 @@ function HouseholdView({ household }: { household: Household }) {
             <b>{names(balance.settlement.toUid)}</b>.
           </p>
         ) : (
-          <p className="mt-3 text-income">¡Están a mano! 🤝</p>
+          <p className="mt-3 text-income">¡Están a mano!</p>
         )}
       </Card>
       <Card className="space-y-3">
@@ -298,7 +298,7 @@ function HouseholdView({ household }: { household: Household }) {
         )}
       </Card>
       <Tip>
-        Para registrar un gasto común, elige “🏠 {household.name}” al anotar, o cambia arriba a la
+        Para registrar un gasto común, elige “{household.name}” al anotar, o cambia arriba a la
         vista del hogar. Crea cuentas y metas compartidas desde esa vista.
       </Tip>
       <Button

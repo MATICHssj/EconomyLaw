@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, User } from 'lucide-react';
 import {
   balancesByPerson,
   formatLongDate,
@@ -102,7 +102,10 @@ export default function PeoplePage() {
           <ul className="space-y-2">
             {people.map((p) => (
               <li key={p.person} className="flex items-center justify-between">
-                <span className="font-medium text-ink">👤 {p.person}</span>
+                <span className="flex items-center gap-2 font-medium text-ink">
+                  <User className="h-4 w-4 text-muted" aria-hidden />
+                  {p.person}
+                </span>
                 <span className="text-sm">
                   {p.netCents > 0 ? (
                     <>
@@ -192,7 +195,6 @@ export default function PeoplePage() {
       )}
       <Tip>
         Prestar a familia y amigos es normal en México. Anótalo para que no se te olvide… ni a ellos
-        😉
       </Tip>
       <LoanSheet value={editing} onClose={() => setEditing(null)} />
       <PaymentSheet loan={paying} onClose={() => setPaying(null)} />
@@ -319,7 +321,7 @@ function PaymentSheet({ loan, onClose }: { loan: Loan | null; onClose: () => voi
                   after: { ...l, paidCents: paid, closed: paid >= l.amountCents },
                 },
               ],
-              paid >= l.amountCents ? '🎉 ¡Préstamo liquidado!' : 'Abono registrado',
+              paid >= l.amountCents ? '¡Préstamo liquidado!' : 'Abono registrado',
             );
             onClose();
           }}

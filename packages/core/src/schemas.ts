@@ -76,6 +76,8 @@ export const SettingsSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']).default('system'),
   accent: z.enum(['indigo', 'violet', 'blue', 'emerald']).default('indigo'),
   fontScale: z.enum(['sm', 'md', 'lg', 'xl']).default('md'),
+  /** Íconos de línea sencillos (por defecto) o emojis. */
+  iconStyle: z.enum(['simple', 'emoji']).default('simple'),
   privacyMode: z.boolean().default(false),
   pinEnabled: z.boolean().default(false),
   notifications: z

@@ -123,7 +123,7 @@ export function newAccount(p: Partial<Account> & Pick<Account, 'name' | 'type'>)
     currency: 'MXN',
     openingBalanceCents: 0,
     color: '#64748b',
-    icon: '💵',
+    icon: '',
     archived: false,
     aliases: [],
     createdAt: now(),
@@ -139,7 +139,7 @@ export function ensureAccountChanges(): { accountId: string; changes: Change[] }
     name: 'Mi dinero',
     type: 'cash',
     institution: 'cash',
-    icon: '💵',
+    icon: '',
     color: '#16a34a',
   });
   return {
@@ -517,7 +517,7 @@ export async function commitEntries(
   }
   const first = txs[0]!;
   const msg =
-    txs.length > 1 ? `✅ ${txs.length} movimientos guardados` : `✅ Guardado: ${first.description}`;
+    txs.length > 1 ? `${txs.length} movimientos guardados` : `Guardado: ${first.description}`;
   await commitWithUndo(
     all,
     msg,
@@ -721,7 +721,7 @@ export async function payRecurring(
         },
       },
     ],
-    `✅ ${rec.name} registrado`,
+    `${rec.name} registrado`,
   );
 }
 
@@ -837,7 +837,7 @@ export async function loadDemoData(): Promise<void> {
   await applyChanges(changes);
   const s = useData.getState();
   if (!s.profile?.monthlyIncomeCents) await s.updateProfile({ monthlyIncomeCents: 2900000 });
-  toast('🎉 Datos de ejemplo cargados: 3 meses ficticios. Puedes borrarlos en Ajustes.', 'success');
+  toast('Datos de ejemplo cargados: 3 meses ficticios. Puedes borrarlos en Ajustes.', 'success');
 }
 
 export async function clearDemoData(): Promise<void> {

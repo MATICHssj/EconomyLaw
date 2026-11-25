@@ -121,7 +121,7 @@ export default function ImportPage() {
         type: parsed.profile.defaultAccountType,
         institution: inst?.id,
         color: inst?.color ?? '#64748b',
-        icon: parsed.profile.defaultAccountType === 'credit' ? '💳' : '🏦',
+        icon: parsed.profile.defaultAccountType === 'credit' ? '' : '',
       });
       accId = acc.id;
       changes.push({
@@ -161,7 +161,7 @@ export default function ImportPage() {
       });
     }
     await applyChanges(changes);
-    toast(`✅ ${selected.length} movimientos importados`, 'success');
+    toast(`${selected.length} movimientos importados`, 'success');
     setFile(null);
     setRows([]);
   }
@@ -244,7 +244,7 @@ export default function ImportPage() {
                 value={accountId}
                 onChange={(e) => setAccountId(e.target.value)}
                 options={[
-                  { value: 'new', label: '➕ Crear cuenta nueva' },
+                  { value: 'new', label: 'Crear cuenta nueva' },
                   ...accounts
                     .filter((a) => !a.archived)
                     .map((a) => ({ value: a.id, label: a.name })),
@@ -262,7 +262,7 @@ export default function ImportPage() {
                 <summary className="cursor-pointer text-sm font-semibold text-ink">
                   {parsed?.mapping
                     ? 'Columnas detectadas (cambiar)'
-                    : '⚠️ No reconocí las columnas: elígelas'}
+                    : 'No reconocí las columnas: elígelas'}
                 </summary>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {(['date', 'description', 'amount', 'debit', 'credit'] as const).map((role) => (

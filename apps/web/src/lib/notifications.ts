@@ -80,7 +80,7 @@ export async function scheduleLocalReminders(
     .slice(0, 40)
     .map(({ u, i, when }) => ({
       id: 1000 + i,
-      title: u.type === 'card' ? `💳 ${u.title}` : `🔔 ${u.title}`,
+      title: u.type === 'card' ? `${u.title}` : `${u.title}`,
       body: `${u.daysUntil <= 1 ? 'Mañana' : `El ${Number(u.date.slice(8))}`}: ${formatMoney(u.amountCents)}. Toca para verlo.`,
       schedule: { at: new Date(`${when}T10:00:00`) },
       extra: { url: '#/calendario' },

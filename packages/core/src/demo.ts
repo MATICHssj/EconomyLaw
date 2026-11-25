@@ -183,8 +183,8 @@ export function generateDemoData(today: ISODate, now = new Date().toISOString())
   const afore: Investment = { id: `${DEMO_PREFIX}afore`, name: 'Afore', type: 'afore', contributions: [], currentValueCents: 18450000, expectedAnnualRate: 0.06, updatedAt: now, createdAt: now, archived: false };
 
   const goals: Goal[] = [
-    { id: `${DEMO_PREFIX}goal_emergency`, name: 'Fondo de emergencia', emoji: '🛟', targetCents: 6000000, savedCents: 1800000, targetDate: addMonths(today, 10), accountId: `${DEMO_PREFIX}savings`, type: 'emergency', monthsTarget: 3, createdAt: now, archived: false },
-    { id: `${DEMO_PREFIX}goal_oaxaca`, name: 'Viaje a Oaxaca', emoji: '🏖️', targetCents: 1500000, savedCents: 420000, targetDate: addMonths(today, 4), accountId: null, type: 'normal', createdAt: now, archived: false },
+    { id: `${DEMO_PREFIX}goal_emergency`, name: 'Fondo de emergencia', emoji: 'i:lifebuoy', targetCents: 6000000, savedCents: 1800000, targetDate: addMonths(today, 10), accountId: `${DEMO_PREFIX}savings`, type: 'emergency', monthsTarget: 3, createdAt: now, archived: false },
+    { id: `${DEMO_PREFIX}goal_oaxaca`, name: 'Viaje a Oaxaca', emoji: 'i:palmtree', targetCents: 1500000, savedCents: 420000, targetDate: addMonths(today, 4), accountId: null, type: 'normal', createdAt: now, archived: false },
   ];
 
   const debts: Debt[] = [

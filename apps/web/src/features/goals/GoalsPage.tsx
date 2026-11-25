@@ -1,3 +1,4 @@
+import { GoalIcon, IconPicker } from '@/components/icons';
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import {
@@ -65,7 +66,7 @@ export default function GoalsPage() {
   const blank = (type: Goal['type'] = 'normal'): Goal => ({
     id: newId(),
     name: type === 'emergency' ? 'Fondo de emergencia' : '',
-    emoji: type === 'emergency' ? '🛟' : '🎯',
+    emoji: type === 'emergency' ? 'i:lifebuoy' : 'i:target',
     targetCents: type === 'emergency' ? Math.max(essential * 3, 0) : 0,
     savedCents: 0,
     targetDate: addMonths(today, type === 'emergency' ? 12 : 6),
@@ -89,7 +90,7 @@ export default function GoalsPage() {
       />
       {!active.some((g) => g.type === 'emergency') && (
         <Card className="border-emerald-200 bg-emerald-50/60 dark:border-emerald-900 dark:bg-emerald-950/30">
-          <p className="font-semibold text-ink">🛟 Empieza por tu fondo de emergencia</p>
+          <p className="font-semibold text-ink">Empieza por tu fondo de emergencia</p>
           <p className="mt-1 text-sm text-muted">
             Es el colchón para imprevistos (doctor, perder el trabajo, el coche). La meta: 3 a 6
             meses de gastos básicos
@@ -119,12 +120,12 @@ export default function GoalsPage() {
             <Card key={g.id}>
               <button type="button" className="w-full text-left" onClick={() => setEditing(g)}>
                 <div className="flex items-start gap-3">
-                  <span className="text-3xl">{g.emoji}</span>
+                  <GoalIcon value={g.emoji} type={g.type} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-ink">{g.name}</p>
-                      {g.space === 'household' && <Badge>🏠 compartida</Badge>}
-                      {p.pct >= 100 && <Badge tone="good">¡Lograda! 🎉</Badge>}
+                      {g.space === 'household' && <Badge>compartida</Badge>}
+                      {p.pct >= 100 && <Badge tone="good">¡Lograda!</Badge>}
                     </div>
                     <p className="text-sm text-muted">
                       <Money cents={g.savedCents} className="font-semibold text-ink" /> de{' '}
@@ -226,16 +227,12 @@ function GoalSheet({
           value={d.type}
           onChange={(t) => setD({ ...d, type: t })}
           options={[
-            { value: 'normal', label: '🎯 Meta' },
-            { value: 'emergency', label: '🛟 Emergencia' },
+            { value: 'normal', label: 'Meta' },
+            { value: 'emergency', label: 'Emergencia' },
           ]}
         />
-        <div className="grid grid-cols-[4.5rem_1fr] gap-3">
-          <Input
-            label="Emoji"
-            value={d.emoji}
-            onChange={(e) => setD({ ...d, emoji: e.target.value.slice(0, 4) })}
-          />
+        <IconPicker value={d.emoji} onChange={(v) => setD({ ...d, emoji: v })} />
+        <div>
           <Input
             label="Nombre"
             value={d.name}
@@ -342,7 +339,7 @@ function ContributionSheet({ goal, onClose }: { goal: Goal | null; onClose: () =
                   after: { ...g, savedCents: g.savedCents + amount },
                 },
               ],
-              `🎉 +${(amount / 100).toLocaleString('es-MX')} a ${goal.name}`,
+              `+${(amount / 100).toLocaleString('es-MX')} a ${goal.name}`,
             );
             onClose();
           }}

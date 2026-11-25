@@ -73,7 +73,7 @@ export default function RulesPage() {
                 <p className="text-sm text-muted">
                   →{' '}
                   {r.set.categoryId
-                    ? `${catMap.get(r.set.categoryId)?.emoji ?? ''} ${catMap.get(r.set.categoryId)?.name ?? r.set.categoryId}`
+                    ? `${catMap.get(r.set.categoryId)?.name ?? r.set.categoryId}`
                     : 'sin cambiar categoría'}
                   {r.set.accountId &&
                     ` · ${accounts.find((a) => a.id === r.set.accountId)?.name ?? ''}`}

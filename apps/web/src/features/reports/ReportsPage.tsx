@@ -1,3 +1,4 @@
+import { CatIcon } from '@/components/icons';
 import { useMemo, useState } from 'react';
 import {
   Bar,
@@ -185,8 +186,9 @@ export default function ReportsPage() {
               {top.map(([c, v]) => (
                 <li key={c}>
                   <div className="mb-1 flex justify-between gap-2 text-sm">
-                    <span className="truncate font-medium text-ink">
-                      {catMap.get(c)?.emoji} {catMap.get(c)?.name ?? c}
+                    <span className="flex min-w-0 items-center gap-2 font-medium text-ink">
+                      <CatIcon category={catMap.get(c)} size="sm" />
+                      <span className="truncate">{catMap.get(c)?.name ?? c}</span>
                     </span>
                     <span className="shrink-0 text-muted">
                       <Money cents={v} className="font-semibold text-ink" /> ·{' '}
@@ -285,8 +287,9 @@ export default function ReportsPage() {
               const d = now - before;
               return (
                 <li key={c} className="flex items-center justify-between gap-2 py-2 text-sm">
-                  <span className="truncate text-ink">
-                    {catMap.get(c)?.emoji} {catMap.get(c)?.name ?? c}
+                  <span className="flex min-w-0 items-center gap-2 text-ink">
+                    <CatIcon category={catMap.get(c)} size="sm" />
+                    <span className="truncate">{catMap.get(c)?.name ?? c}</span>
                   </span>
                   <span className="flex shrink-0 items-center gap-3">
                     <Money cents={now} className="font-semibold text-ink" />

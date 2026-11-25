@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CornerDownLeft, Mic } from 'lucide-react';
+import { CornerDownLeft, Mic, PenLine } from 'lucide-react';
 import { useSpeech } from '@/lib/speech';
 import { useData } from '@/stores/data';
 import { cx } from '@/components/ui';
@@ -34,9 +34,7 @@ export function QuickCaptureBar({ autoFocus }: { autoFocus?: boolean }) {
           text ? 'border-accent-500' : 'border-line',
         )}
       >
-        <span className="text-xl" aria-hidden>
-          ✍️
-        </span>
+        <PenLine className="h-5 w-5 shrink-0 text-muted" aria-hidden />
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}

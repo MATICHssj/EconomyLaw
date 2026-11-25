@@ -133,9 +133,7 @@ export default function NetWorthPage() {
           </div>
         </Card>
       ) : (
-        <Tip>
-          Cada mes guardo una “foto” de tu patrimonio. En unos meses verás aquí cómo crece 📈
-        </Tip>
+        <Tip>Cada mes guardo una “foto” de tu patrimonio. En unos meses verás aquí cómo crece.</Tip>
       )}
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
@@ -159,7 +157,7 @@ export default function NetWorthPage() {
                 <Money cents={a.amountCents} className="font-semibold text-ink" />
               </li>
             ))}
-            {!liabilities.length && <li className="text-income">¡Nada! 🎉</li>}
+            {!liabilities.length && <li className="text-income">¡Nada!</li>}
           </ul>
         </Card>
       </div>

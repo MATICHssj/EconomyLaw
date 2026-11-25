@@ -1,6 +1,8 @@
+import { EmojiIcon, LEVEL_ICONS } from '@/components/icons';
 import { useState } from 'react';
 import { ArrowLeft, Check } from 'lucide-react';
 import {
+  ACCOUNT_TYPE_ICONS,
   BRAND,
   INSTITUTIONS,
   LEVEL_INFO,
@@ -70,16 +72,7 @@ export function Onboarding() {
         type: quick.type,
         institution: id,
         color: inst.color,
-        icon:
-          quick.type === 'cash'
-            ? '💵'
-            : quick.type === 'credit'
-              ? '💳'
-              : quick.type === 'wallet'
-                ? '📱'
-                : quick.type === 'voucher'
-                  ? '🎟️'
-                  : '🏦',
+        icon: ACCOUNT_TYPE_ICONS[quick.type],
         openingBalanceCents: quick.type === 'credit' ? -v.balance : v.balance,
         credit:
           quick.type === 'credit'
@@ -147,29 +140,29 @@ export function Onboarding() {
             <div className="space-y-3">
               {[
                 [
-                  '✍️',
+                  'i:sparkles',
                   'Anota en 3 segundos',
                   'Escribe "tacos 120" y listo. Yo adivino la categoría, la cuenta y la fecha.',
                 ],
                 [
-                  '🌱',
+                  'i:sprout',
                   'Crece contigo',
                   'Empieza fácil y, cuando quieras, activa presupuestos, MSI, deudas, inversiones y SAT.',
                 ],
                 [
-                  '💑',
+                  'i:people',
                   'Solo o en pareja',
                   'Lleven juntos los gastos de la casa con cuentas claras.',
                 ],
                 [
-                  '🎓',
+                  'i:book',
                   'Aprende mientras usas',
                   'Misiones y lecciones cortitas para que tu dinero rinda más.',
                 ],
               ].map(([e, t, d]) => (
                 <div key={t} className="flex gap-3">
-                  <span className="text-2xl" aria-hidden>
-                    {e}
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-700 dark:bg-accent-950/60 dark:text-accent-200">
+                    <EmojiIcon emoji={e} className="h-5 w-5" />
                   </span>
                   <div>
                     <p className="font-semibold text-ink">{t}</p>
@@ -184,7 +177,7 @@ export function Onboarding() {
         {current === 'name' && (
           <div className="space-y-4">
             <h1 className="text-2xl font-bold text-ink">¿Cómo te llamas?</h1>
-            <p className="text-muted">Para saludarte como se debe 😊</p>
+            <p className="text-muted">Para saludarte como se debe.</p>
             <Input
               aria-label="Tu nombre"
               value={name}
@@ -219,7 +212,7 @@ export function Onboarding() {
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{LEVEL_INFO[l].emoji}</span>
+                    <LevelIcon level={l} />
                     <span className="text-lg font-bold text-ink">{LEVEL_INFO[l].label}</span>
                     {level === l && <Check className="ml-auto h-5 w-5 text-accent-600" />}
                   </div>
@@ -325,7 +318,7 @@ export function Onboarding() {
                       }
                     >
                       {a.label}
-                      {a.type === 'credit' && ' 💳'}
+                      {a.type === 'credit' && ' (crédito)'}
                     </Chip>
                   ))}
                 </div>
@@ -377,8 +370,8 @@ export function Onboarding() {
               <div className="animate-pop">
                 <EntryPreview entry={tryResult.entry} />
                 <p className="mt-2 text-sm text-income">
-                  ✨ ¿Viste? Entendí el monto, la categoría y la fecha. (Esto es solo una prueba, no
-                  se guarda).
+                  ¿Viste? Entendí el monto, la categoría y la fecha. (Esto es solo una prueba, no se
+                  guarda).
                 </p>
               </div>
             )}
@@ -386,7 +379,7 @@ export function Onboarding() {
               <p className="text-sm text-amber-700">{tryResult.message}</p>
             )}
             <p className="rounded-2xl bg-surface-2 p-3 text-sm text-muted">
-              💬 Después podrás anotar también por <b>WhatsApp</b> y con <b>tu voz</b>.
+              Después podrás anotar también por <b>WhatsApp</b> y con <b>tu voz</b>.
             </p>
           </div>
         )}
@@ -410,4 +403,9 @@ export function Onboarding() {
       </div>
     </div>
   );
+}
+
+function LevelIcon({ level }: { level: Level }) {
+  const Icon = LEVEL_ICONS[level];
+  return <Icon className="h-5 w-5 text-accent-600" strokeWidth={1.75} aria-hidden />;
 }

@@ -78,7 +78,7 @@ export default function TandasPage() {
         before: clean,
         after: { ...clean, received: true },
       } as never);
-    await commitWithUndo(changes, payout ? '🎉 ¡Tanda cobrada!' : 'Aportación registrada');
+    await commitWithUndo(changes, payout ? '¡Tanda cobrada!' : 'Aportación registrada');
   }
 
   return (
@@ -110,7 +110,7 @@ export default function TandasPage() {
                 <button type="button" className="w-full text-left" onClick={() => setEditing(t)}>
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-semibold text-ink">🫙 {t.name}</p>
+                      <p className="font-semibold text-ink"> {t.name}</p>
                       <p className="text-sm text-muted">
                         <Money cents={t.contributionCents} />{' '}
                         {t.frequency === 'weekly'

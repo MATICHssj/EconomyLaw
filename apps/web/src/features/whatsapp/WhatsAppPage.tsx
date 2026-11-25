@@ -9,8 +9,8 @@ import { Button, Card, CardTitle, PageHeader, Tip } from '@/components/ui';
 const EXAMPLES = [
   ['galleta 30', 'Gasto de $30 en Tiendita'],
   ['tacos 120, refresco 25, uber 60', '3 gastos de una vez'],
-  ['🎤 nota de voz', '“me gasté doscientos en gasolina”'],
-  ['📸 foto del ticket', 'Leo el total, el comercio y la fecha'],
+  ['Nota de voz', '“me gasté doscientos en gasolina”'],
+  ['Foto del ticket', 'Leo el total, el comercio y la fecha'],
   ['saldo · hoy · semana · mes', 'Resúmenes al instante'],
   ['presupuesto comida', '¿Cuánto te queda?'],
   ['deshacer', 'Borra lo último que mandaste'],
@@ -96,8 +96,8 @@ export default function WhatsAppPage() {
         </ul>
       </Card>
       <Tip>
-        🔒 Tu número se guarda cifrado (hash) y los mensajes originales se borran a los 30 días.
-        Para desvincular, escribe “desvincular” en el chat.
+        Tu número se guarda cifrado (hash) y los mensajes originales se borran a los 30 días. Para
+        desvincular, escribe “desvincular” en el chat.
       </Tip>
     </div>
   );
