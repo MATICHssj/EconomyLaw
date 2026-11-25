@@ -50,7 +50,7 @@ export function AuthScreen() {
             [
               [PenLine, 'Escribe “galleta 30” y listo. También por WhatsApp.'],
               [CreditCard, 'Tarjetas, MSI, quincenas, tandas y CETES: hecho para México.'],
-              [Users, 'Finanzas en pareja: cuentas claras sin pleitos.'],
+              [Users, 'Finanzas en pareja: gastos compartidos y cuentas claras.'],
               [Lock, 'Nunca te pedimos la contraseña de tu banco.'],
             ] as const
           ).map(([Icon, text]) => (

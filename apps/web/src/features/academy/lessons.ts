@@ -41,12 +41,12 @@ export const LESSONS: Lesson[] = [
   {
     id: 'hormiga',
     emoji: '🐜',
-    title: 'Gastos hormiga: el enemigo silencioso',
+    title: 'Gastos hormiga: lo pequeño también suma',
     minutes: 2,
     track: 'money',
     level: 'basic',
     body: [
-      'Son compras pequeñas y frecuentes: el café, el refresco, los chicles, el pan, el antojo de la tiendita, la comisión del cajero. Ninguna duele sola… pero juntas sí.',
+      'Son compras pequeñas y frecuentes: el café, el refresco, los chicles, el pan, el antojo de la tiendita, la comisión del cajero. Cada una es poca cosa, pero juntas suman bastante.',
       'Ejemplo real: un café de $55 cinco días a la semana son **$1,100 al mes y más de $13,000 al año**. Eso es un viaje.',
       'No se trata de dejarlos todos, sino de **verlos**. En Inicio te muestro tus gastos hormiga del mes y a cuántos cafés equivalen.',
       'Tres trucos: 1) ponles un presupuesto (p. ej. $600 al mes en “Tiendita y antojos”); 2) lleva agua y botana de casa; 3) celebra tus rachas de días sin gastos hormiga.',
@@ -105,7 +105,7 @@ export const LESSONS: Lesson[] = [
     body: [
       '**Fecha de corte**: el día que el banco cierra tu periodo y suma lo que compraste. **Fecha límite de pago**: unos 20 días después; hasta ese día puedes pagar sin intereses.',
       'El número mágico es el **“pago para no generar intereses”**. Si pagas eso completo cada mes, la tarjeta te sale gratis (y hasta te da puntos o meses sin intereses).',
-      'El **pago mínimo es una trampa**: con tasas de 40 a 80 % anual, pagar solo el mínimo hace que una deuda de $10,000 tarde años en liquidarse y cueste el doble.',
+      'El **pago mínimo sale caro**: con tasas de 40 a 80 % anual, pagar solo el mínimo hace que una deuda de $10,000 tarde años en liquidarse y cueste el doble.',
       'Truco: compra justo después de tu fecha de corte y tendrás hasta ~50 días para pagar. Configura tu tarjeta en Fina y te aviso antes de la fecha límite.',
       'Usa menos del 30 % de tu línea de crédito: mejora tu historial en Buró de Crédito.',
     ],
@@ -130,7 +130,7 @@ export const LESSONS: Lesson[] = [
     level: 'organized',
     body: [
       'Los MSI son buenos para compras **planeadas y necesarias** (un refri, una laptop para trabajar) porque reparten el pago sin costo extra.',
-      'El problema: se acumulan. Tres compras “pequeñas” a MSI pueden comerse **$3,000 de tu sueldo cada mes durante un año**.',
+      'Algo a cuidar: se acumulan. Tres compras “pequeñas” a MSI pueden sumar **$3,000 de tu sueldo cada mes durante un año**.',
       'Reglas de oro: 1) nunca compres a MSI algo que no comprarías de contado; 2) que la suma de tus MSI no pase del 10–15 % de tu ingreso; 3) si no pagas el total de tu tarjeta, los MSI pierden su ventaja.',
       'En Tarjetas y MSI te muestro cuánto llevas comprometido cada mes de aquí en adelante.',
     ],
@@ -147,7 +147,7 @@ export const LESSONS: Lesson[] = [
       'Dos estrategias para salir de varias deudas. En ambas pagas el **mínimo de todas** y todo el dinero extra va a una sola.',
       '**Bola de nieve**: primero la deuda más chica. Liquidarla rápido da motivación y libera su pago mínimo para la siguiente.',
       '**Avalancha**: primero la de mayor tasa de interés. Matemáticamente pagas menos intereses en total.',
-      '¿Cuál elegir? Si te cuesta mantener la disciplina, bola de nieve. Si eres constante, avalancha. En Deudas comparo ambas con tus números y te digo tu fecha de libertad.',
+      '¿Cuál elegir? Si te cuesta mantener la disciplina, bola de nieve. Si eres constante, avalancha. En Deudas comparo ambas con tus números y te digo en qué fecha terminas de pagar.',
     ],
     tryIt: { label: 'Simular mis deudas', to: '/deudas' },
   },
@@ -227,12 +227,12 @@ export const LESSONS: Lesson[] = [
   {
     id: 'pareja',
     emoji: '💑',
-    title: 'Dinero en pareja sin pleitos',
+    title: 'Dinero en pareja',
     minutes: 2,
     track: 'app',
     level: 'basic',
     body: [
-      'El dinero es de las principales causas de discusión en pareja. Lo que más ayuda: **transparencia y reglas claras**.',
+      'Para llevar el dinero en pareja lo que más ayuda es la **transparencia y tener reglas claras**.',
       'Un modelo que funciona: cada quien conserva su cuenta personal y juntos tienen un fondo común para lo compartido (renta, súper, servicios, metas).',
       '¿50/50 o proporcional? Si ganan distinto, repartir según el ingreso (p. ej. 60/40) suele ser más justo.',
       'En Fina creen un **hogar**: lo compartido se ve en un solo lugar y “Cuentas claras” les dice quién ha pagado más y cuánto transferir para quedar a mano. Lo personal sigue siendo privado.',
@@ -256,12 +256,12 @@ export const LESSONS: Lesson[] = [
   {
     id: 'buro',
     emoji: '📊',
-    title: 'Buró de Crédito sin miedo',
+    title: 'Cómo funciona el Buró de Crédito',
     minutes: 2,
     track: 'money',
     level: 'organized',
     body: [
-      'Estar en Buró de Crédito no es malo: es tu historial. Lo que importa es **cómo** pagas.',
+      'El Buró de Crédito es tu historial de créditos. Lo que importa es **cómo** pagas.',
       'Para un buen score: paga a tiempo (aunque sea el mínimo, pero mejor el total), usa menos del 30 % de tu línea, no abras muchos créditos a la vez y conserva tus tarjetas más antiguas.',
       'Puedes pedir tu reporte gratis una vez al año en burodecredito.com.mx.',
     ],
@@ -275,7 +275,7 @@ export const LESSONS: Lesson[] = [
     level: 'basic',
     body: [
       'El aguinaldo (mínimo 15 días de salario, antes del 20 de diciembre) es la mejor oportunidad del año para avanzar.',
-      'Una fórmula sencilla: **40 % deudas** (empieza por las de interés más alto), **30 % ahorro** (fondo de emergencia o CETES), **30 % disfrutar** (regalos, posada, un gusto sin culpa).',
+      'Una fórmula sencilla: **40 % deudas** (empieza por las de interés más alto), **30 % ahorro** (fondo de emergencia o CETES), **30 % disfrutar** (regalos, posada, algún gusto).',
       'Antes de enero, separa lo de los gastos de inicio de año (cuesta de enero): predial, tenencia, inscripciones.',
     ],
   },

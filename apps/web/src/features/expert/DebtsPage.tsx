@@ -177,8 +177,8 @@ export default function DebtsPage() {
               onChange={setBudget}
               hint={
                 <>
-                  Los pagos mínimos suman <Money cents={minimums} />. Todo lo extra acelera tu
-                  libertad.
+                  Los pagos mínimos suman <Money cents={minimums} />. Todo lo extra te ayuda a
+                  terminar antes.
                 </>
               }
             />
@@ -204,7 +204,7 @@ export default function DebtsPage() {
                     <p className="mt-1 text-xs text-muted">{desc}</p>
                     {r.feasible ? (
                       <>
-                        <p className="mt-2 text-sm text-muted">Libre en</p>
+                        <p className="mt-2 text-sm text-muted">Terminas de pagar en</p>
                         <p className="text-lg font-bold text-ink">{r.months} meses</p>
                         <p className="text-xs text-muted">
                           {r.payoffDate && formatLongDate(r.payoffDate, true)}

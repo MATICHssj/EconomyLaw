@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Copy, Share2 } from 'lucide-react';
+import { Copy, Share2, Users } from 'lucide-react';
 import {
   coupleBalance,
   formatMonthKey,
@@ -84,8 +84,10 @@ function Setup() {
     <div className="space-y-4">
       <PageHeader title="Pareja / familia" back />
       <Card className="bg-gradient-to-br from-rose-50 to-accent-50 dark:from-rose-950/40 dark:to-accent-950/40">
-        <p className="text-4xl"></p>
-        <h2 className="mt-1 text-xl font-bold text-ink">Finanzas en pareja, sin pleitos</h2>
+        <span className="grid size-11 place-items-center rounded-xl bg-white/70 text-accent-600 dark:bg-white/10">
+          <Users className="size-5" />
+        </span>
+        <h2 className="mt-2 text-xl font-bold text-ink">Finanzas en pareja o en familia</h2>
         <ul className="mt-2 space-y-1 text-sm text-ink">
           <li>Un espacio compartido para la renta, el súper y los servicios.</li>
           <li>Tus cuentas personales siguen siendo solo tuyas.</li>
