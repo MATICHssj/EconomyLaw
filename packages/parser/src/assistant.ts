@@ -17,6 +17,7 @@ import {
   startOfWeek,
   topEntries,
   antExpenses,
+  CATEGORY_FAMILIES,
   type Account,
   type Budget,
   type Category,
@@ -87,6 +88,18 @@ function findPeriod(q: string, today: ISODate): Period {
 }
 
 const QUESTION_WORDS = /\b(cuanto|cuantos|que|en|el|la|los|las|este|esta|mes|semana|ano|hoy|ayer|gaste|gastado|llevo|he|me|mi|mis|de|del|pasado|pasada|gastamos|lleve|por|para|con|todo|total|dinero|año)\b/g;
+
+/** "¿Cuánto gasté en comida?" suma toda la familia (súper, restaurantes, café…). */
+const FAMILY_WORDS: Record<string, string> = {
+  comida: 'food',
+  comer: 'food',
+  alimentos: 'food',
+  alimentacion: 'food',
+  transporte: 'transport',
+  moverme: 'transport',
+  diversion: 'fun',
+  salidas: 'fun',
+};
 
 const MONTH_WORDS = /\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\b/g;
 
@@ -204,6 +217,24 @@ export function askAssistant(question: string, data: AssistantData): AssistantAn
     const rest = q.replace(QUESTION_WORDS, ' ').replace(MONTH_WORDS, ' ').replace(/\s+/g, ' ').trim();
     let items = spendingItems(data.transactions, plans, p);
     let label = '';
+    const family = FAMILY_WORDS[rest];
+    if (family) {
+      const fam = CATEGORY_FAMILIES[family]!;
+      const ids = new Set(fam.ids);
+      items = items.filter((i) => ids.has(i.categoryId));
+      const total = items.reduce((s, i) => s + i.amountCents, 0);
+      if (!items.length) return { intent: 'spent', text: `No encontré gastos en ${fam.label.toLowerCase()} ${p.label}.` };
+      const by: Record<string, number> = {};
+      for (const i of items) by[i.categoryId] = (by[i.categoryId] ?? 0) + i.amountCents;
+      const detail = Object.entries(by)
+        .sort((a, b) => b[1] - a[1])
+        .map(([c, v]) => `• ${catName(c)}: ${formatMoney(v)}`)
+        .join('\n');
+      return {
+        intent: 'spent',
+        text: `${capitalizeFirst(p.label)} llevas ${formatMoney(total)} en ${fam.label.toLowerCase()} (${items.length} ${items.length === 1 ? 'movimiento' : 'movimientos'}):\n${detail}`,
+      };
+    }
     if (rest) {
       const merchant = findMerchant(rest);
       const cat = guessCategory(rest)?.categoryId ?? data.categories.find((c) => normalizeWord(c.name).includes(rest))?.id;

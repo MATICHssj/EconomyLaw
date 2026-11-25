@@ -1,7 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { Download, Filter, Search, X } from 'lucide-react';
 import {
+  addMonthsKey,
+  categoryFilterIds,
+  formatMonthKey,
   formatRelativeDay,
+  monthEnd,
+  monthKey,
+  monthStart,
+  CATEGORY_FAMILIES,
   isSpending,
   normalizeText,
   spendingAmount,
@@ -33,13 +41,24 @@ export function TransactionsPage() {
   const categories = useData((s) => s.data.categories);
   const today = useToday();
   const openCapture = useUI((s) => s.openCapture);
+  const [params] = useSearchParams();
   const [q, setQ] = useState('');
   const [kind, setKind] = useState<KindFilter>('all');
   const [accountId, setAccountId] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [categoryId, setCategoryId] = useState(params.get('cat') ?? '');
+  const [from, setFrom] = useState(params.get('from') ?? '');
+  const [to, setTo] = useState(params.get('to') ?? '');
+  const [showFilters, setShowFilters] = useState(!!(params.get('cat') || params.get('from')));
+  // Al llegar desde Inicio o Reportes ("ver los gastos de esta categoría").
+  useEffect(() => {
+    const cat = params.get('cat');
+    if (cat === null && !params.get('from')) return;
+    setCategoryId(cat ?? '');
+    setFrom(params.get('from') ?? '');
+    setTo(params.get('to') ?? '');
+    setShowFilters(true);
+  }, [params]);
+  const catIds = useMemo(() => categoryFilterIds(categoryId), [categoryId]);
   const [limit, setLimit] = useState(150);
 
   const filtered = useMemo(() => {
@@ -52,7 +71,7 @@ export function TransactionsPage() {
         if (kind === 'other' && (t.kind === 'expense' || t.kind === 'income')) return false;
         if (kind === 'review' && t.status !== 'review' && t.categoryId !== 'review') return false;
         if (accountId && t.accountId !== accountId && t.toAccountId !== accountId) return false;
-        if (categoryId && t.categoryId !== categoryId) return false;
+        if (catIds && !catIds.has(t.categoryId ?? '')) return false;
         if (from && t.date < from) return false;
         if (to && t.date > to) return false;
         if (tagQ) return t.tags.some((tg) => tg.includes(tagQ));
@@ -63,7 +82,7 @@ export function TransactionsPage() {
         return true;
       })
       .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
-  }, [txs, q, kind, accountId, categoryId, from, to]);
+  }, [txs, q, kind, accountId, catIds, from, to]);
 
   const groups = useMemo(() => {
     const map = new Map<string, WithSpace<Transaction>[]>();
@@ -81,6 +100,24 @@ export function TransactionsPage() {
     .reduce((s, t) => s + t.amountMxnCents, 0);
   const reviewCount = txs.filter((t) => t.status === 'review' || t.categoryId === 'review').length;
   const activeFilters = [accountId, categoryId, from, to].filter(Boolean).length;
+  const thisMonth = monthKey(today);
+  const lastMonth = addMonthsKey(thisMonth, -1);
+  const periods = [
+    { label: 'Este mes', from: monthStart(thisMonth), to: monthEnd(thisMonth) },
+    {
+      label: formatMonthKey(lastMonth, false),
+      from: monthStart(lastMonth),
+      to: monthEnd(lastMonth),
+    },
+    { label: 'Este año', from: `${today.slice(0, 4)}-01-01`, to: `${today.slice(0, 4)}-12-31` },
+    { label: 'Todo', from: '', to: '' },
+  ];
+  const categoryLabel = categoryId.startsWith('fam:')
+    ? CATEGORY_FAMILIES[categoryId.slice(4)]?.label
+    : categories.find((c) => c.id === categoryId)?.name;
+  const periodLabel =
+    periods.find((p) => p.from === from && p.to === to)?.label.toLowerCase() ??
+    (from || to ? `del ${from || '…'} al ${to || '…'}` : 'en total');
 
   return (
     <div>
@@ -152,11 +189,29 @@ export function TransactionsPage() {
               onChange={(e) => setCategoryId(e.target.value)}
               options={[
                 { value: '', label: 'Todas las categorías' },
+                ...Object.entries(CATEGORY_FAMILIES).map(([id, fam]) => ({
+                  value: `fam:${id}`,
+                  label: `${fam.label} (${fam.hint})`,
+                })),
                 ...categories
                   .filter((c) => !c.archived)
                   .map((c) => ({ value: c.id, label: c.name })),
               ]}
             />
+            <div className="col-span-2 flex flex-wrap gap-2">
+              {periods.map((p) => (
+                <Chip
+                  key={p.label}
+                  active={from === p.from && to === p.to}
+                  onClick={() => {
+                    setFrom(p.from);
+                    setTo(p.to);
+                  }}
+                >
+                  {p.label}
+                </Chip>
+              ))}
+            </div>
             <label className="text-xs text-muted">
               Desde
               <input
@@ -192,7 +247,28 @@ export function TransactionsPage() {
             )}
           </Card>
         )}
-        {(q || activeFilters > 0 || kind !== 'all') && filtered.length > 0 && (
+        {categoryLabel && (
+          <Card className="bg-accent-50/60 dark:bg-accent-950/30">
+            <p className="text-sm text-muted">
+              {categoryLabel} · {periodLabel}
+            </p>
+            <Money cents={totalSpent} className="text-2xl font-bold text-ink" />
+            <p className="text-sm text-muted">
+              {filtered.filter(isSpending).length} compras
+              {filtered.filter(isSpending).length > 0 && (
+                <>
+                  {' '}
+                  · promedio{' '}
+                  <Money
+                    cents={Math.round(totalSpent / filtered.filter(isSpending).length)}
+                    className="text-ink"
+                  />
+                </>
+              )}
+            </p>
+          </Card>
+        )}
+        {!categoryLabel && (q || activeFilters > 0 || kind !== 'all') && filtered.length > 0 && (
           <p className="text-sm text-muted">
             {filtered.length} movimientos · gastos{' '}
             <Money cents={totalSpent} className="font-semibold text-ink" />

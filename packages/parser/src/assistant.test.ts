@@ -28,6 +28,17 @@ describe('Pregúntale a Fina', () => {
   it('categorías', () => {
     expect(askAssistant('cuánto llevo en comida este mes', data).text).toMatch(/Comida/);
   });
+  it('"comida" suma toda la familia (súper, restaurantes, café…) con desglose', () => {
+    const r = askAssistant('¿cuánto he gastado en comida este mes?', data);
+    const ids = new Set(['groceries', 'food', 'coffee', 'snacks', 'delivery']);
+    const expected = demo
+      .transactions!.filter((t) => t.kind === 'expense' && t.date.startsWith('2025-11') && t.date <= today && ids.has(t.categoryId ?? ''))
+      .reduce((s, t) => s + (t.myShareCents ?? t.amountMxnCents), 0);
+    expect(r.intent).toBe('spent');
+    expect(r.text).toMatch(/toda la comida/);
+    expect(r.text).toMatch(/Súper y despensa/);
+    expect(r.text).toContain(new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', currencyDisplay: 'narrowSymbol', minimumFractionDigits: expected % 100 ? 2 : 0, maximumFractionDigits: expected % 100 ? 2 : 0 }).format(expected / 100));
+  });
   it('me alcanza', () => {
     const r = askAssistant('¿me alcanza para unos tenis de 1800?', data);
     expect(r.intent).toBe('afford');

@@ -1,5 +1,6 @@
 import { CatIcon } from '@/components/icons';
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import {
   Bar,
   BarChart,
@@ -185,22 +186,28 @@ export default function ReportsPage() {
             <ul className="space-y-3">
               {top.map(([c, v]) => (
                 <li key={c}>
-                  <div className="mb-1 flex justify-between gap-2 text-sm">
-                    <span className="flex min-w-0 items-center gap-2 font-medium text-ink">
-                      <CatIcon category={catMap.get(c)} size="sm" />
-                      <span className="truncate">{catMap.get(c)?.name ?? c}</span>
-                    </span>
-                    <span className="shrink-0 text-muted">
-                      <Money cents={v} className="font-semibold text-ink" /> ·{' '}
-                      {percent(v, r.cur.spentCents)} %
-                    </span>
-                  </div>
-                  <div className="h-2.5 overflow-hidden rounded-full bg-surface-2">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${(v / max) * 100}%`, background: CHART.single }}
-                    />
-                  </div>
+                  <Link
+                    to={`/movimientos?cat=${c}&from=${monthStart(month)}&to=${monthEnd(month)}`}
+                    className="block rounded-lg"
+                    aria-label={`Ver gastos de ${catMap.get(c)?.name ?? c}`}
+                  >
+                    <div className="mb-1 flex justify-between gap-2 text-sm">
+                      <span className="flex min-w-0 items-center gap-2 font-medium text-ink">
+                        <CatIcon category={catMap.get(c)} size="sm" />
+                        <span className="truncate">{catMap.get(c)?.name ?? c}</span>
+                      </span>
+                      <span className="shrink-0 text-muted">
+                        <Money cents={v} className="font-semibold text-ink" /> ·{' '}
+                        {percent(v, r.cur.spentCents)} %
+                      </span>
+                    </div>
+                    <div className="h-2.5 overflow-hidden rounded-full bg-surface-2">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${(v / max) * 100}%`, background: CHART.single }}
+                      />
+                    </div>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -336,24 +336,30 @@ export function HomePage() {
               const c = catMap.get(catId);
               return (
                 <li key={catId}>
-                  <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 font-medium text-ink">
-                      <CatIcon category={c} size="sm" /> {c?.name ?? 'Otros'}
-                    </span>
-                    <span className="text-muted">
-                      <Money cents={amount} className="font-semibold text-ink" /> ·{' '}
-                      {percent(amount, f.monthSummary.spentCents)} %
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-surface-2">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${(amount / topMax) * 100}%`,
-                        background: c?.color ?? 'var(--a-500)',
-                      }}
-                    />
-                  </div>
+                  <Link
+                    to={`/movimientos?cat=${catId}&from=${f.month}-01&to=${f.today}`}
+                    className="block rounded-lg"
+                    aria-label={`Ver gastos de ${c?.name ?? 'Otros'}`}
+                  >
+                    <div className="mb-1 flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2 font-medium text-ink">
+                        <CatIcon category={c} size="sm" /> {c?.name ?? 'Otros'}
+                      </span>
+                      <span className="text-muted">
+                        <Money cents={amount} className="font-semibold text-ink" /> ·{' '}
+                        {percent(amount, f.monthSummary.spentCents)} %
+                      </span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-surface-2">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${(amount / topMax) * 100}%`,
+                          background: c?.color ?? 'var(--a-500)',
+                        }}
+                      />
+                    </div>
+                  </Link>
                 </li>
               );
             })}

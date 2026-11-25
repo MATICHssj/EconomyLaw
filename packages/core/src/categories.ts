@@ -78,3 +78,32 @@ export const DEFAULT_CATEGORY_MAP: Record<string, DefaultCategory> = Object.from
 
 /** Categorías candidatas a "gasto hormiga". */
 export const ANT_CATEGORIES = new Set(['snacks', 'coffee', 'delivery', 'alcohol']);
+
+/**
+ * Familias de categorías para ver "todo lo de comida" o "todo el transporte"
+ * de un jalón (en Movimientos y reportes). El filtro usa el valor `fam:<id>`.
+ */
+export const CATEGORY_FAMILIES: Record<string, { label: string; hint: string; ids: string[] }> = {
+  food: {
+    label: 'Toda la comida',
+    hint: 'súper, restaurantes, café, antojos y a domicilio',
+    ids: ['groceries', 'food', 'coffee', 'snacks', 'delivery'],
+  },
+  transport: {
+    label: 'Todo el transporte',
+    hint: 'transporte, gasolina y auto',
+    ids: ['transport', 'gas', 'car'],
+  },
+  fun: {
+    label: 'Toda la diversión',
+    hint: 'entretenimiento, bebidas, suscripciones y viajes',
+    ids: ['entertainment', 'alcohol', 'subscriptions', 'travel'],
+  },
+};
+
+/** Ids de categoría que cubre un filtro (una categoría o una familia `fam:<id>`). */
+export function categoryFilterIds(filter: string): Set<string> | null {
+  if (!filter) return null;
+  if (filter.startsWith('fam:')) return new Set(CATEGORY_FAMILIES[filter.slice(4)]?.ids ?? []);
+  return new Set([filter]);
+}
