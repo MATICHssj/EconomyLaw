@@ -1,0 +1,19 @@
+{
+  "_comment": "Configuración PÚBLICA de la app (no hay secretos aquí). Pega aquí el bloque firebaseConfig de Firebase para activar el inicio de sesión. Las variables de GitHub (VITE_*) tienen prioridad si existen.",
+  "firebase": {
+    "apiKey": "",
+    "authDomain": "",
+    "projectId": "",
+    "storageBucket": "",
+    "messagingSenderId": "",
+    "appId": ""
+  },
+  "vapidKey": "",
+  "workerUrl": "",
+  "whatsappNumber": "",
+  "emailDomain": "",
+  "appStoreUrl": "",
+  "playStoreUrl": "",
+  "feedbackEmail": "",
+  "feedbackWhatsApp": ""
+}

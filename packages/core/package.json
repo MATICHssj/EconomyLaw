@@ -1,0 +1,17 @@
+{
+  "name": "@fina/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tipos, esquemas y cálculos financieros compartidos de Fina",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

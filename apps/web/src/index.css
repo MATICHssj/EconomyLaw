@@ -1,0 +1,167 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Tokens de diseño. Neutros fríos + UN color de acento (configurable en
+ * Ajustes → Apariencia). El acento se inyecta en tiempo de ejecución en --a-*.
+ */
+:root {
+  --a-50: #eef2ff;
+  --a-100: #e0e7ff;
+  --a-200: #c7d2fe;
+  --a-300: #a5b4fc;
+  --a-400: #818cf8;
+  --a-500: #6366f1;
+  --a-600: #4f46e5;
+  --a-700: #4338ca;
+  --a-800: #3730a3;
+  --a-900: #312e81;
+  --a-950: #1e1b4b;
+
+  --bg: #f6f6f9;
+  --surface: #ffffff;
+  --surface-2: #f0f0f4;
+  --line: #e4e4ea;
+  --ink: #14141c;
+  --muted: #6a6a7b;
+  --income: #059669;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0b0b10;
+  --surface: #15151c;
+  --surface-2: #1e1e27;
+  --line: #2b2b36;
+  --ink: #ececf3;
+  --muted: #9b9bae;
+  --income: #34d399;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans:
+    'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --color-accent-50: var(--a-50);
+  --color-accent-100: var(--a-100);
+  --color-accent-200: var(--a-200);
+  --color-accent-300: var(--a-300);
+  --color-accent-400: var(--a-400);
+  --color-accent-500: var(--a-500);
+  --color-accent-600: var(--a-600);
+  --color-accent-700: var(--a-700);
+  --color-accent-800: var(--a-800);
+  --color-accent-900: var(--a-900);
+  --color-accent-950: var(--a-950);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-income: var(--income);
+  --spacing-13: 3.25rem;
+}
+
+html {
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
+}
+html[data-font='sm'] {
+  font-size: 15px;
+}
+html[data-font='lg'] {
+  font-size: 17.5px;
+}
+html[data-font='xl'] {
+  font-size: 19px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+:focus-visible {
+  outline: 2px solid var(--a-500);
+  outline-offset: 2px;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes toast-in {
+  from {
+    transform: translateY(12px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animate-sheet {
+  animation: sheet-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.animate-fade {
+  animation: fade-in 0.2s ease-out;
+}
+.animate-toast {
+  animation: toast-in 0.2s ease-out;
+}
+.animate-pop {
+  animation: pop 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

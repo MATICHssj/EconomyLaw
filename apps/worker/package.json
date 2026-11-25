@@ -1,0 +1,26 @@
+{
+  "name": "@fina/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "API de Fina en Cloudflare Workers: WhatsApp, correos, recordatorios, push e IA",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fina/bank-profiles": "workspace:*",
+    "@fina/core": "workspace:*",
+    "@fina/parser": "workspace:*",
+    "hono": "^4.13.22",
+    "postal-mime": "^2.7.6",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
+    "vitest": "^3.2.7",
+    "wrangler": "^4.168.0"
+  }
+}

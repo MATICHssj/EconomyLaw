@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Descargar Fina</title>
+    <meta
+      name="description"
+      content="Fina: tus finanzas personales en México. Anota un gasto en 3 segundos, controla tarjetas, MSI, quincenas, viajes y pagos. Descárgala gratis."
+    />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta property="og:title" content="Fina · Finanzas personales para México" />
+    <meta property="og:description" content="Anota un gasto en 3 segundos y entiende tu dinero. Gratis y sin anuncios." />
+    <meta property="og:image" content="../icons/icon-512.png" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="../apple-touch-icon.png" />
+    <link rel="stylesheet" href="descargar.css" />
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <img class="app-icon" src="../icons/icon-512.png" alt="Ícono de Fina" width="104" height="104" />
+        <div class="hero-text">
+          <h1>Fina</h1>
+          <p class="subtitle">Finanzas personales para México</p>
+          <div class="chips">
+            <span>Gratis</span><span>Sin anuncios</span><span>Beta</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="cta" aria-live="polite">
+        <a id="cta-android" class="btn primary" href="https://github.com/MATICHssj/EconomyLaw/releases/latest/download/fina.apk" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14" /></svg>
+          Descargar para Android
+        </a>
+        <button id="cta-ios" class="btn primary" type="button" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0-12L8 7m4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" /></svg>
+          Instalar en iPhone
+        </button>
+        <div id="cta-desktop" class="desktop" hidden>
+          <p>Fina se instala en tu <b>celular</b>. Mándate este enlace y ábrelo ahí:</p>
+          <div class="row">
+            <a id="share-wa" class="btn primary" href="#" target="_blank" rel="noopener">Enviármelo por WhatsApp</a>
+            <button id="copy" class="btn" type="button">Copiar enlace</button>
+          </div>
+          <a class="link" href="../">O úsala aquí en la computadora →</a>
+        </div>
+        <p id="version" class="meta"></p>
+      </section>
+
+      <section aria-label="Capturas de pantalla">
+        <div class="shots" tabindex="0">
+          <figure><img src="shots/1.jpg" alt="Inicio: cuánto llevas gastado y cuánto puedes gastar al día" loading="lazy" width="412" height="890" /><figcaption>Sabe cuánto puedes gastar hoy</figcaption></figure>
+          <figure><img src="shots/2.jpg" alt="Anotar un gasto escribiendo galleta 30" loading="lazy" width="412" height="890" /><figcaption>Anota en 3 segundos</figcaption></figure>
+          <figure><img src="shots/3.jpg" alt="Pagos pendientes con recordatorios" loading="lazy" width="412" height="890" /><figcaption>Que no se te pase ningún pago</figcaption></figure>
+          <figure><img src="shots/4.jpg" alt="Planear un viaje con presupuesto" loading="lazy" width="412" height="890" /><figcaption>Planea y paga tus viajes</figcaption></figure>
+          <figure><img src="shots/5.jpg" alt="Lecciones de Aprende" loading="lazy" width="412" height="890" /><figcaption>Aprende a usarla paso a paso</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Cómo instalarla</h2>
+        <div class="tabs" role="tablist">
+          <button role="tab" id="tab-android" aria-controls="steps-android" aria-selected="true" type="button">Android</button>
+          <button role="tab" id="tab-ios" aria-controls="steps-ios" aria-selected="false" type="button">iPhone</button>
+        </div>
+        <ol id="steps-android" class="steps" role="tabpanel" aria-labelledby="tab-android">
+          <li><b>Toca “Descargar para Android”.</b> Se baja el archivo <code>fina.apk</code> (pesa como una foto).</li>
+          <li><b>Ábrelo</b> desde la notificación de descarga o desde la app <i>Archivos → Descargas</i>.</li>
+          <li>Si el teléfono pregunta, toca <b>Configuración → “Permitir de esta fuente”</b> y regresa. Es normal: Android lo pide con cualquier app que no viene de la Play Store.</li>
+          <li>Toca <b>Instalar</b> y luego <b>Abrir</b>. Si aparece Play Protect, toca <b>“Más detalles” → “Instalar de todas formas”</b>.</li>
+          <li>Listo: Fina queda con su ícono como cualquier app. <b>Cuando haya una versión nueva, la misma app te avisa</b> para actualizar con un toque.</li>
+        </ol>
+        <ol id="steps-ios" class="steps" role="tabpanel" aria-labelledby="tab-ios" hidden>
+          <li><b>Abre esta página en Safari</b> (si estás en WhatsApp o Instagram, toca “…” → “Abrir en Safari”) y toca <b>“Instalar en iPhone”</b>: se abre Fina.</li>
+          <li>Toca el botón <b>Compartir</b>
+            <svg class="inline" viewBox="0 0 24 24" aria-label="ícono de compartir"><path d="M12 3v12m0-12L8 7m4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" /></svg>
+            (abajo en el centro).</li>
+          <li>Desliza y elige <b>“Agregar a pantalla de inicio”</b>, luego <b>“Agregar”</b>.</li>
+          <li>Abre Fina desde su ícono: se ve a pantalla completa, como cualquier app, y <b>se actualiza sola</b>.</li>
+        </ol>
+        <p class="note" id="ios-note" hidden>En iPhone, Fina funciona igual, salvo leer las notificaciones del banco (Apple no lo permite). Puedes anotar por WhatsApp o reenviando los correos de tu banco.</p>
+      </section>
+
+      <section class="card">
+        <h2>Lo que puedes hacer</h2>
+        <ul class="features">
+          <li><b>Anota en una línea:</b> “tacos 120”, “uber 85 con nu”, “+15000 quincena”. También por voz o WhatsApp.</li>
+          <li><b>Gastos automáticos</b> (Android): lee solo los avisos de compra de tu banco.</li>
+          <li><b>Tarjetas y MSI:</b> fecha de corte, pago para no generar intereses y avisos antes de la fecha límite.</li>
+          <li><b>Pagos pendientes, metas y viajes</b> con cuánto apartar cada quincena.</li>
+          <li><b>En pareja:</b> gastos compartidos y cuentas claras.</li>
+          <li><b>Aprende:</b> guías para usarla desde cero hasta nivel experto.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Tu información es tuya</h2>
+        <ul class="features">
+          <li>Nunca te pedimos la contraseña de tu banco.</li>
+          <li>No vendemos tus datos ni mostramos anuncios.</li>
+          <li>Puedes protegerla con PIN o huella, exportar todo y borrar tu cuenta cuando quieras.</li>
+        </ul>
+      </section>
+
+      <section class="card faq">
+        <h2>Preguntas</h2>
+        <details>
+          <summary>¿Por qué Android dice “app desconocida”?</summary>
+          <p>Porque por ahora Fina se descarga desde esta página y no desde la Play Store. Es la misma app; cuando esté en la tienda podrás instalarla desde ahí.</p>
+        </details>
+        <details>
+          <summary>¿Cómo me actualizo?</summary>
+          <p>En Android, Fina te avisa cuando hay versión nueva: tocas “Actualizar” y se instala encima, sin perder nada. En iPhone se actualiza sola.</p>
+        </details>
+        <details>
+          <summary>¿Necesito crear cuenta?</summary>
+          <p>No. Puedes usarla sin cuenta y todo se guarda en tu teléfono. Si creas cuenta, tus datos se respaldan en la nube y los ves en cualquier dispositivo.</p>
+        </details>
+        <details>
+          <summary>Estoy probando la beta, ¿cómo mando comentarios?</summary>
+          <p>Dentro de la app: <b>Más → Enviar comentarios</b>. Nos ayuda muchísimo.</p>
+        </details>
+      </section>
+
+      <footer>
+        <a href="../#/privacidad">Aviso de privacidad</a> · <a href="../#/terminos">Términos</a>
+      </footer>
+    </main>
+    <script src="descargar.js" defer></script>
+  </body>
+</html>

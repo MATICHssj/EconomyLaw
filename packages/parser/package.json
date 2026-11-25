@@ -1,0 +1,17 @@
+{
+  "name": "@fina/parser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Parser de lenguaje natural: convierte 'galleta 30' en un movimiento",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fina/core": "workspace:*"
+  }
+}

@@ -1,0 +1,180 @@
+rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reglas de seguridad de Fina.
+// Principio: TODO está cerrado salvo lo que se abre explícitamente.
+//  • Cada persona solo puede leer/escribir sus propios datos (users/{uid}).
+//  • Un hogar (modo pareja) solo lo ven y modifican sus integrantes.
+//  • waLinks y lo demás del servidor: solo el Worker (cuenta de servicio).
+//  • Se validan tipos: montos enteros en centavos, fechas YYYY-MM-DD, tamaños.
+// ─────────────────────────────────────────────────────────────────────────────
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+    function isCents(v) {
+      return v is int && v >= 0 && v < 100000000000;
+    }
+    function isISODate(v) {
+      return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+    function smallString(v, max) {
+      return v is string && v.size() <= max;
+    }
+    function validTransaction(d) {
+      return d.keys().hasAll(['id', 'kind', 'amountCents', 'amountMxnCents', 'date', 'description'])
+        && d.kind in ['expense', 'income', 'transfer', 'debt_payment', 'loan_given', 'loan_received', 'loan_collected', 'loan_repaid', 'investment', 'tanda']
+        && isCents(d.amountCents)
+        && isCents(d.amountMxnCents)
+        && isISODate(d.date)
+        && smallString(d.description, 200)
+        && (!('rawText' in d) || smallString(d.rawText, 500))
+        && (!('note' in d) || smallString(d.note, 500))
+        && (!('myShareCents' in d) || isCents(d.myShareCents))
+        && (!('tags' in d) || (d.tags is list && d.tags.size() <= 20))
+        && d.size() <= 40;
+    }
+    function validDoc(col, d) {
+      return d.id is string && d.size() <= 60 && (
+        col != 'transactions' || validTransaction(d)
+      ) && (
+        col != 'accounts' || (smallString(d.name, 60) && d.openingBalanceCents is int)
+      ) && (
+        col != 'goals' || (isCents(d.targetCents) && isCents(d.savedCents))
+      ) && (
+        col != 'installmentPlans' || (isCents(d.totalCents) && d.months is int && d.months >= 1 && d.months <= 60)
+      ) && (
+        col != 'loans' || (isCents(d.amountCents) && isCents(d.paidCents))
+      ) && (
+        col != 'trips' || validTrip(d)
+      );
+    }
+    function validTrip(d) {
+      return smallString(d.name, 60)
+        && isISODate(d.startDate)
+        && isISODate(d.endDate)
+        && d.startDate <= d.endDate
+        && (!('items' in d) || (d.items is list && d.items.size() <= 300))
+        && (!('ignoredTxIds' in d) || (d.ignoredTxIds is list && d.ignoredTxIds.size() <= 500))
+        && (!('budget' in d) || d.budget is map);
+    }
+    function allowedCollection(col) {
+      return col in ['accounts', 'transactions', 'categories', 'rules', 'budgets', 'recurring', 'goals', 'debts',
+        'installmentPlans', 'loans', 'splits', 'tandas', 'investments', 'snapshots', 'cfdi', 'trips'];
+    }
+
+    // ── Datos personales ──────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['profile', 'settings'])
+        && (!('profile' in request.resource.data) || request.resource.data.profile.size() <= 20)
+        && (!('settings' in request.resource.data) || request.resource.data.settings.size() <= 20);
+      // Borrar la cuenta lo hace el Worker en cascada; el cliente puede borrar su perfil.
+      allow delete: if isOwner(uid);
+
+      // Registro de errores de la app: solo se agrega (nunca se edita), con tamaño limitado.
+      match /errors/{errId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid)
+          && errId.size() <= 40
+          && request.resource.data.keys().hasOnly(['at', 'message', 'stack', 'route', 'version', 'build', 'platform', 'count'])
+          && smallString(request.resource.data.message, 300)
+          && smallString(request.resource.data.route, 100)
+          && (!('stack' in request.resource.data) || smallString(request.resource.data.stack, 1200))
+          && request.resource.data.count is int;
+        allow update: if false;
+      }
+
+      match /devices/{token} {
+        allow read, write: if isOwner(uid) && token.size() < 300;
+      }
+
+      match /{col}/{docId} {
+        allow read: if isOwner(uid) && allowedCollection(col);
+        allow create, update: if isOwner(uid) && allowedCollection(col)
+          && request.resource.data.id == docId
+          && validDoc(col, request.resource.data);
+        allow delete: if isOwner(uid) && allowedCollection(col);
+      }
+    }
+
+    // ── Hogar / pareja ────────────────────────────────────────────────────
+    function isMember(hid) {
+      return signedIn() && request.auth.uid in get(/databases/$(database)/documents/households/$(hid)).data.members;
+    }
+
+    match /households/{hid} {
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+      // Crear: solo con uno mismo como único integrante.
+      allow create: if signedIn()
+        && request.resource.data.members == [request.auth.uid]
+        && request.resource.data.createdBy == request.auth.uid
+        && smallString(request.resource.data.name, 60);
+      // Integrantes: pueden editar nombre/reparto y salir (quitarse a sí mismos), no expulsar a otros.
+      allow update: if signedIn() && request.auth.uid in resource.data.members && (
+          request.resource.data.members == resource.data.members
+          || request.resource.data.members == resource.data.members.removeAll([request.auth.uid])
+        )
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'splitMode', 'weights', 'memberNames', 'members'])
+      // Unirse: con un código de invitación válido y vigente, agregándose solo a sí mismo.
+      || signedIn()
+        && !(request.auth.uid in resource.data.members)
+        && resource.data.members.size() < 8
+        && request.resource.data.members == resource.data.members.concat([request.auth.uid])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'memberNames', 'weights', 'joinCode'])
+        && exists(/databases/$(database)/documents/householdInvites/$(request.resource.data.joinCode))
+        && get(/databases/$(database)/documents/householdInvites/$(request.resource.data.joinCode)).data.hid == hid
+        && get(/databases/$(database)/documents/householdInvites/$(request.resource.data.joinCode)).data.expiresAtMs > request.time.toMillis();
+      allow delete: if false;
+
+      match /{col}/{docId} {
+        allow read: if isMember(hid) && allowedCollection(col);
+        allow create, update: if isMember(hid) && allowedCollection(col)
+          && request.resource.data.id == docId
+          && validDoc(col, request.resource.data);
+        allow delete: if isMember(hid) && allowedCollection(col);
+      }
+    }
+
+    // Invitaciones: las crea un integrante; cualquiera con sesión puede leer UNA por su código (no listar).
+    match /householdInvites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && code.matches('^[A-Z2-9]{6}$')
+        && request.resource.data.createdBy == request.auth.uid
+        && isMember(request.resource.data.hid)
+        && request.resource.data.expiresAtMs is int
+        && request.resource.data.expiresAtMs <= request.time.toMillis() + 8 * 24 * 3600 * 1000;
+      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
+      allow update: if false;
+    }
+
+    // Código de vinculación de WhatsApp: el cliente solo puede CREAR el suyo (vence en ≤ 15 min).
+    // No puede leerlo ni sobrescribir uno existente. El Worker lo valida y lo borra.
+    match /linkCodes/{code} {
+      allow create: if signedIn()
+        && code.matches('^[0-9]{6}$')
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.expiresAtMs is int
+        && request.resource.data.expiresAtMs <= request.time.toMillis() + 15 * 60 * 1000;
+      allow read, update, delete: if false;
+    }
+
+    // Solo el servidor (Worker con cuenta de servicio, que no pasa por estas reglas).
+    match /waLinks/{doc} {
+      allow read, write: if false;
+    }
+
+    // Todo lo demás: cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

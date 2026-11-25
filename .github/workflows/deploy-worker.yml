@@ -1,0 +1,63 @@
+name: Publicar servidor (Cloudflare Worker)
+
+# Requiere: secret CLOUDFLARE_API_TOKEN (permiso "Edit Cloudflare Workers"), variable CLOUDFLARE_ACCOUNT_ID,
+# variables FIREBASE_PROJECT_ID, WORKER_KV_ID, APP_URL, ALLOWED_ORIGINS.
+# Secretos opcionales que se suben al Worker si existen: FIREBASE_SERVICE_ACCOUNT, WHATSAPP_TOKEN,
+# WHATSAPP_APP_SECRET, WHATSAPP_VERIFY_TOKEN, WHATSAPP_PHONE_NUMBER_ID, PHONE_HASH_SALT.
+on:
+  push:
+    branches: [main]
+    paths: ['apps/worker/**', 'packages/**', '.github/workflows/deploy-worker.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HAS_CF: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        if: env.HAS_CF == 'true'
+      - uses: actions/setup-node@v4
+        if: env.HAS_CF == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        if: env.HAS_CF == 'true'
+      - name: Configurar wrangler.toml
+        if: env.HAS_CF == 'true'
+        working-directory: apps/worker
+        run: |
+          sed -i "s|REEMPLAZAR-con-tu-proyecto|${{ vars.FIREBASE_PROJECT_ID }}|; s|REEMPLAZAR-con-el-id-del-namespace|${{ vars.WORKER_KV_ID }}|" wrangler.toml
+          if [ -n "${{ vars.APP_URL }}" ]; then sed -i "s|^APP_URL = .*|APP_URL = \"${{ vars.APP_URL }}\"|" wrangler.toml; fi
+          if [ -n "${{ vars.ALLOWED_ORIGINS }}" ]; then sed -i "s|^ALLOWED_ORIGINS = .*|ALLOWED_ORIGINS = \"${{ vars.ALLOWED_ORIGINS }}\"|" wrangler.toml; fi
+      - name: Publicar
+        if: env.HAS_CF == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/worker
+          packageManager: pnpm
+          secrets: |
+            FIREBASE_SERVICE_ACCOUNT
+            WHATSAPP_TOKEN
+            WHATSAPP_APP_SECRET
+            WHATSAPP_VERIFY_TOKEN
+            WHATSAPP_PHONE_NUMBER_ID
+            PHONE_HASH_SALT
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+          WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET }}
+          WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
+          WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+          PHONE_HASH_SALT: ${{ secrets.PHONE_HASH_SALT }}
+      - name: Aviso
+        if: env.HAS_CF != 'true'
+        run: echo "Sin CLOUDFLARE_API_TOKEN todavía. Sigue docs/GUIA-DUENO.md para activar el servidor."
