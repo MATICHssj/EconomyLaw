@@ -6,6 +6,7 @@ import { useUI } from '@/stores/ui';
 import { Card, CardTitle, PageHeader, ProgressBar, Segmented, cx } from '@/components/ui';
 import { useState } from 'react';
 import { LESSONS, completedLessons } from './lessons';
+import { PATHS, savePath, savedPath, type LearnPath } from './guides';
 import { useMissions } from './missions';
 
 export default function AcademyPage() {
@@ -15,13 +16,85 @@ export default function AcademyPage() {
   const openCapture = useUI((s) => s.openCapture);
   const level = useData((s) => s.profile?.level ?? 'basic');
   const lessons = LESSONS.filter((l) => track === 'all' || l.track === track);
+  const [path, setPath] = useState<LearnPath>(() => savedPath(level));
+  const pathLessons = PATHS[path].lessons
+    .map((id) => LESSONS.find((l) => l.id === id))
+    .filter((l): l is (typeof LESSONS)[number] => !!l);
+  const pathDone = pathLessons.filter((l) => done.has(l.id)).length;
+  const nextInPath = pathLessons.find((l) => !done.has(l.id));
   const lessonPct = Math.round(
     (LESSONS.filter((l) => done.has(l.id)).length / LESSONS.length) * 100,
   );
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Aprende" subtitle="Lecciones de 2 minutos para que tu dinero rinda más." />
+      <PageHeader
+        title="Aprende"
+        subtitle="Aprende a usar Fina paso a paso y a que tu dinero rinda más."
+      />
+      <Card>
+        <CardTitle>Aprende a usar Fina</CardTitle>
+        <Segmented
+          label="¿Cuánto sabes de finanzas?"
+          value={path}
+          onChange={(p) => {
+            setPath(p);
+            savePath(p);
+          }}
+          options={(Object.keys(PATHS) as LearnPath[]).map((p) => ({
+            value: p,
+            label: PATHS[p].label,
+          }))}
+        />
+        <p className="mt-2 text-sm text-muted">{PATHS[path].tagline}</p>
+        <ProgressBar
+          className="mt-3"
+          value={pathLessons.length ? (pathDone / pathLessons.length) * 100 : 0}
+          label="Progreso de la ruta"
+        />
+        <p className="mt-1 text-xs text-muted">
+          {pathDone} de {pathLessons.length} guías
+        </p>
+        <ol className="mt-3 space-y-1">
+          {pathLessons.map((l, i) => {
+            const ok = done.has(l.id);
+            const isNext = nextInPath?.id === l.id;
+            return (
+              <li key={l.id}>
+                <Link
+                  to={`/aprende/${l.id}`}
+                  className={cx(
+                    'flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-surface-2',
+                    isNext && 'bg-accent-50 dark:bg-accent-950/40',
+                  )}
+                >
+                  <span
+                    className={cx(
+                      'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold',
+                      ok
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                        : 'bg-surface-2 text-muted',
+                    )}
+                  >
+                    {ok ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className={cx('block truncate', ok ? 'text-muted' : 'font-medium text-ink')}
+                    >
+                      {l.title}
+                    </span>
+                    <span className="text-xs text-muted">
+                      {l.minutes} min · {l.track === 'app' ? 'Usar la app' : 'Finanzas'}
+                    </span>
+                  </span>
+                  {isNext && <span className="text-sm font-semibold text-accent-700">Empezar</span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ol>
+      </Card>
       <Card>
         <CardTitle>
           Tus misiones · nivel{' '}

@@ -7,6 +7,8 @@ import { clearDemoData, hasDemoData, loadDemoData, uploadLocalData } from '@/lib
 import { workerFetch } from '@/lib/api';
 import { exportAllJson, exportTransactionsCsv, exportTransactionsXlsx } from '@/lib/exporter';
 import { enablePush, pushStatus } from '@/lib/notifications';
+import { isCapacitor } from '@/lib/pwa';
+import { checkForUpdate, openApkDownload } from '@/lib/updates';
 import {
   biometricAvailable,
   clearPin,
@@ -426,6 +428,28 @@ export default function SettingsPage() {
         <p>
           Fina v{config.version} · {config.buildDate}
         </p>
+        {isCapacitor() && config.build && (
+          <button
+            type="button"
+            className="font-medium text-accent-600"
+            onClick={async () => {
+              const u = await checkForUpdate(true).catch(() => null);
+              if (u?.available) {
+                toast(
+                  `Hay una versión nueva (${u.latest}). Se descarga y la instalas encima.`,
+                  'info',
+                );
+                openApkDownload();
+              } else
+                toast(
+                  u ? 'Ya tienes la versión más reciente.' : 'No pude revisar. ¿Tienes internet?',
+                  u ? 'success' : 'error',
+                );
+            }}
+          >
+            Buscar actualización
+          </button>
+        )}
         <p>
           <Link className="underline" to="/privacidad">
             Aviso de privacidad

@@ -1,4 +1,5 @@
 import { EmojiIcon, LEVEL_ICONS } from '@/components/icons';
+import { FeedbackCard } from '@/components/FeedbackCard';
 import { Link } from 'react-router';
 import { FEATURES, LEVEL_INFO, isFeatureVisible, type FeatureId, type Level } from '@fina/core';
 import { useData } from '@/stores/data';
@@ -137,6 +138,7 @@ export default function MorePage() {
           </LinkButton>
         </Card>
       )}
+      <FeedbackCard />
     </div>
   );
 }

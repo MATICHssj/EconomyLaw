@@ -1,3 +1,4 @@
+import { GUIDES } from './guides';
 import type { Level } from '@fina/core';
 
 export interface Lesson {
@@ -9,6 +10,8 @@ export interface Lesson {
   level: Level;
   body: string[];
   tryIt?: { label: string; to: string };
+  /** Pasos con botón para ir a la pantalla (guías de "Cómo usar Fina"). */
+  steps?: Array<{ text: string; to?: string }>;
   quiz?: { q: string; options: string[]; answer: number; why: string };
 }
 
@@ -16,7 +19,7 @@ export interface Lesson {
  * Lecciones de 2 minutos: cómo usar la app y educación financiera práctica
  * para México. Texto plano; **negritas** se muestran resaltadas.
  */
-export const LESSONS: Lesson[] = [
+const BASE_LESSONS: Lesson[] = [
   {
     id: 'captura',
     emoji: '✍️',
@@ -301,6 +304,8 @@ export const LESSONS: Lesson[] = [
     ],
   },
 ];
+
+export const LESSONS: Lesson[] = [...GUIDES, ...BASE_LESSONS];
 
 export function completedLessons(): Set<string> {
   try {

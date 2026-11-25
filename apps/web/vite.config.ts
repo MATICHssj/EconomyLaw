@@ -67,7 +67,12 @@ export default defineConfig(({ mode }) => {
     base: process.env.BASE_PATH ?? './',
     plugins,
     resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
-    define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.1.0'), __BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)) },
+    define: {
+      __APP_VERSION__: JSON.stringify(process.env.APP_VERSION ?? process.env.npm_package_version ?? '0.1.0'),
+      // Número de compilación del APK publicado (GitHub Actions). Vacío en compilaciones locales.
+      __APP_BUILD__: JSON.stringify(process.env.APP_BUILD ?? ''),
+      __BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)),
+    },
     build: {
       target: 'es2022',
       outDir: single ? 'dist-single' : 'dist',

@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { useUI } from '@/stores/ui';
 import { Button, Card, EmptyState, PageHeader, cx } from '@/components/ui';
 import { LESSONS, completeLesson } from './lessons';
+import { PATHS, savedPath } from './guides';
+import { useData } from '@/stores/data';
 
 /** Convierte **negritas** en <strong>. */
 function rich(text: string): ReactNode[] {
@@ -21,11 +23,15 @@ export default function LessonPage() {
   const { id } = useParams();
   const nav = useNavigate();
   const openCapture = useUI((s) => s.openCapture);
+  const level = useData((s) => s.profile?.level ?? 'basic');
   const lesson = LESSONS.find((l) => l.id === id);
   const [choice, setChoice] = useState<number | null>(null);
   if (!lesson) return <EmptyState emoji="🤷" title="Lección no encontrada" />;
+  // "Siguiente" sigue tu ruta de Aprende (si la lección está en ella).
+  const pathIds = PATHS[savedPath(level)].lessons;
+  const inPath = pathIds.indexOf(lesson.id);
   const idx = LESSONS.indexOf(lesson);
-  const next = LESSONS[idx + 1];
+  const next = inPath >= 0 ? LESSONS.find((l) => l.id === pathIds[inPath + 1]) : LESSONS[idx + 1];
 
   function finish() {
     completeLesson(lesson!.id);
@@ -41,6 +47,35 @@ export default function LessonPage() {
           <p key={i}>{rich(p)}</p>
         ))}
       </Card>
+      {lesson.steps && lesson.steps.length > 0 && (
+        <Card>
+          <p className="mb-2 font-semibold text-ink">Hazlo ahora</p>
+          <ol className="space-y-2">
+            {lesson.steps.map((st, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-50 text-sm font-bold text-accent-700 dark:bg-accent-950/60 dark:text-accent-200">
+                  {i + 1}
+                </span>
+                <span className="flex-1 text-sm text-ink">{st.text}</span>
+                {st.to &&
+                  (st.to.includes('capture') ? (
+                    <button
+                      type="button"
+                      className="text-sm font-semibold text-accent-700"
+                      onClick={() => openCapture()}
+                    >
+                      Ir
+                    </button>
+                  ) : (
+                    <Link to={st.to} className="text-sm font-semibold text-accent-700">
+                      Ir
+                    </Link>
+                  ))}
+              </li>
+            ))}
+          </ol>
+        </Card>
+      )}
       {lesson.quiz && (
         <Card>
           <p className="font-semibold text-ink">{lesson.quiz.q}</p>

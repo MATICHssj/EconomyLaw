@@ -10,6 +10,8 @@ import { isCapacitor } from '@/lib/pwa';
 import { Layout } from '@/components/Layout';
 import { ConfirmHost, Toasts } from '@/components/ui';
 import { Splash } from '@/components/Splash';
+import { IosInstallHint } from '@/components/IosInstallHint';
+import { notifyIfUpdate } from '@/lib/updates';
 import { CaptureSheet } from '@/features/capture/CaptureSheet';
 import { EditTransactionSheet } from '@/features/transactions/EditTransactionSheet';
 import { LockScreen, useAutoLock } from '@/features/security/LockScreen';
@@ -137,6 +139,7 @@ export function App() {
     void refreshFxRates();
     void processDueRecurring();
     if (!isCapacitor()) return;
+    void notifyIfUpdate();
     // Android: movimientos de las notificaciones del banco y avisos locales.
     void importPendingBankNotifications().catch(() => {});
     let stop: (() => void) | undefined;
@@ -163,6 +166,7 @@ export function App() {
     <>
       {content}
       <Toasts />
+      <IosInstallHint />
       <ConfirmHost />
     </>
   );

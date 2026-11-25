@@ -40,6 +40,10 @@ export const config = {
   repoUrl: 'https://github.com/MATICHssj/EconomyLaw',
   isDemoBuild: env.MODE === 'single',
   version: __APP_VERSION__,
+  build: __APP_BUILD__,
+  /** Para la beta: a dónde llegan los comentarios (correo y/o WhatsApp con lada). */
+  feedbackEmail: pub.feedbackEmail ?? '',
+  feedbackWhatsApp: pub.feedbackWhatsApp ?? '',
   buildDate: __BUILD_DATE__,
 };
 

@@ -13,5 +13,7 @@
   "whatsappNumber": "",
   "emailDomain": "",
   "appStoreUrl": "",
-  "playStoreUrl": ""
+  "playStoreUrl": "",
+  "feedbackEmail": "",
+  "feedbackWhatsApp": ""
 }

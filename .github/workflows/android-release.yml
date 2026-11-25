@@ -27,6 +27,11 @@ jobs:
       VITE_WORKER_URL: ${{ vars.VITE_WORKER_URL }}
       VITE_WHATSAPP_NUMBER: ${{ vars.VITE_WHATSAPP_NUMBER }}
       HAS_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      # Versión: 0.1.<número de compilación>. La app la usa para avisar "hay versión nueva".
+      APP_VERSION: 0.1.${{ github.run_number }}
+      APP_BUILD: ${{ github.run_number }}
+      VERSION_NAME: 0.1.${{ github.run_number }}
+      VERSION_CODE: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -56,8 +61,15 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew :app:testDebugUnitTest --no-daemon
-          if [ "$HAS_KEY" = "true" ]; then ./gradlew assembleRelease --no-daemon; cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/fina.apk"
-          else ./gradlew assembleDebug --no-daemon; cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/fina.apk"; fi
+          if [ "$HAS_KEY" = "true" ]; then
+            ./gradlew assembleRelease bundleRelease --no-daemon
+            cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/fina.apk"
+            # Para Google Play (se sube en la consola de Play).
+            cp app/build/outputs/bundle/release/app-release.aab "$RUNNER_TEMP/fina.aab"
+          else
+            ./gradlew assembleDebug --no-daemon
+            cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/fina.apk"
+          fi
       - name: Publicar en Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -65,6 +77,8 @@ jobs:
           name: Fina 0.1.${{ github.run_number }}
           make_latest: true
           body: |
-            📲 Descarga **fina.apk** e instálalo en tu Android.
-            ${{ env.HAS_KEY != 'true' && '⚠️ Versión de prueba (sin firma propia). Si ya tenías una versión, desinstálala primero.' || '' }}
-          files: ${{ runner.temp }}/fina.apk
+            Descarga **fina.apk** e instálalo en tu Android (o entra a la página /descargar/ de la app).
+            ${{ env.HAS_KEY != 'true' && 'Aviso: versión de prueba sin llave propia. Para actualizar encima sin desinstalar, crea la llave (scripts/crear-llave-android.sh).' || 'Firmada: se instala encima de la versión anterior sin perder datos. fina.aab es para Google Play.' }}
+          files: |
+            ${{ runner.temp }}/fina.apk
+            ${{ runner.temp }}/fina.aab
