@@ -21,7 +21,8 @@ type Listener = (docs: AnyDoc[]) => void;
 export class LocalBackend implements DataBackend {
   readonly kind = 'local' as const;
   readonly uid = 'local';
-  private db: Promise<IDBPDatabase>;
+  /** null = IndexedDB no disponible (navegación privada, vista previa): se usa solo memoria. */
+  private db: Promise<IDBPDatabase | null>;
   private cache = new Map<CollectionName, Map<string, AnyDoc>>();
   private listeners = new Map<CollectionName, Set<Listener>>();
   private metaListeners = new Set<(m: MetaDoc) => void>();
@@ -36,7 +37,7 @@ export class LocalBackend implements DataBackend {
           if (!db.objectStoreNames.contains(col)) db.createObjectStore(col, { keyPath: 'id' });
         if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
       },
-    });
+    }).catch(() => null);
     try {
       this.channel = new BroadcastChannel('fina-local');
       this.channel.onmessage = (e: MessageEvent<{ col?: CollectionName; meta?: boolean }>) => {
@@ -50,14 +51,14 @@ export class LocalBackend implements DataBackend {
 
   private async reload(col: CollectionName) {
     const db = await this.db;
-    const all = (await db.getAll(col)) as AnyDoc[];
+    const all = db ? ((await db.getAll(col).catch(() => [])) as AnyDoc[]) : [...(this.cache.get(col)?.values() ?? [])];
     this.cache.set(col, new Map(all.map((d) => [d.id, d])));
     this.emit(col);
   }
 
   private async reloadMeta() {
     const db = await this.db;
-    this.meta = ((await db.get('meta', 'me')) as MetaDoc | undefined) ?? {};
+    if (db) this.meta = ((await db.get('meta', 'me').catch(() => undefined)) as MetaDoc | undefined) ?? {};
     for (const l of this.metaListeners) l(this.meta);
   }
 
@@ -99,6 +100,7 @@ export class LocalBackend implements DataBackend {
     }
     for (const col of touched) this.emit(col);
     const db = await this.db;
+    if (!db) return;
     const tx = db.transaction([...touched], 'readwrite');
     for (const op of personal) {
       const store = tx.objectStore(op.col);
@@ -120,16 +122,18 @@ export class LocalBackend implements DataBackend {
     } as MetaDoc;
     for (const l of this.metaListeners) l(this.meta);
     const db = await this.db;
-    await db.put('meta', stripUndefined(this.meta), 'me');
+    if (db) await db.put('meta', stripUndefined(this.meta), 'me');
     this.channel?.postMessage({ meta: true });
   }
 
   async wipe(): Promise<void> {
     const db = await this.db;
-    const tx = db.transaction([...COLLECTIONS, 'meta'], 'readwrite');
-    for (const col of COLLECTIONS) void tx.objectStore(col).clear();
-    void tx.objectStore('meta').clear();
-    await tx.done;
+    if (db) {
+      const tx = db.transaction([...COLLECTIONS, 'meta'], 'readwrite');
+      for (const col of COLLECTIONS) void tx.objectStore(col).clear();
+      void tx.objectStore('meta').clear();
+      await tx.done;
+    }
     this.cache.clear();
     this.meta = {};
     for (const col of COLLECTIONS) this.emit(col);
@@ -149,7 +153,7 @@ export class LocalBackend implements DataBackend {
   async exportAll(): Promise<{ meta: MetaDoc; data: Partial<Record<CollectionName, AnyDoc[]>> }> {
     const db = await this.db;
     const data: Partial<Record<CollectionName, AnyDoc[]>> = {};
-    for (const col of COLLECTIONS) data[col] = (await db.getAll(col)) as AnyDoc[];
-    return { meta: ((await db.get('meta', 'me')) as MetaDoc | undefined) ?? {}, data };
+    for (const col of COLLECTIONS) data[col] = db ? ((await db.getAll(col)) as AnyDoc[]) : [];
+    return { meta: db ? (((await db.get('meta', 'me')) as MetaDoc | undefined) ?? {}) : {}, data };
   }
 }

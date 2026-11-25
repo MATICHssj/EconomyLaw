@@ -19,3 +19,4 @@ apps/web/android/local.properties
 apps/web/android/app/google-services.json
 *.keystore
 *.jks
+dist-single/

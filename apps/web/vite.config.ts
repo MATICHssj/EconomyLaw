@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 
 const BRAND = { name: 'Fina', themeColor: '#4f46e5', background: '#f7f7f9' };
 
@@ -11,6 +12,17 @@ export default defineConfig(({ mode }) => {
   const single = mode === 'single';
   const plugins: PluginOption[] = [react(), tailwindcss()];
   if (single) {
+    // Demo de un solo archivo: el script de arranque va en línea.
+    plugins.push({
+      name: 'inline-boot',
+      transformIndexHtml: {
+        order: 'pre',
+        handler: (html) => html.replace('<script src="boot.js"></script>', `<script>${readFileSync(fileURLToPath(new URL('./public/boot.js', import.meta.url)), 'utf8')}</script>`),
+      },
+      // Sin service worker en el demo.
+      resolveId: (id) => (id === 'virtual:pwa-register' ? '\0pwa-stub' : null),
+      load: (id) => (id === '\0pwa-stub' ? 'export function registerSW() { return () => {}; }' : null),
+    });
     plugins.push(viteSingleFile());
   } else {
     plugins.push(
