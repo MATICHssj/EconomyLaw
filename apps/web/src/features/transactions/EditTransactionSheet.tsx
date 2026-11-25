@@ -27,6 +27,7 @@ export function EditTransactionSheet() {
   const allAccounts = useData((s) => s.data.accounts);
   const accounts = allAccounts.filter((a) => !a.archived || a.id === tx?.accountId);
   const level = useData((s) => s.profile?.level ?? 'basic');
+  const trips = useData((s) => s.data.trips);
   const [draft, setDraft] = useState<Transaction | null>(null);
 
   useEffect(() => {
@@ -153,6 +154,19 @@ export function EditTransactionSheet() {
             )
           }
         />
+        {draft.kind === 'expense' && trips.length > 0 && (
+          <Select
+            label="Viaje"
+            value={draft.tripId ?? ''}
+            onChange={(e) => set('tripId', e.target.value || undefined)}
+            options={[
+              { value: '', label: 'No es de un viaje' },
+              ...trips
+                .filter((t) => !t.archived || t.id === draft.tripId)
+                .map((t) => ({ value: t.id, label: t.name })),
+            ]}
+          />
+        )}
         <Input
           label="Nota"
           value={draft.note ?? ''}

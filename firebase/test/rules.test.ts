@@ -39,6 +39,15 @@ describe('datos personales', () => {
     await assertFails(setDoc(doc(ana, 'users/ana/transactions/t1'), tx('otro-id')));
     await assertFails(setDoc(doc(ana, 'users/ana/secretos/x'), { id: 'x' }));
   });
+  it('viajes: fechas válidas y nombre corto', async () => {
+    const ana = env.authenticatedContext('ana').firestore();
+    const trip = { id: 'v1', name: 'Cancún', startDate: '2026-04-01', endDate: '2026-04-05', items: [], budget: { food: 250000 } };
+    await assertSucceeds(setDoc(doc(ana, 'users/ana/trips/v1'), trip));
+    await assertFails(setDoc(doc(ana, 'users/ana/trips/v1'), { ...trip, endDate: '2026-03-01' }));
+    await assertFails(setDoc(doc(ana, 'users/ana/trips/v1'), { ...trip, startDate: 'pronto' }));
+    await assertFails(setDoc(doc(ana, 'users/ana/trips/v1'), { ...trip, name: 'x'.repeat(61) }));
+    await assertFails(setDoc(doc(env.authenticatedContext('beto').firestore(), 'users/ana/trips/v2'), { ...trip, id: 'v2' }));
+  });
   it('perfil: solo profile y settings', async () => {
     const ana = env.authenticatedContext('ana').firestore();
     await assertSucceeds(setDoc(doc(ana, 'users/ana'), { profile: { name: 'Ana', level: 'basic' } }));

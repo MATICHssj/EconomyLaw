@@ -1,6 +1,6 @@
 import { registerPlugin, type PluginListenerHandle } from '@capacitor/core';
 import { parseBankNotice } from '@fina/bank-profiles';
-import { convertToMxn, newId, todayISO, type Transaction } from '@fina/core';
+import { convertToMxn, newId, todayISO, tripForNewExpense, type Transaction } from '@fina/core';
 import { applyChanges, defaultAccountId } from './actions';
 import { isCapacitor } from './pwa';
 import { getDocs } from '@/stores/data';
@@ -69,9 +69,15 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
       text: it.text,
     });
     if (!notice || (notice.kind !== 'expense' && notice.kind !== 'income')) continue;
-    const acc = accounts.find(
-      (a) => !a.archived && a.institution === (app?.institution ?? notice.bankId),
-    );
+    const acc =
+      (notice.last4
+        ? accounts.find(
+            (a) =>
+              !a.archived &&
+              (a.card?.last4 === notice.last4 || a.aliases.includes(notice.last4!)),
+          )
+        : undefined) ??
+      accounts.find((a) => !a.archived && a.institution === (app?.institution ?? notice.bankId));
     const { amountMxnCents } = convertToMxn(notice.amountCents, notice.currency);
     const tx: Transaction = {
       id: newId(),
@@ -95,6 +101,8 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
       attachments: [],
       dedupeHash: it.id,
     };
+    const trip = notice.kind === 'expense' ? tripForNewExpense(getDocs('trips'), tx) : null;
+    if (trip) tx.tripId = trip.id;
     if (getDocs('transactions').some((t) => t.dedupeHash === it.id)) continue;
     changes.push({
       space: 'personal' as const,

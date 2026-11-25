@@ -17,12 +17,14 @@ interface UIState {
   toasts: Toast[];
   captureOpen: boolean;
   captureText: string;
+  /** Viaje al que se guardará lo que se anote (al abrir la captura desde un viaje). */
+  captureTripId: string | null;
   editingTxId: string | null;
   privacyPeek: boolean;
   locked: boolean;
   installEvent: BeforeInstallPromptEvent | null;
   swUpdate: (() => void) | null;
-  openCapture(text?: string): void;
+  openCapture(text?: string, tripId?: string | null): void;
   closeCapture(): void;
   editTx(id: string | null): void;
   pushToast(t: Omit<Toast, 'id' | 'timeout'> & { timeout?: number }): number;
@@ -43,16 +45,17 @@ export const useUI = create<UIState>((set, get) => ({
   toasts: [],
   captureOpen: false,
   captureText: '',
+  captureTripId: null,
   editingTxId: null,
   privacyPeek: false,
   locked: false,
   installEvent: null,
   swUpdate: null,
-  openCapture(text = '') {
-    set({ captureOpen: true, captureText: text });
+  openCapture(text = '', tripId = null) {
+    set({ captureOpen: true, captureText: text, captureTripId: tripId });
   },
   closeCapture() {
-    set({ captureOpen: false, captureText: '' });
+    set({ captureOpen: false, captureText: '', captureTripId: null });
   },
   editTx(id) {
     set({ editingTxId: id });

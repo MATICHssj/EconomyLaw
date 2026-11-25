@@ -20,6 +20,7 @@ import {
   type Profile,
   type Rule,
   type Transaction,
+  type Trip,
   type TxSource,
 } from '@fina/core';
 import { askAssistant, parseMany, type ParseContext, type ParsedEntry } from '@fina/parser';
@@ -215,7 +216,10 @@ async function processText(deps: BotDeps, uid: string, to: string, text: string,
       if (cat) e.categoryId = cat;
     }
   }
-  const ctx = { uid, accounts: u.accounts, loans: u.loans };
+  const trips = entries.some((e) => e.kind === 'expense')
+    ? await store.list<Trip>(`users/${uid}/trips`).catch(() => [] as Trip[])
+    : [];
+  const ctx = { uid, accounts: u.accounts, loans: u.loans, trips };
   const created: Transaction[] = [];
   const ops: Array<{ set: { path: string; data: object } }> = [];
   for (const e of entries) {

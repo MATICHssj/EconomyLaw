@@ -39,6 +39,7 @@ Principio: **cerrado por defecto, mínimo privilegio y nada de contraseñas banc
 ## Android
 - Lector de notificaciones **opcional**, con pantalla de privacidad previa y **lista blanca** de apps bancarias; procesa en el teléfono.
 - APK firmado con llave guardada en GitHub Secrets.
+- **Tarjetas por NFC** (opcional, solo cuando tú tocas “Acercar tarjeta”): se leen únicamente los datos públicos que la tarjeta da a cualquier terminal, con una consulta de $0 y sin PIN. El número completo se usa solo en memoria del código nativo (`EmvReader.java`) para sacar los **últimos 4 dígitos** y se borra al instante; nunca llega a la app web, ni se guarda, ni se envía. No se lee el nombre del titular y el CVV no viaja por NFC. Probado con tarjetas simuladas (`EmvReaderTest.java`).
 
 ## Recomendado (gratis) al activar Firebase
 - **App Check** con reCAPTCHA (Firebase → App Check): bloquea clientes que no sean tu app.

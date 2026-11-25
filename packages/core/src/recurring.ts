@@ -1,7 +1,11 @@
 import { addDays, addMonths, daysBetween, splitISO, type ISODate } from './dates';
 import type { Frequency, Recurring } from './schemas';
 
+/** Fecha "nunca" para recordatorios de una sola vez ya pagados. */
+export const NEVER: ISODate = '9999-12-31';
+
 export const FREQUENCY_LABELS: Record<Frequency, string> = {
+  once: 'Una sola vez',
   weekly: 'Cada semana',
   biweekly: 'Cada quincena',
   monthly: 'Cada mes',
@@ -12,6 +16,8 @@ export const FREQUENCY_LABELS: Record<Frequency, string> = {
 /** Siguiente fecha según la frecuencia. Quincenal = 15 días (o 15/fin de mes si cae en esos días). */
 export function nextOccurrence(date: ISODate, freq: Frequency): ISODate {
   switch (freq) {
+    case 'once':
+      return NEVER;
     case 'weekly':
       return addDays(date, 7);
     case 'biweekly': {
@@ -44,7 +50,7 @@ export function occurrencesBetween(r: Recurring, from: ISODate, to: ISODate, max
 
 export interface UpcomingItem {
   id: string;
-  type: 'recurring' | 'card' | 'installment' | 'tanda' | 'loan' | 'goal' | 'payday';
+  type: 'recurring' | 'card' | 'installment' | 'tanda' | 'loan' | 'goal' | 'payday' | 'trip';
   title: string;
   emoji: string;
   date: ISODate;
@@ -52,6 +58,38 @@ export interface UpcomingItem {
   amountCents: number;
   direction: 'in' | 'out';
   refId?: string;
+  /** Días antes para avisar (si el usuario lo eligió). */
+  remindDaysBefore?: number;
+}
+
+/**
+ * Estado del recurrente después de registrar `count` ocurrencias: la siguiente
+ * fecha y si sigue activo (los de "una sola vez" se apagan al pagarse).
+ */
+export function advanceRecurring(r: Recurring, count = 1): { nextDate: ISODate; active: boolean } {
+  let next = r.nextDate;
+  for (let i = 0; i < count; i++) next = nextOccurrence(next, r.frequency);
+  return { nextDate: next, active: r.frequency === 'once' ? false : r.active };
+}
+
+/** Recordatorios que ya pasaron su fecha y no se han registrado (no automáticos). */
+export function overdueRecurring(recurrings: Recurring[], today: ISODate, maxDays = 60): UpcomingItem[] {
+  const from = addDays(today, -maxDays);
+  return recurrings
+    .filter((r) => r.active && !r.autoCreate && r.nextDate < today && r.nextDate >= from)
+    .map<UpcomingItem>((r) => ({
+      id: `rec_${r.id}_${r.nextDate}`,
+      type: 'recurring',
+      title: r.name,
+      emoji: r.isSubscription ? '📺' : r.template.kind === 'income' ? '💰' : '🔁',
+      date: r.nextDate,
+      daysUntil: daysBetween(today, r.nextDate),
+      amountCents: r.template.amountCents,
+      direction: r.template.kind === 'income' ? 'in' : 'out',
+      refId: r.id,
+      remindDaysBefore: r.remindDaysBefore,
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 export function upcomingRecurring(recurrings: Recurring[], today: ISODate, days = 30): UpcomingItem[] {
@@ -69,6 +107,7 @@ export function upcomingRecurring(recurrings: Recurring[], today: ISODate, days 
         amountCents: r.template.amountCents,
         direction: r.template.kind === 'income' ? 'in' : 'out',
         refId: r.id,
+        remindDaysBefore: r.remindDaysBefore,
       })),
     )
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -93,6 +132,8 @@ export function dueRecurring(recurrings: Recurring[], today: ISODate): Array<{ r
 /** Costo mensual equivalente (para sumar suscripciones). */
 export function monthlyEquivalent(amountCents: number, freq: Frequency): number {
   switch (freq) {
+    case 'once':
+      return 0;
     case 'weekly':
       return Math.round((amountCents * 52) / 12);
     case 'biweekly':

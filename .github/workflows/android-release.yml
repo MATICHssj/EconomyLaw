@@ -55,6 +55,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon
           if [ "$HAS_KEY" = "true" ]; then ./gradlew assembleRelease --no-daemon; cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/fina.apk"
           else ./gradlew assembleDebug --no-daemon; cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/fina.apk"; fi
       - name: Publicar en Releases

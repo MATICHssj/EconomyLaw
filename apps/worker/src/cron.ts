@@ -8,7 +8,7 @@ import {
   monthKey,
   monthStart,
   netWorth,
-  nextOccurrence,
+  advanceRecurring,
   occurrencesBetween,
   SettingsSchema,
   startOfWeek,
@@ -107,9 +107,7 @@ async function runForUser(deps: CronDeps, uid: string, today: string, now: Date)
         const tx: Transaction = stripUndefined({ id: `rec_${r.id}_${d}`, kind: r.template.kind, amountCents: r.template.amountCents, currency: r.template.currency, amountMxnCents: r.template.amountCents, accountId: r.template.accountId, toAccountId: r.template.toAccountId ?? null, categoryId: r.template.categoryId, tags: r.template.tags, description: r.template.description || r.name, merchant: r.template.merchant, date: d, createdAt: stamp, updatedAt: stamp, source: 'recurring', status: 'cleared', reconciled: false, recurringId: r.id, attachments: [] });
         ops.push({ set: { path: `${base}/transactions/${tx.id}`, data: tx } });
       }
-      let next = r.nextDate;
-      for (let i = 0; i < dates.length; i++) next = nextOccurrence(next, r.frequency);
-      ops.push({ set: { path: `${base}/recurring/${r.id}`, data: { ...r, nextDate: next } } });
+      ops.push({ set: { path: `${base}/recurring/${r.id}`, data: { ...r, ...advanceRecurring(r, dates.length) } } });
     }
     await store.commit(ops);
   }

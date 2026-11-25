@@ -50,11 +50,22 @@ service cloud.firestore {
         col != 'installmentPlans' || (isCents(d.totalCents) && d.months is int && d.months >= 1 && d.months <= 60)
       ) && (
         col != 'loans' || (isCents(d.amountCents) && isCents(d.paidCents))
+      ) && (
+        col != 'trips' || validTrip(d)
       );
+    }
+    function validTrip(d) {
+      return smallString(d.name, 60)
+        && isISODate(d.startDate)
+        && isISODate(d.endDate)
+        && d.startDate <= d.endDate
+        && (!('items' in d) || (d.items is list && d.items.size() <= 300))
+        && (!('ignoredTxIds' in d) || (d.ignoredTxIds is list && d.ignoredTxIds.size() <= 500))
+        && (!('budget' in d) || d.budget is map);
     }
     function allowedCollection(col) {
       return col in ['accounts', 'transactions', 'categories', 'rules', 'budgets', 'recurring', 'goals', 'debts',
-        'installmentPlans', 'loans', 'splits', 'tandas', 'investments', 'snapshots', 'cfdi'];
+        'installmentPlans', 'loans', 'splits', 'tandas', 'investments', 'snapshots', 'cfdi', 'trips'];
     }
 
     // ── Datos personales ──────────────────────────────────────────────────

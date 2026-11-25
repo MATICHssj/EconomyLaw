@@ -4,6 +4,7 @@ import {
   addMonthsKey,
   antExpenses,
   availableMoney,
+  cardExpiryAlerts,
   budgetProgress,
   cardStatement,
   computeBalances,
@@ -15,10 +16,13 @@ import {
   monthKey,
   monthStart,
   nextPayday,
+  overdueRecurring,
   safeToSpendPerDay,
   summarizePeriod,
   tandaSchedule,
   todayISO,
+  tripSummary,
+  tripUpcoming,
   upcomingRecurring,
   type Category,
   type CardStatement,
@@ -78,6 +82,7 @@ export function useFinance() {
   const recurring = useDocs('recurring');
   const tandas = useData((s) => s.data.tandas);
   const loans = useData((s) => s.data.loans);
+  const trips = useData((s) => s.data.trips);
   const profile = useData((s) => s.profile);
 
   return useMemo(() => {
@@ -147,7 +152,11 @@ export function useFinance() {
         upcoming.push({
           id: `tanda_${t.id}_${r.n}`,
           type: 'tanda',
-          title: r.isMyTurn ? `¡Te toca la tanda ${t.name}!` : `Tanda ${t.name}`,
+          title: r.isMyTurn
+            ? `¡Te toca cobrar: ${t.name}!`
+            : /^tanda\b/i.test(t.name)
+              ? t.name
+              : `Tanda ${t.name}`,
           emoji: '🫙',
           date: r.date,
           daysUntil: daysBetween(today, r.date),
@@ -170,7 +179,13 @@ export function useFinance() {
         refId: l.id,
       });
     }
+    const tripTotals = new Map(
+      trips.map((t) => [t.id, tripSummary(t, transactions, today).budgetCents]),
+    );
+    upcoming.push(...tripUpcoming(trips, tripTotals, today, profile?.payday));
     upcoming.sort((a, b) => a.date.localeCompare(b.date));
+    const overdue = overdueRecurring(recurring, today);
+    const expiringCards = cardExpiryAlerts(accounts, today);
 
     const payday = profile?.payday ?? { type: 'biweekly' as const, days: [15, 30] };
     const np = nextPayday(addDays(today, 1), payday);
@@ -207,6 +222,8 @@ export function useFinance() {
       budgetSpent,
       statements,
       upcoming,
+      overdue,
+      expiringCards,
       nextPayday: np,
       committed,
       safe,
@@ -216,5 +233,5 @@ export function useFinance() {
       hasAccounts: accounts.length > 0,
       txCount: transactions.length,
     };
-  }, [today, transactions, accounts, plans, budgets, recurring, tandas, loans, profile]);
+  }, [today, transactions, accounts, plans, budgets, recurring, tandas, loans, trips, profile]);
 }

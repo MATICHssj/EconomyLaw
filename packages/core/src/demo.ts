@@ -12,6 +12,7 @@ import type {
   Split,
   Tanda,
   Transaction,
+  Trip,
 } from './schemas';
 
 /** Todos los documentos de ejemplo empiezan con este prefijo: así se borran con un toque. */
@@ -53,7 +54,7 @@ export function generateDemoData(today: ISODate, now = new Date().toISOString())
   });
   const accounts: Account[] = [
     acc({ id: `${DEMO_PREFIX}cash`, name: 'Efectivo', type: 'cash', institution: 'cash', openingBalanceCents: 120000, color: '#16a34a', icon: '💵' }),
-    acc({ id: `${DEMO_PREFIX}bbva`, name: 'BBVA Débito', type: 'debit', institution: 'bbva', openingBalanceCents: 850000, color: '#072146', icon: '💳', aliases: ['bbva'] }),
+    acc({ id: `${DEMO_PREFIX}bbva`, name: 'BBVA Débito', type: 'debit', institution: 'bbva', openingBalanceCents: 850000, color: '#072146', icon: '💳', aliases: ['bbva'], card: { brand: 'visa', last4: '1234', expiry: '2029-08', nfc: false } }),
     acc({
       id: `${DEMO_PREFIX}nu`,
       name: 'Nu Crédito',
@@ -64,6 +65,8 @@ export function generateDemoData(today: ISODate, now = new Date().toISOString())
       icon: '💜',
       aliases: ['nu'],
       credit: { limitCents: 3500000, cutoffDay: 5, dueDay: 25, annualRate: 0.6, minPaymentRate: 0.05 },
+      // Vence pronto: para mostrar el aviso de tarjeta por vencer.
+      card: { brand: 'mastercard', last4: '4821', expiry: addDays(today, 15).slice(0, 7), nfc: false },
     }),
     acc({ id: `${DEMO_PREFIX}mp`, name: 'Mercado Pago', type: 'wallet', institution: 'mercadopago', openingBalanceCents: 45000, color: '#00b1ea', icon: '📱', aliases: ['mp', 'mercado pago'] }),
     acc({ id: `${DEMO_PREFIX}savings`, name: 'Ahorro Nu (cajitas)', type: 'savings', institution: 'nu', openingBalanceCents: 1800000, color: '#059669', icon: '🐷' }),
@@ -230,7 +233,43 @@ export function generateDemoData(today: ISODate, now = new Date().toISOString())
     },
   }));
 
+  // ——— Un viaje en planeación (con reserva ya pagada y otra por confirmar) ———
+  const tripId = `${DEMO_PREFIX}trip_playa`;
+  const tripStart = addDays(today, 38);
+  const flight = tx({ kind: 'expense', amountCents: 620000, date: addDays(today, -12), description: 'Vuelos CDMX - Cancún', merchant: 'Viva Aerobus', categoryId: 'travel', accountId: `${DEMO_PREFIX}nu`, tripId });
+  tx({ kind: 'expense', amountCents: 50000, date: addDays(today, -4), description: 'Anticipo tour cenotes', categoryId: 'travel', accountId: `${DEMO_PREFIX}mp` });
+  const trip: Trip = {
+    id: tripId,
+    name: 'Playa del Carmen',
+    destination: 'Playa del Carmen, Quintana Roo',
+    icon: 'i:palmtree',
+    startDate: tripStart,
+    endDate: addDays(tripStart, 4),
+    travelers: 2,
+    currency: 'MXN',
+    budget: { flights: 620000, lodging: 840000, food: 450000, local_transport: 120000, activities: 300000, shopping: 100000, other: 80000 },
+    funding: { mode: 'mixed', savedCents: 600000, perPeriodCents: 250000, period: 'biweekly', cardAccountId: `${DEMO_PREFIX}nu`, msiMonths: 6, payPerMonthCents: 0, cardSharePct: 50 },
+    items: [
+      { id: 'i1', date: tripStart, time: '07:30', type: 'flight', title: 'Vuelo CDMX → Cancún', place: 'AICM T1', costCents: 620000, paid: true, txId: flight.id },
+      { id: 'i2', date: tripStart, time: '15:00', type: 'lodging', title: 'Hotel en la Quinta Avenida', place: 'Playa del Carmen', costCents: 840000, paid: false },
+      { id: 'i3', date: addDays(tripStart, 1), time: '09:00', type: 'activity', title: 'Cenotes y snorkel', costCents: 180000, paid: false },
+      { id: 'i4', date: addDays(tripStart, 2), time: '10:00', type: 'transport', title: 'Ferry a Cozumel', costCents: 120000, paid: false },
+      { id: 'i5', date: addDays(tripStart, 3), time: '20:00', type: 'food', title: 'Cena de despedida', costCents: 150000, paid: false },
+      { id: 'i6', date: addDays(tripStart, 4), time: '18:40', type: 'flight', title: 'Vuelo de regreso', costCents: 0, paid: true },
+    ],
+    autoAssign: true,
+    ignoredTxIds: [],
+    notes: 'Llevar bloqueador biodegradable para los cenotes.',
+    archived: false,
+    createdAt: now,
+  };
+  recurring.push(
+    rec({ id: `${DEMO_PREFIX}rec_predial`, name: 'Predial', template: { kind: 'expense', amountCents: 230000, currency: 'MXN', accountId: `${DEMO_PREFIX}bbva`, categoryId: 'taxes', description: 'Predial', tags: [] }, frequency: 'once', nextDate: addDays(today, 10), remindDaysBefore: 3 }),
+    rec({ id: `${DEMO_PREFIX}rec_verif`, name: 'Verificación del auto', template: { kind: 'expense', amountCents: 68000, currency: 'MXN', accountId: `${DEMO_PREFIX}cash`, categoryId: 'car', description: 'Verificación', tags: [] }, frequency: 'once', nextDate: addDays(today, -3), remindDaysBefore: 2 }),
+  );
+
   return {
+    trips: [trip],
     accounts,
     transactions: txs,
     installmentPlans: [plan],

@@ -73,17 +73,20 @@ export async function scheduleLocalReminders(
   const notifications = f.upcoming
     .filter((u) => u.direction === 'out' && u.amountCents > 0)
     .map((u, i) => {
-      const when = addDays(u.date, -(u.type === 'card' ? daysBefore : 1));
+      const when = addDays(u.date, -(u.remindDaysBefore ?? (u.type === 'card' ? daysBefore : 1)));
       return { u, i, when: when < today ? today : when };
     })
     .filter(({ when }) => when >= today)
     .slice(0, 40)
     .map(({ u, i, when }) => ({
       id: 1000 + i,
-      title: u.type === 'card' ? `${u.title}` : `${u.title}`,
-      body: `${u.daysUntil <= 1 ? 'Mañana' : `El ${Number(u.date.slice(8))}`}: ${formatMoney(u.amountCents)}. Toca para verlo.`,
+      title: u.title,
+      body:
+        u.type === 'trip'
+          ? `Hoy es día de pago: aparta ${formatMoney(u.amountCents)} para tu viaje.`
+          : `${u.date === when ? 'Hoy' : u.daysUntil <= 1 ? 'Mañana' : `El ${Number(u.date.slice(8))}`}: ${formatMoney(u.amountCents)}. Toca para verlo.`,
       schedule: { at: new Date(`${when}T10:00:00`) },
-      extra: { url: '#/calendario' },
+      extra: { url: u.type === 'trip' ? `#/viajes/${u.refId}` : '#/pagos' },
     }));
   if (notifications.length) await LocalNotifications.schedule({ notifications });
 }

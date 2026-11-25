@@ -1,5 +1,6 @@
 import {
   addMonths,
+  advanceRecurring,
   convertToMxn,
   findOpenLoan,
   generateDemoData,
@@ -9,6 +10,7 @@ import {
   normalizeText,
   splitCents,
   todayISO,
+  tripForNewExpense,
   COLLECTIONS,
   type Account,
   type CollectionMap,
@@ -215,6 +217,8 @@ export interface CommitOptions {
   silent?: boolean;
   /** Cuenta a usar si la frase no menciona ninguna (evita crear "Mi dinero" dos veces). */
   fallbackAccountId?: string;
+  /** Asignar a este viaje (si no, se asigna solo al viaje en curso). */
+  tripId?: string;
 }
 
 /** Convierte una frase ya interpretada en documentos (movimiento + MSI, préstamo, recurrente…). */
@@ -495,6 +499,11 @@ export function entryToChanges(
     changes.push({ space, col: 'recurring', before: null, after: rec });
   }
 
+  if (tx.kind === 'expense') {
+    const tripId = opts.tripId ?? tripForNewExpense(s.data.trips, tx)?.id;
+    if (tripId) tx.tripId = tripId;
+  }
+
   changes.push({ space, col: 'transactions', before: null, after: tx });
   return { tx, changes };
 }
@@ -653,7 +662,11 @@ export async function saveDoc<K extends CollectionName>(
   const space =
     prev?.space ??
     doc.space ??
-    (col === 'accounts' || col === 'budgets' || col === 'goals' || col === 'recurring'
+    (col === 'accounts' ||
+    col === 'budgets' ||
+    col === 'goals' ||
+    col === 'recurring' ||
+    col === 'trips'
       ? currentSpace()
       : 'personal');
   const change: Change = { space, col, before: prev ? cleanAny(prev) : null, after: cleanAny(doc) };
@@ -717,7 +730,7 @@ export async function payRecurring(
         before: prev ? clean(prev) : null,
         after: {
           ...clean(rec as Recurring & { space: Space }),
-          nextDate: nextOccurrence(rec.nextDate, rec.frequency),
+          ...advanceRecurring(rec),
         },
       },
     ],
@@ -771,7 +784,7 @@ export async function processDueRecurring(): Promise<number> {
       space: r.space,
       col: 'recurring',
       before: clean(r),
-      after: { ...clean(r), nextDate: next },
+      after: { ...clean(r), nextDate: next, active: r.frequency === 'once' ? false : r.active },
     });
   }
   if (changes.length) await applyChanges(changes);

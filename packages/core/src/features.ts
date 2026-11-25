@@ -40,6 +40,8 @@ export const FEATURES = {
   household: { level: 'basic', label: 'Modo pareja / familia', pro: true },
   emergencyFund: { level: 'organized', label: 'Fondo de emergencia', pro: false },
   health: { level: 'organized', label: 'Salud financiera', pro: false },
+  trips: { level: 'basic', label: 'Viajes', pro: false },
+  payments: { level: 'basic', label: 'Pagos pendientes', pro: false },
 } as const satisfies Record<string, { level: Level; label: string; pro: boolean }>;
 
 export type FeatureId = keyof typeof FEATURES;

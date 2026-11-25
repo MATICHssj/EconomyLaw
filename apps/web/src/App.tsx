@@ -43,6 +43,9 @@ const AssistantPage = lazy(() => import('@/features/assistant/AssistantPage'));
 const AcademyPage = lazy(() => import('@/features/academy/AcademyPage'));
 const LessonPage = lazy(() => import('@/features/academy/LessonPage'));
 const HealthPage = lazy(() => import('@/features/health/HealthPage'));
+const TripsPage = lazy(() => import('@/features/trips/TripsPage'));
+const TripDetailPage = lazy(() => import('@/features/trips/TripDetailPage'));
+const PaymentsPage = lazy(() => import('@/features/payments/PaymentsPage'));
 const SettingsPage = lazy(() => import('@/features/settings/SettingsPage'));
 const InstallPage = lazy(() => import('@/pages/InstallPage'));
 const LegalPage = lazy(() => import('@/pages/LegalPage'));
@@ -90,6 +93,9 @@ const router = createHashRouter([
       { path: '/aprende', element: <AcademyPage /> },
       { path: '/aprende/:id', element: <LessonPage /> },
       { path: '/salud', element: <HealthPage /> },
+      { path: '/viajes', element: <TripsPage /> },
+      { path: '/viajes/:id', element: <TripDetailPage /> },
+      { path: '/pagos', element: <PaymentsPage /> },
       { path: '/ajustes', element: <SettingsPage /> },
       { path: '/instalar', element: <InstallPage /> },
       { path: '/privacidad', element: <LegalPage doc="privacy" /> },

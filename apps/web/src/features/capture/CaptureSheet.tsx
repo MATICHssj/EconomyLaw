@@ -14,6 +14,8 @@ export function CaptureSheet() {
   const open = useUI((s) => s.captureOpen);
   const initial = useUI((s) => s.captureText);
   const close = useUI((s) => s.closeCapture);
+  const tripId = useUI((s) => s.captureTripId);
+  const trip = useData((s) => s.data.trips.find((t) => t.id === tripId));
   const { text, setText, entries, problems, submit } = useCapture();
   const household = useData((s) => s.household);
   const spaceFilter = useData((s) => s.spaceFilter);
@@ -45,7 +47,7 @@ export function CaptureSheet() {
   ).slice(0, 5);
 
   async function onSave() {
-    const ok = await submit({ space });
+    const ok = await submit({ space, tripId: tripId ?? undefined });
     if (ok) close();
   }
 
@@ -69,7 +71,7 @@ export function CaptureSheet() {
     <Sheet
       open={open}
       onClose={close}
-      title="Anotar"
+      title={trip ? `Anotar en ${trip.name}` : 'Anotar'}
       footer={
         <Button block size="lg" disabled={!entries.length} onClick={onSave}>
           <Send className="h-5 w-5" />

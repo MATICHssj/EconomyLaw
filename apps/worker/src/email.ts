@@ -1,5 +1,5 @@
 import PostalMime from 'postal-mime';
-import { formatMoney, todayISO, type Account, type Category } from '@fina/core';
+import { formatMoney, todayISO, tripForNewExpense, type Account, type Category, type Trip } from '@fina/core';
 import { htmlToText, parseBankNotice } from '@fina/bank-profiles';
 import { fromHex } from './lib/crypto';
 import type { Pusher } from './lib/fcm';
@@ -38,7 +38,8 @@ export async function handleBankEmail(deps: { store: Store; push: Pusher }, inpu
   if (!notice) return 'not-a-purchase';
   const accounts = await deps.store.list<Account>(`users/${uid}/accounts`);
   const byBank = accounts.filter((a) => !a.archived && a.institution === notice.bankId);
-  const account = byBank.find((a) => (notice.last4 ? a.aliases.includes(notice.last4) : false)) ?? byBank.find((a) => a.type === 'credit') ?? byBank[0] ?? null;
+  const byLast4 = notice.last4 ? accounts.find((a) => !a.archived && (a.card?.last4 === notice.last4 || a.aliases.includes(notice.last4!))) : undefined;
+  const account = byLast4 ?? byBank.find((a) => a.type === 'credit') ?? byBank[0] ?? null;
   const tx = noticeToTx({
     uid,
     amountCents: notice.amountCents,
@@ -52,6 +53,11 @@ export async function handleBankEmail(deps: { store: Store; push: Pusher }, inpu
     source: 'email',
     rawText: `${email.subject ?? ''}\n${text}`.slice(0, 500),
   });
+  if (tx.kind === 'expense') {
+    const trips = await deps.store.list<Trip>(`users/${uid}/trips`).catch(() => [] as Trip[]);
+    const trip = tripForNewExpense(trips, tx);
+    if (trip) tx.tripId = trip.id;
+  }
   await deps.store.set(`users/${uid}/transactions/${tx.id}`, tx);
   const cats = await deps.store.list<Category>(`users/${uid}/categories`);
   const cat = cats.find((c) => c.id === tx.categoryId);

@@ -11,6 +11,8 @@ import {
   isFeatureVisible,
   percent,
   topEntries,
+  tripStatus,
+  tripSummary,
 } from '@fina/core';
 import { useCategoryMap, useFinance } from '@/lib/finance';
 import { useData, useDocs } from '@/stores/data';
@@ -263,17 +265,32 @@ export function HomePage() {
         </Card>
       )}
 
-      {organized && f.upcoming.length > 0 && (
+      <TripHomeCard />
+
+      {(f.overdue.length > 0 || (organized && f.upcoming.length > 0)) && (
         <Card>
           <CardTitle
             action={
-              <Link to="/calendario" className="text-sm font-semibold text-accent-600">
-                Calendario
+              <Link to="/pagos" className="text-sm font-semibold text-accent-600">
+                Ver todos
               </Link>
             }
           >
             Próximos pagos
           </CardTitle>
+          {f.overdue.length > 0 && (
+            <Link
+              to="/pagos"
+              className="mb-2 block rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"
+            >
+              Tienes {f.overdue.length} {f.overdue.length === 1 ? 'pago vencido' : 'pagos vencidos'}
+              :{' '}
+              {f.overdue
+                .map((o) => o.title)
+                .slice(0, 2)
+                .join(', ')}
+            </Link>
+          )}
           <ul className="space-y-1">
             {f.upcoming.slice(0, 5).map((u) => (
               <li key={u.id} className="flex items-center gap-3 rounded-xl px-1 py-1.5">
@@ -402,5 +419,51 @@ export function HomePage() {
         <ArrowRight className="h-4 w-4" />
       </Link>
     </div>
+  );
+}
+
+/** Viaje en curso o el próximo (dentro de 60 días) con lo esencial. */
+function TripHomeCard() {
+  const trips = useData((s) => s.data.trips);
+  const transactions = useData((s) => s.data.transactions);
+  const { today } = useFinance();
+  const trip =
+    trips.find((t) => !t.archived && tripStatus(t, today) === 'active') ??
+    trips
+      .filter((t) => !t.archived && tripStatus(t, today) === 'planning')
+      .sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
+  if (!trip) return null;
+  const s = tripSummary(trip, transactions, today);
+  if (s.status === 'planning' && s.daysUntil > 60) return null;
+  return (
+    <Link to={`/viajes/${trip.id}`} className="block">
+      <Card className="flex items-center gap-3 transition hover:border-accent-300">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-700 dark:bg-accent-950/60 dark:text-accent-200">
+          <EmojiIcon emoji={trip.icon} className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold text-ink">{trip.name}</p>
+          <p className="text-sm text-muted">
+            {s.status === 'active' ? (
+              <>
+                Día {s.dayNumber} de {s.days} · hoy puedes gastar{' '}
+                <Money cents={s.canSpendPerDayCents ?? 0} className="font-semibold text-ink" />
+              </>
+            ) : (
+              <>
+                {s.daysUntil === 1 ? 'Sales mañana' : `Faltan ${s.daysUntil} días`}
+                {s.budgetCents > 0 && (
+                  <>
+                    {' '}
+                    · presupuesto <Money cents={s.budgetCents} />
+                  </>
+                )}
+              </>
+            )}
+          </p>
+        </div>
+        <ArrowRight className="h-5 w-5 text-muted" />
+      </Card>
+    </Link>
   );
 }

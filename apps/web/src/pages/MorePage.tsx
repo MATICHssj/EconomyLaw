@@ -17,6 +17,8 @@ const SECTIONS: Array<{ title: string; tiles: Tile[] }> = [
   {
     title: 'Tu dinero',
     tiles: [
+      { to: '/pagos', emoji: 'i:calendarClock', label: 'Pagos pendientes', feature: 'payments' },
+      { to: '/viajes', emoji: 'i:luggage', label: 'Viajes', feature: 'trips' },
       { to: '/cuentas', emoji: '🏦', label: 'Cuentas', feature: 'accounts' },
       { to: '/tarjetas', emoji: '💳', label: 'Tarjetas y MSI', feature: 'creditCards' },
       { to: '/presupuesto', emoji: '🐷', label: 'Presupuesto', feature: 'budgets' },

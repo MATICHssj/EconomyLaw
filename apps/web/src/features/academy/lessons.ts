@@ -267,6 +267,27 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
+    id: 'viajes',
+    emoji: 'i:luggage',
+    title: 'Viajar sin endeudarte',
+    minutes: 2,
+    track: 'money',
+    level: 'basic',
+    body: [
+      'Un viaje cuesta más que el vuelo y el hotel: suma **comida, transporte allá, actividades, recuerdos e imprevistos**. En Viajes armas el presupuesto por rubro (o le das a “Estimar”).',
+      'Decide **cómo lo vas a pagar** antes de reservar: ahorrando por quincena, con tarjeta a meses sin intereses o parte y parte. Fina te dice cuánto apartar o en qué mes terminas de pagarlo.',
+      'Regla de oro: lo que no tenga **meses sin intereses**, págalo de contado o completo en tu fecha límite. Pagar un viaje a crédito con intereses puede salir 30–50 % más caro.',
+      'Durante el viaje, lo que anotes se guarda solo en ese viaje y ves cuánto puedes gastar por día sin pasarte.',
+    ],
+    tryIt: { label: 'Planear un viaje', to: '/viajes' },
+    quiz: {
+      q: 'Un viaje de $12,000 a 6 MSI, ¿cuánto pagas al mes?',
+      options: ['$1,200', '$2,000', '$2,400'],
+      answer: 1,
+      why: '$12,000 ÷ 6 = $2,000 al mes, sin intereses (si pagas completo tu tarjeta cada mes).',
+    },
+  },
+  {
     id: 'aguinaldo',
     emoji: '🎄',
     title: 'Cómo repartir tu aguinaldo',

@@ -129,6 +129,17 @@ export const AccountSchema = z.object({
   archived: z.boolean().default(false),
   aliases: z.array(z.string()).default([]),
   credit: CreditInfoSchema.optional(),
+  /** Datos visibles de la tarjeta física. Nunca se guarda el número completo. */
+  card: z
+    .object({
+      brand: z.enum(['visa', 'mastercard', 'amex', 'carnet', 'other']).default('other'),
+      last4: z.string().regex(/^\d{4}$/).optional(),
+      /** 'YYYY-MM' */
+      expiry: z.string().regex(/^\d{4}-\d{2}$/).optional(),
+      /** Se agregó acercándola al teléfono (NFC). */
+      nfc: z.boolean().default(false),
+    })
+    .optional(),
   /** Para cuentas compartidas en modo pareja. */
   ownerUid: z.string().optional(),
   createdAt: z.string(),
@@ -167,6 +178,8 @@ export const TransactionSchema = z.object({
   debtId: z.string().optional(),
   tandaId: z.string().optional(),
   investmentId: z.string().optional(),
+  /** Viaje al que pertenece el gasto. */
+  tripId: z.string().optional(),
   attachments: z.array(z.string()).default([]),
   dedupeHash: z.string().optional(),
   /** uid de quien lo registró (modo pareja). */
@@ -231,7 +244,7 @@ export const BudgetSchema = z.object({
 });
 export type Budget = z.infer<typeof BudgetSchema>;
 
-export const FREQUENCIES = ['weekly', 'biweekly', 'monthly', 'bimonthly', 'yearly'] as const;
+export const FREQUENCIES = ['once', 'weekly', 'biweekly', 'monthly', 'bimonthly', 'yearly'] as const;
 export type Frequency = (typeof FREQUENCIES)[number];
 
 export const RecurringSchema = z.object({
@@ -394,6 +407,84 @@ export const CfdiSchema = z.object({
 });
 export type Cfdi = z.infer<typeof CfdiSchema>;
 
+// ——————————————————— Viajes ———————————————————
+
+export const TRIP_BUCKETS = [
+  'flights',
+  'lodging',
+  'food',
+  'local_transport',
+  'activities',
+  'shopping',
+  'other',
+] as const;
+export type TripBucket = (typeof TRIP_BUCKETS)[number];
+
+export const TRIP_ITEM_TYPES = ['flight', 'lodging', 'activity', 'food', 'transport', 'note'] as const;
+export type TripItemType = (typeof TRIP_ITEM_TYPES)[number];
+
+/** Un elemento del itinerario: vuelo, hotel, actividad, comida, traslado o nota. */
+export const TripItemSchema = z.object({
+  id: z.string(),
+  /** Día del itinerario; null = sin fecha (pendiente por acomodar). */
+  date: isoDate.nullable().default(null),
+  /** 'HH:MM' */
+  time: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  type: z.enum(TRIP_ITEM_TYPES).default('activity'),
+  title: z.string().min(1).max(80),
+  place: z.string().max(80).optional(),
+  costCents: positiveCents.default(0),
+  /** Ya está pagado (reservado). */
+  paid: z.boolean().default(false),
+  /** Movimiento con el que se registró el pago. */
+  txId: z.string().optional(),
+  note: z.string().max(300).optional(),
+});
+export type TripItem = z.infer<typeof TripItemSchema>;
+
+export const TripFundingSchema = z.object({
+  /** save = ahorrar antes; card = pagar con tarjeta después; mixed = parte y parte. */
+  mode: z.enum(['save', 'card', 'mixed']).default('save'),
+  /** Lo que ya tienes apartado para el viaje. */
+  savedCents: positiveCents.default(0),
+  /** Cuánto puedes apartar cada periodo (0 = que Fina lo calcule). */
+  perPeriodCents: positiveCents.default(0),
+  period: z.enum(['biweekly', 'monthly']).default('biweekly'),
+  /** Tarjeta con la que se pagará la parte a crédito. */
+  cardAccountId: z.string().nullable().default(null),
+  /** Meses sin intereses (0 = sin MSI). */
+  msiMonths: z.number().int().min(0).max(48).default(0),
+  /** Sin MSI: cuánto abonarías al mes a la tarjeta. */
+  payPerMonthCents: positiveCents.default(0),
+  /** En modo mixto: porcentaje que se paga con tarjeta (0..100). */
+  cardSharePct: z.number().int().min(0).max(100).default(50),
+});
+export type TripFunding = z.infer<typeof TripFundingSchema>;
+
+export const TripSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1).max(60),
+  destination: z.string().max(80).default(''),
+  icon: z.string().default('i:plane'),
+  startDate: isoDate,
+  endDate: isoDate,
+  travelers: z.number().int().min(1).max(30).default(1),
+  /** Moneda del destino (para convertir gastos). */
+  currency: z.string().default('MXN'),
+  /** Presupuesto por rubro (centavos MXN). */
+  budget: z.record(z.string(), positiveCents).default({}),
+  funding: TripFundingSchema.default(TripFundingSchema.parse({})),
+  items: z.array(TripItemSchema).max(300).default([]),
+  /** Los gastos hechos en las fechas del viaje se asignan solos. */
+  autoAssign: z.boolean().default(true),
+  /** Movimientos que el usuario dijo que NO son del viaje (para no volver a sugerirlos). */
+  ignoredTxIds: z.array(z.string()).max(500).default([]),
+  notes: z.string().max(1000).optional(),
+  archived: z.boolean().default(false),
+  createdAt: z.string(),
+});
+export type Trip = z.infer<typeof TripSchema>;
+
 export const HouseholdSchema = z.object({
   id: z.string(),
   name: z.string().max(60),
@@ -426,6 +517,7 @@ export interface CollectionMap {
   investments: Investment;
   snapshots: Snapshot;
   cfdi: Cfdi;
+  trips: Trip;
 }
 export type CollectionName = keyof CollectionMap;
 
@@ -445,6 +537,7 @@ export const COLLECTIONS: CollectionName[] = [
   'investments',
   'snapshots',
   'cfdi',
+  'trips',
 ];
 
 /** Colecciones que se pueden compartir en el espacio del hogar (modo pareja). */
@@ -455,4 +548,5 @@ export const HOUSEHOLD_COLLECTIONS: CollectionName[] = [
   'recurring',
   'goals',
   'installmentPlans',
+  'trips',
 ];

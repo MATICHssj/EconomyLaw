@@ -10,7 +10,7 @@ import {
 } from './types';
 
 const DB_NAME = 'fina-local';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 type Listener = (docs: AnyDoc[]) => void;
 

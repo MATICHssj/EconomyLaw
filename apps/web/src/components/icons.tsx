@@ -1,4 +1,11 @@
 import {
+  BedDouble,
+  Building2,
+  Globe,
+  Luggage,
+  Nfc,
+  StickyNote,
+  Tent,
   ArrowDownToLine,
   Brain,
   CircleAlert,
@@ -183,6 +190,20 @@ export const ICONS = {
   car_goal: Car,
   coins: Coins,
   repeat: Repeat,
+  // Viajes
+  bed: BedDouble,
+  utensils: UtensilsCrossed,
+  bag: ShoppingBag,
+  package: Package,
+  note: StickyNote,
+  luggage: Luggage,
+  globe: Globe,
+  mountain: Mountain,
+  tent: Tent,
+  bus: Bus,
+  map: MapIcon,
+  city: Building2,
+  nfc: Nfc,
   calendar: CalendarDays,
   calendarClock: CalendarClock,
   alert: TriangleAlert,
@@ -234,6 +255,22 @@ export const PICKABLE_ICONS: IconName[] = [
   'entertainment',
   'clothing',
   'utilities',
+];
+
+/** Íconos para viajes. */
+export const TRIP_ICONS: IconName[] = [
+  'plane',
+  'palmtree',
+  'mountain',
+  'city',
+  'tent',
+  'bus',
+  'car_goal',
+  'globe',
+  'luggage',
+  'map',
+  'heart',
+  'people',
 ];
 
 /** Las metas/categorías guardan "i:nombre" cuando usan un ícono en vez de emoji. */
@@ -440,6 +477,8 @@ const EMOJI_MAP: Record<string, LucideIcon> = {
   '🎄': Gift,
   '💪': Trophy,
   '✈️': Plane,
+  '🧳': Luggage,
+  '🏨': BedDouble,
   '🌮': UtensilsCrossed,
   '🎬': Clapperboard,
   '⛽': Fuel,
@@ -553,16 +592,18 @@ export function IconPicker({
   value,
   onChange,
   label = 'Ícono',
+  options = PICKABLE_ICONS,
 }: {
   value: string;
   onChange: (v: string) => void;
   label?: string;
+  options?: IconName[];
 }) {
   return (
     <div>
       <p className="mb-1.5 text-sm font-medium text-ink">{label}</p>
       <div className="grid grid-cols-6 gap-2 sm:grid-cols-8" role="radiogroup" aria-label={label}>
-        {PICKABLE_ICONS.map((name) => {
+        {options.map((name) => {
           const Icon = ICONS[name];
           const selected = value === iconKey(name);
           return (

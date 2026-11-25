@@ -4,12 +4,14 @@ import {
   newId,
   nextOccurrence,
   splitCents,
+  tripForNewExpense,
   type Account,
   type InstallmentPlan,
   type Loan,
   type Recurring,
   type Split,
   type Transaction,
+  type Trip,
   type TxSource,
 } from '@fina/core';
 import type { ParsedEntry } from '@fina/parser';
@@ -18,6 +20,8 @@ export interface UserContext {
   uid: string;
   accounts: Account[];
   loans: Loan[];
+  /** Viajes: los gastos hechos durante uno se le asignan solos. */
+  trips?: Trip[];
 }
 
 export interface DocWrite {
@@ -152,6 +156,9 @@ export function entryToDocs(entry: ParsedEntry, ctx: UserContext, source: TxSour
     tx.recurringId = rec.id;
     writes.push({ path: `${base}/recurring/${rec.id}`, data: rec });
   }
+
+  const trip = ctx.trips ? tripForNewExpense(ctx.trips, tx) : null;
+  if (trip) tx.tripId = trip.id;
 
   writes.push({ path: `${base}/transactions/${tx.id}`, data: stripUndefined(tx) });
   return { tx, writes };

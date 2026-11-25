@@ -21,3 +21,4 @@ export * from './features';
 export * from './health';
 export * from './csv';
 export * from './demo';
+export * from './trips';

@@ -12,6 +12,9 @@
 | 🌱 **3 niveles** | Básico, Organizado y Experto: la interfaz muestra solo lo que necesitas. Subir de nivel no pierde nada. |
 | 💬 **WhatsApp** | Texto, notas de voz y fotos de tickets. Comandos (`saldo`, `hoy`, `mes`, `deshacer`…), botones para corregir y preguntas (“¿cuánto llevo en Uber?”). |
 | 🇲🇽 **Hecha para México** | Quincenas, MSI, fecha de corte/pago, “pago para no generar intereses”, tandas, CETES, Afore, vales, OXXO, CFDI y deducciones personales. |
+| ✈️ **Viajes** | Presupuesto por rubro, cuánto apartar por quincena o en cuántos meses lo pagas con tarjeta (MSI o con intereses), itinerario día por día y detección automática de los gastos del viaje. |
+| 🔔 **Pagos pendientes** | Vencidos, esta semana y este mes: tarjetas, renta, servicios, MSI, tandas y recordatorios de una sola vez (predial, tenencia). “Ya lo pagué” con un toque y avisos en el teléfono. |
+| 📲 **Tarjetas por NFC** | En Android, acerca tu tarjeta y se llenan marca, últimos 4 dígitos y vencimiento (nunca se guarda el número completo). Te avisa cuando está por vencer. |
 | 💑 **Pareja / familia** | Espacio compartido, cuentas personales privadas y “cuentas claras” (50/50 o proporcional al ingreso). |
 | 🎓 **Enseña a usarla** | Bienvenida guiada, misiones por nivel y lecciones de 2 minutos (gastos hormiga, 50/30/20, tarjetas, MSI, deudas, CETES, SAT…). |
 | 🏦 **Bancos sin contraseñas** | Importa CSV/Excel/OFX de 13+ bancos sin duplicar, reenvía correos de “compra aprobada” o (Android) deja que lea solo las notificaciones de tu banco. |

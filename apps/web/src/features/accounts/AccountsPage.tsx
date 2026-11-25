@@ -78,7 +78,11 @@ export default function AccountsPage() {
                         )}
                       </>
                     }
-                    subtitle={ACCOUNT_TYPE_LABELS[a.type]}
+                    subtitle={
+                      a.card?.last4
+                        ? `${ACCOUNT_TYPE_LABELS[a.type]} •${a.card.last4}`
+                        : ACCOUNT_TYPE_LABELS[a.type]
+                    }
                     right={
                       LIABILITY_TYPES.has(a.type) ? (
                         <div>
