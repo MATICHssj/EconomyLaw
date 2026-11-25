@@ -213,4 +213,13 @@ describe('correos del banco', () => {
     expect(txs[0]).toMatchObject({ amountCents: 24500, merchant: 'OXXO', accountId: 'bbva', source: 'email' });
     expect(pushes[0]).toContain('$245');
   });
+  it('si ya lo anotaste a mano, lo marca como posible repetido', async () => {
+    await store.set('users/ana1234567', { profile: {} });
+    const today = new Date().toISOString().slice(0, 10);
+    await store.set('users/ana1234567/transactions/manual1', { id: 'manual1', kind: 'expense', amountCents: 24500, amountMxnCents: 24500, currency: 'MXN', accountId: null, categoryId: 'snacks', tags: [], description: 'oxxo', date: today, createdAt: '', updatedAt: '', source: 'whatsapp', status: 'cleared', reconciled: false, attachments: [] });
+    const raw = ['From: BBVA <notificaciones@bbva.mx>', 'To: x', 'Subject: Compra aprobada', 'Content-Type: text/plain; charset=utf-8', '', 'Se realizó una compra aprobada por $245.00 en OXXO SUC 23 con tu tarjeta terminación 1234.'].join('\r\n');
+    await handleBankEmail({ store, push: { send: async () => 1 } }, { to: addressForUid('ana1234567', 'fina.mx'), from: 'notificaciones@bbva.mx', raw });
+    const fromBank = (await store.list<Transaction>('users/ana1234567/transactions')).find((t) => t.source === 'email');
+    expect(fromBank).toMatchObject({ duplicateOf: 'manual1', status: 'review' });
+  });
 });

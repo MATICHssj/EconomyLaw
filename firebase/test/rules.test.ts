@@ -48,6 +48,17 @@ describe('datos personales', () => {
     await assertFails(setDoc(doc(ana, 'users/ana/trips/v1'), { ...trip, name: 'x'.repeat(61) }));
     await assertFails(setDoc(doc(env.authenticatedContext('beto').firestore(), 'users/ana/trips/v2'), { ...trip, id: 'v2' }));
   });
+  it('registro de errores: solo agregar, tamaño limitado y solo lo tuyo', async () => {
+    const ana = env.authenticatedContext('ana').firestore();
+    const beto = env.authenticatedContext('beto').firestore();
+    const err = { at: '2026-11-25T10:00:00Z', message: 'TypeError: x is undefined', route: '#/viajes', version: '0.1.3', build: '3', platform: 'android-apk', count: 1 };
+    await assertSucceeds(setDoc(doc(ana, 'users/ana/errors/e1'), err));
+    await assertFails(setDoc(doc(ana, 'users/ana/errors/e1'), { ...err, count: 2 }));
+    await assertFails(setDoc(doc(ana, 'users/ana/errors/e2'), { ...err, message: 'x'.repeat(301) }));
+    await assertFails(setDoc(doc(ana, 'users/ana/errors/e3'), { ...err, montos: [1, 2] }));
+    await assertFails(setDoc(doc(beto, 'users/ana/errors/e4'), err));
+    await assertFails(getDoc(doc(beto, 'users/ana/errors/e1')));
+  });
   it('perfil: solo profile y settings', async () => {
     const ana = env.authenticatedContext('ana').firestore();
     await assertSucceeds(setDoc(doc(ana, 'users/ana'), { profile: { name: 'Ana', level: 'basic' } }));

@@ -1,5 +1,40 @@
 import { toCsv, COLLECTIONS, type Transaction } from '@fina/core';
 import { useData } from '@/stores/data';
+import { isCapacitor } from './pwa';
+
+/**
+ * Guarda un archivo. En el navegador se descarga; en el APK (donde las
+ * descargas normales no funcionan) se guarda y se abre "Compartir" para
+ * mandarlo a Drive, WhatsApp, Archivos o correo.
+ */
+export async function saveFile(blob: Blob, filename: string): Promise<void> {
+  if (isCapacitor()) {
+    const [{ Filesystem, Directory }, { Share }] = await Promise.all([
+      import('@capacitor/filesystem'),
+      import('@capacitor/share'),
+    ]);
+    const data = await blobToBase64(blob);
+    const { uri } = await Filesystem.writeFile({
+      path: filename,
+      data,
+      directory: Directory.Cache,
+    });
+    await Share.share({ title: filename, url: uri, dialogTitle: 'Guardar o enviar' }).catch(
+      () => {},
+    );
+    return;
+  }
+  downloadBlob(blob, filename);
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(',')[1] ?? '');
+    r.onerror = () => reject(r.error ?? new Error('No se pudo leer el archivo'));
+    r.readAsDataURL(blob);
+  });
+}
 
 export function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -53,10 +88,10 @@ function txRows(txs: Transaction[]) {
   return { header, rows };
 }
 
-export function exportTransactionsCsv(txs: Transaction[]) {
+export async function exportTransactionsCsv(txs: Transaction[]) {
   const { header, rows } = txRows([...txs].sort((a, b) => a.date.localeCompare(b.date)));
   // BOM para que Excel abra bien los acentos.
-  downloadBlob(
+  await saveFile(
     new Blob(['﻿' + toCsv([header, ...rows])], { type: 'text/csv;charset=utf-8' }),
     `fina-movimientos-${new Date().toISOString().slice(0, 10)}.csv`,
   );
@@ -76,11 +111,11 @@ export async function exportTransactionsXlsx(txs: Transaction[]) {
     ),
   ];
   const blob = (await writeXlsxFile(data as never, { buffer: false } as never)) as unknown as Blob;
-  downloadBlob(blob, `fina-movimientos-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  await saveFile(blob, `fina-movimientos-${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
 /** Respaldo completo: todos tus datos en JSON (para llevártelos a donde quieras). */
-export function exportAllJson() {
+export async function exportAllJson() {
   const s = useData.getState();
   const data: Record<string, unknown> = {
     exportedAt: new Date().toISOString(),
@@ -89,8 +124,43 @@ export function exportAllJson() {
     settings: s.settings,
   };
   for (const col of COLLECTIONS) data[col] = s.data[col].map(({ space: _s, ...rest }) => rest);
-  downloadBlob(
+  await saveFile(
     new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }),
     `fina-respaldo-${new Date().toISOString().slice(0, 10)}.json`,
   );
+  markBackupDone();
+}
+
+// ——————————————————— Recordatorio de respaldo ———————————————————
+
+const LAST_BACKUP = 'fina:last-backup';
+const SNOOZE = 'fina:backup-snooze';
+const DAY = 86_400_000;
+
+export function markBackupDone() {
+  try {
+    localStorage.setItem(LAST_BACKUP, String(Date.now()));
+  } catch {
+    /* sin almacenamiento */
+  }
+}
+
+/** Sin cuenta, los datos solo viven en el teléfono: pedir un respaldo cada 30 días. */
+export function backupDue(txCount: number, local: boolean, now = Date.now()): boolean {
+  if (!local || txCount < 20) return false;
+  try {
+    const last = Number(localStorage.getItem(LAST_BACKUP) ?? 0);
+    const snooze = Number(localStorage.getItem(SNOOZE) ?? 0);
+    return now - last > 30 * DAY && now > snooze;
+  } catch {
+    return false;
+  }
+}
+
+export function snoozeBackup(days = 14) {
+  try {
+    localStorage.setItem(SNOOZE, String(Date.now() + days * DAY));
+  } catch {
+    /* sin almacenamiento */
+  }
 }

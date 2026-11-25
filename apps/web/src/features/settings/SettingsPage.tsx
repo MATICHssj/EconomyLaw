@@ -34,6 +34,8 @@ import {
   cx,
 } from '@/components/ui';
 import { BankNotificationsCard } from './BankNotificationsCard';
+import { RestoreBackup } from './RestoreBackup';
+import { DiagnosticsRow } from './DiagnosticsRow';
 
 export default function SettingsPage() {
   const profile = useData((s) => s.profile);
@@ -394,16 +396,17 @@ export default function SettingsPage() {
       <Card className="space-y-2">
         <CardTitle>Tus datos</CardTitle>
         <div className="grid grid-cols-3 gap-2">
-          <Button variant="secondary" size="sm" onClick={() => exportTransactionsCsv(txs)}>
+          <Button variant="secondary" size="sm" onClick={() => void exportTransactionsCsv(txs)}>
             <Download className="h-4 w-4" /> CSV
           </Button>
           <Button variant="secondary" size="sm" onClick={() => void exportTransactionsXlsx(txs)}>
             <Download className="h-4 w-4" /> Excel
           </Button>
-          <Button variant="secondary" size="sm" onClick={exportAllJson}>
+          <Button variant="secondary" size="sm" onClick={() => void exportAllJson()}>
             <Download className="h-4 w-4" /> Todo (JSON)
           </Button>
         </div>
+        <RestoreBackup />
         {hasDemoData() ? (
           <Button variant="secondary" onClick={() => void clearDemoData()}>
             <Eraser className="h-4 w-4" /> Borrar datos de ejemplo
@@ -428,6 +431,7 @@ export default function SettingsPage() {
         <p>
           Fina v{config.version} · {config.buildDate}
         </p>
+        <DiagnosticsRow />
         {isCapacitor() && config.build && (
           <button
             type="button"

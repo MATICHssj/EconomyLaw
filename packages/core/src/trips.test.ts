@@ -3,7 +3,9 @@ import {
   advanceRecurring,
   cardExpiryAlerts,
   cardPayoff,
+  findManualDuplicate,
   overdueRecurring,
+  pendingDuplicates,
   tripBucketFor,
   tripCandidates,
   tripDays,
@@ -213,5 +215,26 @@ describe('recordatorios y tarjetas', () => {
     const alerts = cardExpiryAlerts([acc('a', '2026-02'), acc('b', '2027-01'), acc('c')], '2026-01-10');
     expect(alerts.map((a) => a.accountId)).toEqual(['a']);
     expect(alerts[0]!.daysLeft).toBe(49);
+  });
+});
+
+describe('duplicados banco vs. captura a mano', () => {
+  it('encuentra el gasto anotado a mano con el mismo monto y ±1 día', () => {
+    const manual = tx({ amountCents: 3000, date: '2026-03-10', description: 'galleta', source: 'app' });
+    const other = tx({ amountCents: 3000, date: '2026-03-14', description: 'galleta', source: 'app' });
+    const fromBank = tx({ amountCents: 3000, date: '2026-03-10', description: 'OXXO', source: 'notification' });
+    expect(findManualDuplicate({ kind: 'expense', amountMxnCents: 3000, date: '2026-03-11' }, [other, manual, fromBank])?.id).toBe(manual.id);
+    // Otro monto o 2 días de diferencia: no es el mismo.
+    expect(findManualDuplicate({ kind: 'expense', amountMxnCents: 4500, date: '2026-03-10' }, [manual])).toBeNull();
+    expect(findManualDuplicate({ kind: 'expense', amountMxnCents: 3000, date: '2026-03-12' }, [manual])).toBeNull();
+    // Lo que llegó del banco no cuenta como "anotado a mano".
+    expect(findManualDuplicate({ kind: 'expense', amountMxnCents: 3000, date: '2026-03-10' }, [fromBank])).toBeNull();
+  });
+
+  it('no empareja dos veces el mismo gasto y lista los pendientes', () => {
+    const manual = tx({ amountCents: 3000, date: '2026-03-10', source: 'whatsapp' });
+    const bank = tx({ amountCents: 3000, date: '2026-03-10', source: 'notification', duplicateOf: manual.id });
+    expect(findManualDuplicate({ kind: 'expense', amountMxnCents: 3000, date: '2026-03-10' }, [manual, bank])).toBeNull();
+    expect(pendingDuplicates([manual, bank])).toEqual([{ bank, manual }]);
   });
 });

@@ -35,6 +35,8 @@ import { TransactionRow } from '@/features/transactions/TransactionRow';
 import { SpaceSwitcher } from '@/features/household/SpaceSwitcher';
 import { useMissions } from '@/features/academy/missions';
 import { CoupleCard } from '@/features/household/CoupleCard';
+import { BackupReminder } from '@/components/BackupReminder';
+import { DuplicatesCard } from '@/components/DuplicatesCard';
 import { useInsights } from './insights';
 import { useEffect } from 'react';
 import { scheduleLocalReminders } from '@/lib/notifications';
@@ -265,6 +267,8 @@ export function HomePage() {
         </Card>
       )}
 
+      <DuplicatesCard />
+      <BackupReminder />
       <TripHomeCard />
 
       {(f.overdue.length > 0 || (organized && f.upcoming.length > 0)) && (

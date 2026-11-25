@@ -1,6 +1,13 @@
 import { registerPlugin, type PluginListenerHandle } from '@capacitor/core';
 import { parseBankNotice } from '@fina/bank-profiles';
-import { convertToMxn, newId, todayISO, tripForNewExpense, type Transaction } from '@fina/core';
+import {
+  convertToMxn,
+  findManualDuplicate,
+  newId,
+  todayISO,
+  tripForNewExpense,
+  type Transaction,
+} from '@fina/core';
 import { applyChanges, defaultAccountId } from './actions';
 import { isCapacitor } from './pwa';
 import { getDocs } from '@/stores/data';
@@ -61,6 +68,9 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
   const accounts = getDocs('accounts');
   const stamp = new Date().toISOString();
   const changes = [];
+  let possibleDuplicates = 0;
+  // Lo ya guardado + lo de este lote (para no emparejar dos avisos con el mismo gasto).
+  const known: Transaction[] = [...getDocs('transactions')];
   for (const it of items) {
     const app = BANK_APPS.find((b) => b.package === it.package);
     const notice = parseBankNotice({
@@ -73,8 +83,7 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
       (notice.last4
         ? accounts.find(
             (a) =>
-              !a.archived &&
-              (a.card?.last4 === notice.last4 || a.aliases.includes(notice.last4!)),
+              !a.archived && (a.card?.last4 === notice.last4 || a.aliases.includes(notice.last4!)),
           )
         : undefined) ??
       accounts.find((a) => !a.archived && a.institution === (app?.institution ?? notice.bankId));
@@ -103,7 +112,15 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
     };
     const trip = notice.kind === 'expense' ? tripForNewExpense(getDocs('trips'), tx) : null;
     if (trip) tx.tripId = trip.id;
-    if (getDocs('transactions').some((t) => t.dedupeHash === it.id)) continue;
+    if (known.some((t) => t.dedupeHash === it.id)) continue;
+    // ¿Ya lo habías anotado a mano? Se guarda marcado para que confirmes "¿es el mismo?".
+    const dup = findManualDuplicate(tx, known);
+    if (dup) {
+      tx.duplicateOf = dup.id;
+      tx.status = 'review';
+      possibleDuplicates++;
+    }
+    known.push(tx);
     changes.push({
       space: 'personal' as const,
       col: 'transactions' as const,
@@ -114,7 +131,10 @@ async function importItems(items: CapturedNotification[]): Promise<number> {
   if (changes.length) {
     await applyChanges(changes);
     toast(
-      `${changes.length} ${changes.length === 1 ? 'movimiento' : 'movimientos'} del banco registrados`,
+      `${changes.length} ${changes.length === 1 ? 'movimiento' : 'movimientos'} del banco registrados` +
+        (possibleDuplicates
+          ? `. ${possibleDuplicates === 1 ? 'Uno parece' : `${possibleDuplicates} parecen`} repetido: confírmalo en Inicio.`
+          : ''),
       'success',
     );
   }

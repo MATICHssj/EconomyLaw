@@ -4,6 +4,8 @@ import { BRAND, type AccentName } from '@fina/core';
 import './index.css';
 import { App } from './App';
 import { registerServiceWorker } from './lib/pwa';
+import { installErrorHandlers } from './lib/errorLog';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { applyAccent } from './lib/theme';
 
 // Aplica el acento guardado antes del primer render (sin parpadeo).
@@ -14,9 +16,13 @@ try {
   applyAccent(BRAND.defaultAccent);
 }
 
+installErrorHandlers();
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );
 

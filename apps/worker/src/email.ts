@@ -1,5 +1,5 @@
 import PostalMime from 'postal-mime';
-import { formatMoney, todayISO, tripForNewExpense, type Account, type Category, type Trip } from '@fina/core';
+import { addDays, findManualDuplicate, formatMoney, todayISO, tripForNewExpense, type Account, type Category, type Transaction, type Trip } from '@fina/core';
 import { htmlToText, parseBankNotice } from '@fina/bank-profiles';
 import { fromHex } from './lib/crypto';
 import type { Pusher } from './lib/fcm';
@@ -53,6 +53,15 @@ export async function handleBankEmail(deps: { store: Store; push: Pusher }, inpu
     source: 'email',
     rawText: `${email.subject ?? ''}\n${text}`.slice(0, 500),
   });
+  // ¿Ya lo había anotado a mano? Se guarda marcado para que confirme "¿es el mismo?".
+  const recent = await deps.store
+    .query<Transaction>(`users/${uid}/transactions`, [['date', '>=', addDays(tx.date, -1)]], 300)
+    .catch(() => [] as Transaction[]);
+  const dup = findManualDuplicate(tx, recent.filter((t) => t.date <= addDays(tx.date, 1)));
+  if (dup) {
+    tx.duplicateOf = dup.id;
+    tx.status = 'review';
+  }
   if (tx.kind === 'expense') {
     const trips = await deps.store.list<Trip>(`users/${uid}/trips`).catch(() => [] as Trip[]);
     const trip = tripForNewExpense(trips, tx);

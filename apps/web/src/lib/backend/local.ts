@@ -29,6 +29,8 @@ export class LocalBackend implements DataBackend {
   private meta: MetaDoc = {};
   private channel: BroadcastChannel | null = null;
   private loaded = new Map<CollectionName, Promise<void>>();
+  /** Cuenta escrituras por colección: si alguien escribe mientras leemos, se vuelve a leer. */
+  private versions = new Map<CollectionName, number>();
 
   constructor() {
     this.db = openDB(DB_NAME, DB_VERSION, {
@@ -50,11 +52,17 @@ export class LocalBackend implements DataBackend {
   }
 
   private async reload(col: CollectionName) {
-    const db = await this.db;
-    const all = db
-      ? ((await db.getAll(col).catch(() => [])) as AnyDoc[])
-      : [...(this.cache.get(col)?.values() ?? [])];
-    this.cache.set(col, new Map(all.map((d) => [d.id, d])));
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const version = this.versions.get(col) ?? 0;
+      const db = await this.db;
+      if (!db) break;
+      const all = (await db.getAll(col).catch(() => [])) as AnyDoc[];
+      // Una escritura durante la lectura no debe "desaparecer" de la pantalla.
+      if ((this.versions.get(col) ?? 0) !== version) continue;
+      this.cache.set(col, new Map(all.map((d) => [d.id, d])));
+      break;
+    }
+    if (!this.cache.has(col)) this.cache.set(col, new Map());
     this.emit(col);
   }
 
@@ -101,6 +109,7 @@ export class LocalBackend implements DataBackend {
       if (op.type === 'put') map.set(op.doc.id, stripUndefined(op.doc));
       else map.delete(op.id);
       touched.add(op.col);
+      this.versions.set(op.col, (this.versions.get(op.col) ?? 0) + 1);
     }
     for (const col of touched) this.emit(col);
     const db = await this.db;
@@ -112,7 +121,7 @@ export class LocalBackend implements DataBackend {
       else void store.delete(op.id);
     }
     await tx.done;
-    for (const col of touched) this.channel?.postMessage({ col });
+    for (const col of touched) this.broadcast({ col });
   }
 
   async setMeta(patch: MetaDoc): Promise<void> {
@@ -127,7 +136,7 @@ export class LocalBackend implements DataBackend {
     for (const l of this.metaListeners) l(this.meta);
     const db = await this.db;
     if (db) await db.put('meta', stripUndefined(this.meta), 'me');
-    this.channel?.postMessage({ meta: true });
+    this.broadcast({ meta: true });
   }
 
   async wipe(): Promise<void> {
@@ -142,15 +151,27 @@ export class LocalBackend implements DataBackend {
     this.meta = {};
     for (const col of COLLECTIONS) this.emit(col);
     for (const l of this.metaListeners) l(this.meta);
-    this.channel?.postMessage({ meta: true });
+    this.broadcast({ meta: true });
   }
 
   setHousehold(): void {}
 
+  /** Avisa a otras pestañas (si el canal ya se cerró, no pasa nada). */
+  private broadcast(msg: { col?: CollectionName; meta?: boolean }) {
+    try {
+      this.channel?.postMessage(msg);
+    } catch {
+      /* canal cerrado */
+    }
+  }
+
   dispose(): void {
     this.channel?.close();
+    this.channel = null;
     this.listeners.clear();
     this.metaListeners.clear();
+    // Cierra la base para no dejar conexiones abiertas al cambiar de modo o de cuenta.
+    void this.db.then((db) => db?.close()).catch(() => {});
   }
 
   /** Todos los documentos locales (para subirlos a la nube al crear cuenta). */

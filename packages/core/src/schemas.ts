@@ -180,6 +180,8 @@ export const TransactionSchema = z.object({
   investmentId: z.string().optional(),
   /** Viaje al que pertenece el gasto. */
   tripId: z.string().optional(),
+  /** Llegó del banco y parece el mismo gasto que anotaste a mano (id del tuyo). Pendiente de confirmar. */
+  duplicateOf: z.string().optional(),
   attachments: z.array(z.string()).default([]),
   dedupeHash: z.string().optional(),
   /** uid de quien lo registró (modo pareja). */

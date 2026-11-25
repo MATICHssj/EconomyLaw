@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, MessageCircle, MessageSquareHeart } from 'lucide-react';
 import { config } from '@/config';
 import { isCapacitor } from '@/lib/pwa';
+import { errorReport, getErrors } from '@/lib/errorLog';
 import { Button, Card, Chip, Sheet } from './ui';
 
 const TOPICS = ['Algo no funciona', 'Tengo una idea', 'No entendí cómo…', 'Me encantó'];
@@ -17,8 +18,15 @@ export function FeedbackCard() {
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState(TOPICS[0]!);
   const [text, setText] = useState('');
+  const [attach, setAttach] = useState(true);
   if (!config.feedbackEmail && !config.feedbackWhatsApp) return null;
-  const body = `${topic}: ${text.trim()}\n\n— ${deviceLine()}`;
+  const errors = open ? getErrors().length : 0;
+  const withErrors = attach && errors > 0 && topic === TOPICS[0];
+  const body =
+    `${topic}: ${text.trim()}\n\n— ${deviceLine()}${withErrors ? `\n\nErrores recientes:\n${errorReport(3)}` : ''}`.slice(
+      0,
+      1800,
+    );
   const send = (url: string) => {
     window.open(url, '_blank');
     setOpen(false);
@@ -89,6 +97,17 @@ export function FeedbackCard() {
             className="w-full rounded-xl border border-line bg-surface p-3 text-ink outline-none focus:border-accent-500"
             aria-label="Tu comentario"
           />
+          {errors > 0 && topic === TOPICS[0] && (
+            <label className="flex items-center gap-2 text-sm text-ink">
+              <input
+                type="checkbox"
+                checked={attach}
+                onChange={(e) => setAttach(e.target.checked)}
+                className="h-4 w-4 accent-[var(--a-600)]"
+              />
+              Adjuntar los últimos errores de la app ({errors})
+            </label>
+          )}
           <p className="text-xs text-muted">
             Se agrega la versión de la app y tu tipo de teléfono. Nunca se envían tus movimientos.
           </p>

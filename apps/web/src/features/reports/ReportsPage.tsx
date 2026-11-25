@@ -123,7 +123,7 @@ export default function ReportsPage() {
           <>
             <IconButton
               label="Exportar CSV del mes"
-              onClick={() => exportTransactionsCsv(monthTxs)}
+              onClick={() => void exportTransactionsCsv(monthTxs)}
             >
               <Download className="h-5 w-5" />
             </IconButton>

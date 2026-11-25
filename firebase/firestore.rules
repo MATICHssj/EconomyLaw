@@ -78,6 +78,19 @@ service cloud.firestore {
       // Borrar la cuenta lo hace el Worker en cascada; el cliente puede borrar su perfil.
       allow delete: if isOwner(uid);
 
+      // Registro de errores de la app: solo se agrega (nunca se edita), con tamaño limitado.
+      match /errors/{errId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid)
+          && errId.size() <= 40
+          && request.resource.data.keys().hasOnly(['at', 'message', 'stack', 'route', 'version', 'build', 'platform', 'count'])
+          && smallString(request.resource.data.message, 300)
+          && smallString(request.resource.data.route, 100)
+          && (!('stack' in request.resource.data) || smallString(request.resource.data.stack, 1200))
+          && request.resource.data.count is int;
+        allow update: if false;
+      }
+
       match /devices/{token} {
         allow read, write: if isOwner(uid) && token.size() < 300;
       }

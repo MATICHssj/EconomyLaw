@@ -116,8 +116,10 @@ export function TransactionsPage() {
     ? CATEGORY_FAMILIES[categoryId.slice(4)]?.label
     : categories.find((c) => c.id === categoryId)?.name;
   const periodLabel =
-    periods.find((p) => p.from === from && p.to === to)?.label.toLowerCase() ??
-    (from || to ? `del ${from || '…'} al ${to || '…'}` : 'en total');
+    !from && !to
+      ? 'en total'
+      : (periods.find((p) => p.from === from && p.to === to)?.label.toLowerCase() ??
+        `del ${from || '…'} al ${to || '…'}`);
 
   return (
     <div>
@@ -125,7 +127,7 @@ export function TransactionsPage() {
         title="Movimientos"
         actions={
           <>
-            <IconButton label="Exportar a CSV" onClick={() => exportTransactionsCsv(filtered)}>
+            <IconButton label="Exportar a CSV" onClick={() => void exportTransactionsCsv(filtered)}>
               <Download className="h-5 w-5" />
             </IconButton>
           </>

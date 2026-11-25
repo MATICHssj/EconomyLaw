@@ -651,6 +651,58 @@ export async function deleteTransaction(id: string): Promise<void> {
   await commitWithUndo(changes, 'Movimiento borrado');
 }
 
+// ——————————————————— Duplicados banco vs. captura a mano ———————————————————
+
+/**
+ * "¿Es el mismo gasto?": si sí, se queda el que anotaste (con la cuenta y el
+ * comercio que dio el banco) y se borra el del banco; si no, se quedan los dos.
+ */
+export async function resolveDuplicate(bankTxId: string, same: boolean): Promise<void> {
+  const bank = find('transactions', bankTxId);
+  if (!bank) return;
+  const manual = bank.duplicateOf ? find('transactions', bank.duplicateOf) : undefined;
+  const bankClean = clean(bank);
+  if (!same || !manual) {
+    const { duplicateOf: _d, ...rest } = bankClean;
+    await commitWithUndo(
+      [
+        {
+          space: bank.space,
+          col: 'transactions',
+          before: bankClean,
+          after: {
+            ...rest,
+            status: rest.categoryId === 'review' ? 'review' : 'cleared',
+            updatedAt: now(),
+          },
+        },
+      ],
+      'Listo: se quedan los dos',
+    );
+    return;
+  }
+  const manualClean = clean(manual);
+  await commitWithUndo(
+    [
+      { space: bank.space, col: 'transactions', before: bankClean, after: null },
+      {
+        space: manual.space,
+        col: 'transactions',
+        before: manualClean,
+        after: {
+          ...manualClean,
+          // El banco sabe con qué tarjeta pagaste y el nombre del comercio.
+          accountId: bank.accountId ?? manual.accountId,
+          merchant: manual.merchant ?? bank.merchant,
+          dedupeHash: manual.dedupeHash ?? bank.dedupeHash,
+          updatedAt: now(),
+        },
+      },
+    ],
+    'Listo: era el mismo gasto',
+  );
+}
+
 // ——————————————————— CRUD genérico ———————————————————
 
 export async function saveDoc<K extends CollectionName>(
