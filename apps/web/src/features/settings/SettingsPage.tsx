@@ -25,7 +25,8 @@ export default function SettingsPage() {
   const [pin, setPinValue] = useState('');
   const [push, setPush] = useState(pushStatus());
   const level: Level = profile?.level ?? 'basic';
-  const emailAddress = config.emailDomain && session.user ? `u-${session.user.uid.slice(0, 10).toLowerCase()}@${config.emailDomain}` : null;
+  // Dirección única: u + uid en hexadecimal (el Worker la decodifica).
+  const emailAddress = config.emailDomain && session.user && session.mode === 'firebase' ? `u${Array.from(new TextEncoder().encode(session.user.uid), (b) => b.toString(16).padStart(2, '0')).join('')}@${config.emailDomain}` : null;
 
   async function deleteEverything() {
     if (!(await confirmDialog('¿Borrar TODOS tus datos?', { text: 'Se borran tus movimientos, cuentas, metas y tu perfil. No se puede deshacer. Te recomendamos exportar antes.', danger: true, ok: 'Sí, borrar todo' }))) return;

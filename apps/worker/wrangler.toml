@@ -1,0 +1,28 @@
+# Cloudflare Worker de Fina. Plan gratuito (sin tarjeta).
+name = "fina-api"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Diario a las 15:00 UTC = 9:00 a. m. en CDMX
+[triggers]
+crons = ["0 15 * * *"]
+
+[vars]
+FIREBASE_PROJECT_ID = "REEMPLAZAR-con-tu-proyecto"
+ALLOWED_ORIGINS = "https://REEMPLAZAR.web.app,https://REEMPLAZAR.firebaseapp.com,https://matichssj.github.io,http://localhost:5173,capacitor://localhost,https://localhost"
+APP_URL = "https://REEMPLAZAR.web.app"
+WHATSAPP_API_VERSION = "v21.0"
+
+# Crea el namespace con:  npx wrangler kv namespace create fina
+[[kv_namespaces]]
+binding = "KV"
+id = "REEMPLAZAR-con-el-id-del-namespace"
+
+# IA gratuita (cuota diaria): voz, tickets y categorías ambiguas
+[ai]
+binding = "AI"
+
+# Secretos (NO van aquí): npx wrangler secret put NOMBRE
+#   FIREBASE_SERVICE_ACCOUNT, WHATSAPP_TOKEN, WHATSAPP_APP_SECRET,
+#   WHATSAPP_VERIFY_TOKEN, WHATSAPP_PHONE_NUMBER_ID, PHONE_HASH_SALT

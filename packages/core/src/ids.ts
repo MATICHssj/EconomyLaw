@@ -3,7 +3,7 @@ const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
 /** Id aleatorio de 20 caracteres (mismo formato que los ids automáticos de Firestore). */
 export function newId(length = 20): string {
   const bytes = new Uint8Array(length);
-  globalThis.crypto.getRandomValues(bytes);
+  crypto.getRandomValues(bytes);
   let id = '';
   for (const b of bytes) id += ALPHABET[b % ALPHABET.length];
   return id;
@@ -12,7 +12,7 @@ export function newId(length = 20): string {
 /** Código numérico (p. ej. vinculación de WhatsApp). */
 export function numericCode(digits = 6): string {
   const bytes = new Uint32Array(digits);
-  globalThis.crypto.getRandomValues(bytes);
+  crypto.getRandomValues(bytes);
   return Array.from(bytes, (b) => String(b % 10)).join('');
 }
 
@@ -20,7 +20,7 @@ export function numericCode(digits = 6): string {
 export function inviteCode(length = 6): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const bytes = new Uint8Array(length);
-  globalThis.crypto.getRandomValues(bytes);
+  crypto.getRandomValues(bytes);
   return Array.from(bytes, (b) => chars[b % chars.length]).join('');
 }
 
@@ -52,6 +52,6 @@ export function normalizeText(text: string): string {
 /** SHA-256 en hex (WebCrypto; funciona en navegador, Worker y Node 20+). */
 export async function sha256Hex(text: string): Promise<string> {
   const data = new TextEncoder().encode(text);
-  const digest = await globalThis.crypto.subtle.digest('SHA-256', data);
+  const digest = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
 }
