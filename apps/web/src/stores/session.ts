@@ -9,6 +9,8 @@ export interface SessionUser {
   name: string;
   email: string;
   photoURL: string | null;
+  /** Google siempre está verificado; correo/contraseña requiere confirmar el correo. */
+  emailVerified: boolean;
 }
 
 interface SessionState {
@@ -18,6 +20,7 @@ interface SessionState {
   init(): void;
   startLocal(): void;
   signOut(): Promise<void>;
+  refreshUser(): Promise<void>;
 }
 
 const MODE_KEY = 'fina:mode';
@@ -61,7 +64,7 @@ export const useSession = create<SessionState>((set, get) => ({
           set({
             status: 'ready',
             mode: 'firebase',
-            user: { uid: user.uid, name: user.displayName ?? '', email: user.email ?? '', photoURL: user.photoURL },
+            user: { uid: user.uid, name: user.displayName ?? '', email: user.email ?? '', photoURL: user.photoURL, emailVerified: user.emailVerified },
           });
           useData.getState().attach(
             new FirebaseBackend(user.uid, (e) => {
@@ -82,8 +85,17 @@ export const useSession = create<SessionState>((set, get) => ({
 
   startLocal() {
     writeMode('local');
-    set({ status: 'ready', mode: 'local', user: { uid: 'local', name: '', email: '', photoURL: null } });
+    set({ status: 'ready', mode: 'local', user: { uid: 'local', name: '', email: '', photoURL: null, emailVerified: false } });
     useData.getState().attach(new LocalBackend());
+  },
+
+  async refreshUser() {
+    if (get().mode !== 'firebase') return;
+    const fb = await import('@/lib/firebase');
+    const u = fb.firebase().auth.currentUser;
+    if (!u) return;
+    await u.reload();
+    set({ user: { uid: u.uid, name: u.displayName ?? '', email: u.email ?? '', photoURL: u.photoURL, emailVerified: u.emailVerified } });
   },
 
   async signOut() {

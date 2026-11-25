@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BRAND } from '@fina/core';
 import { useSession } from '@/stores/session';
 import { Button, Input, Segmented } from '@/components/ui';
@@ -14,6 +14,11 @@ export function AuthScreen() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const startLocal = useSession((s) => s.startLocal);
+  const [strength, setStrength] = useState<{ score: number; ok: boolean; message: string } | null>(null);
+  useEffect(() => {
+    if (mode !== 'signup' || !password) return setStrength(null);
+    void import('@/lib/firebase').then((fb) => setStrength(fb.passwordStrength(password)));
+  }, [password, mode]);
 
   async function run(fn: () => Promise<void>) {
     setBusy(true);
@@ -70,10 +75,20 @@ export function AuthScreen() {
           >
             {mode === 'signup' && <Input label="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" />}
             <Input label="Correo" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
-            <Input label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} minLength={6} required />
+            <Input label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} minLength={mode === 'signup' ? 8 : 6} required />
+            {strength && (
+              <div aria-live="polite">
+                <div className="flex gap-1" aria-hidden>
+                  {[0, 1, 2, 3].map((i) => (
+                    <span key={i} className={`h-1.5 flex-1 rounded-full ${i < strength.score ? (strength.score >= 3 ? 'bg-emerald-500' : strength.score === 2 ? 'bg-amber-500' : 'bg-rose-500') : 'bg-line'}`} />
+                  ))}
+                </div>
+                <p className={`mt-1 text-xs ${strength.ok ? 'text-muted' : 'text-rose-600'}`}>{strength.message}</p>
+              </div>
+            )}
             {error && <p className="text-sm text-rose-600">{error}</p>}
             {info && <p className="text-sm text-income">{info}</p>}
-            <Button type="submit" block size="lg" disabled={busy}>
+            <Button type="submit" block size="lg" disabled={busy || (mode === 'signup' && !!strength && !strength.ok)}>
               {mode === 'login' ? 'Entrar' : 'Crear mi cuenta gratis'}
             </Button>
             {mode === 'login' && (

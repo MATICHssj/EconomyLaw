@@ -12,14 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="Fina" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-    <script>
-      try {
-        var s = JSON.parse(localStorage.getItem('fina:boot') || '{}');
-        var dark = s.theme === 'dark' || (s.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
-        if (dark) document.documentElement.classList.add('dark');
-        if (s.fontScale) document.documentElement.dataset.font = s.fontScale;
-      } catch (e) {}
-    </script>
+    <script src="boot.js"></script>
   </head>
   <body>
     <div id="root"></div>

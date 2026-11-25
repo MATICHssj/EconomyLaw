@@ -15,6 +15,7 @@ async function fs() {
 function me() {
   const u = useSession.getState().user;
   if (!u || useSession.getState().mode !== 'firebase') throw new Error('Necesitas iniciar sesión con tu cuenta para usar el modo pareja.');
+  if (!u.emailVerified) throw new Error('Por seguridad, primero verifica tu correo (revisa tu bandeja de entrada).');
   const name = useData.getState().profile?.name || u.name || 'Yo';
   return { uid: u.uid, name };
 }
@@ -42,7 +43,7 @@ export async function createInvite(hid: string): Promise<string> {
   const { uid } = me();
   const { doc, setDoc, db } = await fs();
   const code = inviteCode(6);
-  await setDoc(doc(db, 'householdInvites', code), { hid, createdBy: uid, expiresAt: new Date(Date.now() + 7 * 86_400_000).toISOString() });
+  await setDoc(doc(db, 'householdInvites', code), { hid, createdBy: uid, expiresAtMs: Date.now() + 7 * 86_400_000 });
   return code;
 }
 
@@ -52,8 +53,8 @@ export async function joinHousehold(rawCode: string, myIncomeCents?: number): Pr
   const { doc, getDoc, updateDoc, arrayUnion, db } = await fs();
   const inv = await getDoc(doc(db, 'householdInvites', code));
   if (!inv.exists()) throw new Error('Ese código no existe. Revísalo con tu pareja.');
-  const { hid, expiresAt } = inv.data() as { hid: string; expiresAt: string };
-  if (expiresAt < new Date().toISOString()) throw new Error('El código ya venció. Pide uno nuevo.');
+  const { hid, expiresAtMs } = inv.data() as { hid: string; expiresAtMs: number };
+  if (expiresAtMs < Date.now()) throw new Error('El código ya venció. Pide uno nuevo.');
   await updateDoc(doc(db, 'households', hid), {
     members: arrayUnion(uid),
     [`memberNames.${uid}`]: name,
@@ -84,7 +85,7 @@ export async function createWhatsAppLinkCode(): Promise<string> {
   for (let i = 0; i < 3; i++) {
     const code = numericCode(6);
     try {
-      await setDoc(doc(db, 'linkCodes', code), { uid, expiresAt: new Date(Date.now() + 10 * 60_000).toISOString() });
+      await setDoc(doc(db, 'linkCodes', code), { uid, expiresAtMs: Date.now() + 10 * 60_000 });
       return code;
     } catch {
       /* colisión: intenta otro */

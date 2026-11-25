@@ -1,0 +1,17 @@
+{
+  "name": "@fina/firebase",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reglas de seguridad de Firestore y sus pruebas",
+  "scripts": {
+    "test:rules": "firebase emulators:exec --only firestore --project demo-fina \"vitest run\"",
+    "deploy:rules": "firebase deploy --only firestore"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^12.19.0",
+    "firebase-tools": "^15.37.0",
+    "vitest": "^3.2.7"
+  }
+}

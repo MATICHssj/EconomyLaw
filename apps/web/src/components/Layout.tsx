@@ -7,6 +7,7 @@ import { useUI } from '@/stores/ui';
 import { cx } from './ui';
 import { Logo } from './Logo';
 import { QuickCaptureBar } from '@/features/capture/QuickCaptureBar';
+import { VerifyEmailBanner } from './VerifyEmailBanner';
 
 interface NavItem {
   to: string;
@@ -76,6 +77,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         )}
         <main id="main" className="mx-auto w-full max-w-3xl px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:max-w-5xl lg:px-8 lg:pt-6 lg:pb-10">
+          <VerifyEmailBanner />
           {showDesktopCapture && (
             <div className="mb-4 hidden lg:block">
               <QuickCaptureBar />
